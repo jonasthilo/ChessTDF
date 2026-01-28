@@ -54,8 +54,9 @@ export class GameEngine {
 
     // Track mouse movement for preview
     this.app.stage.on('pointermove', (event: FederatedPointerEvent) => {
-      const { x, y } = event.global;
-      const grid = this.gridManager.pixelToGrid(x, y);
+      // Convert canvas coordinates to game space coordinates
+      const gamePos = this.renderer.canvasToGameSpace(event.global.x, event.global.y);
+      const grid = this.gridManager.pixelToGrid(gamePos.x, gamePos.y);
       this.mouseGridX = grid.gridX;
       this.mouseGridY = grid.gridY;
       this.mouseInCanvas = true;
@@ -68,8 +69,9 @@ export class GameEngine {
 
     // Handle clicks for tower placement
     this.app.stage.on('pointerdown', (event: FederatedPointerEvent) => {
-      const { x, y } = event.global;
-      const grid = this.gridManager.pixelToGrid(x, y);
+      // Convert canvas coordinates to game space coordinates
+      const gamePos = this.renderer.canvasToGameSpace(event.global.x, event.global.y);
+      const grid = this.gridManager.pixelToGrid(gamePos.x, gamePos.y);
       this.handleGridClick(grid.gridX, grid.gridY);
     });
   }

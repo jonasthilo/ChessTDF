@@ -5,7 +5,7 @@
   background: var(--color-bg-secondary);
   padding: var(--spacing-md);
   border-radius: var(--border-radius-large);
-  width: 200px;
+  width: 180px;
   color: var(--text-white);
   box-shadow: var(--shadow-default);
 }

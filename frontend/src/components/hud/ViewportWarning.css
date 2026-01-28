@@ -1,0 +1,33 @@
+@import '../../styles/variables.css';
+
+.viewport-warning {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(255, 152, 0, 0.15);
+  border: 1px solid #ff9800;
+  border-radius: var(--border-radius-small);
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  color: #ff9800;
+  animation: pulse 2s infinite;
+}
+
+.warning-icon {
+  font-size: 0.9rem;
+}
+
+.warning-text {
+  white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+  .viewport-warning {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  .warning-icon {
+    font-size: 0.8rem;
+  }
+}

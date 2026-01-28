@@ -29,7 +29,15 @@ TS strict: strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes, noPrope
 - Frontend/Backend auto-reload on code changes (no restart needed)
 - Only restart containers for: database schema changes, dependency installs, or when debugging issues
 - Test modified components: MCP Playwright for frontend, call API endpoints for backend
-- Update this file after relevant changes  
+- Update this file after relevant changes
+
+### Git Workflow
+- **ALWAYS** checkout a feature branch before making changes (e.g., `git checkout -b feature/coordinate-system-refactor`)
+- Branch naming: `feature/description`, `fix/description`, `refactor/description`
+- Commit after completing each logical task or feature
+- Write clear commit messages describing what and why (not how)
+- **IMPORTANT**: Remind to merge feature branch back to main when task is complete
+- Delete feature branch after successful merge  
 
 ---
 
@@ -71,9 +79,19 @@ Statistics: summary, recent, top scores
 ---
 
 ## Game Systems
-Entities: Tower, Enemy, Projectile (data only)  
-Systems: EnemySystem, TowerSystem, ProjectileSystem, CollisionSystem  
-Loop: 60 FPS → systems update → PixiJS renders  
+Entities: Tower, Enemy, Projectile (data only)
+Systems: EnemySystem, TowerSystem, ProjectileSystem, CollisionSystem
+Loop: 60 FPS → systems update → PixiJS renders
+
+---
+
+## Rendering Architecture (PixiJS Container Hierarchy)
+**Structure**: Stage → gameContainer → layers (grid, tower, enemy, projectile, ui)
+**Coordinate Spaces**: Canvas (viewport) → Game (relative to gameContainer) → Grid (logical cells)
+**Key Principle**: Offsets applied ONCE to gameContainer position, all children inherit automatically
+**Transformations**: Canvas→Game via `gameContainer.toLocal()`, Game→Grid via `GridManager`
+**Benefits**: Future-proof for zoom/pan, clean coordinate handling, PixiJS best practice
+See `frontend/COORDINATE_SYSTEM.md` for complete documentation
 
 ---
 
@@ -158,12 +176,15 @@ Status: Integer ID migration complete, fully functional
 - `types/index.ts` - Type definitions (Tower, TowerLevel, TowerStats, etc.)
 - `services/gameApi.ts` - Backend API client
 - `state/gameStore.ts` - Zustand state management (single source of truth)
-- `game/GameEngine.ts` - 60 FPS game loop
+- `game/GameEngine.ts` - 60 FPS game loop + input handling
+- `game/rendering/PixiRenderer.ts` - PixiJS rendering with Container hierarchy
+- `game/managers/GridManager.ts` - Grid-to-pixel coordinate transformations
 - `game/systems/TowerSystem.ts` - Tower combat logic
 - `game/rendering/SpriteFactory.ts` - PixiJS sprite creation
 - `components/hud/TowerModal.tsx` - Tower upgrade UI
 - `components/hud/TowerPanel.tsx` - Tower selection UI
 - `components/screens/SettingsScreen.tsx` - Settings + Tower Levels editor
+- `COORDINATE_SYSTEM.md` - Coordinate system architecture documentation
 
 ---
 

@@ -1,4 +1,4 @@
-import { Application, Container, Graphics } from 'pixi.js';
+import { Application, Container, Graphics, Point } from 'pixi.js';
 import type { Tower, Enemy, Projectile, TowerDefinition } from '../../types';
 import { SpriteFactory } from './SpriteFactory';
 import { HealthBarRenderer } from './HealthBarRenderer';
@@ -10,7 +10,10 @@ export class PixiRenderer {
   private spriteFactory: SpriteFactory;
   private healthBarRenderer: HealthBarRenderer;
 
-  // Layers
+  // Main game container (positioned at offset, all game entities are children)
+  private gameContainer: Container;
+
+  // Layers (children of gameContainer)
   private gridLayer: Container;
   private towerLayer: Container;
   private enemyLayer: Container;
@@ -31,25 +34,48 @@ export class PixiRenderer {
     this.spriteFactory = new SpriteFactory();
     this.healthBarRenderer = new HealthBarRenderer();
 
-    // Initialize layers
+    // Create main game container
+    this.gameContainer = new Container();
+    this.app.stage.addChild(this.gameContainer);
+
+    // Initialize layers (all children of gameContainer, not stage)
     this.gridLayer = new Container();
     this.towerLayer = new Container();
     this.enemyLayer = new Container();
     this.projectileLayer = new Container();
     this.uiLayer = new Container();
 
-    // Add to stage in z-order
-    this.app.stage.addChild(
+    // Add layers to gameContainer in z-order
+    this.gameContainer.addChild(
       this.gridLayer,
       this.towerLayer,
       this.enemyLayer,
       this.projectileLayer,
       this.uiLayer
     );
+
+    // Position gameContainer at offset (this is the ONLY place offsets are applied)
+    this.updateCanvasDimensions();
   }
 
   initialize(): void {
     this.renderGrid();
+  }
+
+  updateCanvasDimensions(): void {
+    // Update gameContainer position to reflect current canvas offsets
+    // This is the ONLY place where offsets are applied to positioning
+    this.gameContainer.position.set(
+      CanvasState.offsetX,
+      CanvasState.offsetY
+    );
+  }
+
+  canvasToGameSpace(canvasX: number, canvasY: number): { x: number; y: number } {
+    // Convert canvas coordinates to game space coordinates using PixiJS Container.toLocal()
+    // This automatically handles the gameContainer offset transformation
+    const point = this.gameContainer.toLocal(new Point(canvasX, canvasY));
+    return { x: point.x, y: point.y };
   }
 
   updateGrid(): void {
@@ -57,6 +83,8 @@ export class PixiRenderer {
     this.gridLayer.removeChildren();
     // Re-render grid with current canvas dimensions
     this.renderGrid();
+    // Update gameContainer position for new canvas size
+    this.updateCanvasDimensions();
   }
 
   destroy(): void {
@@ -81,10 +109,13 @@ export class PixiRenderer {
   renderGrid(): void {
     const { GRID_COLS, GRID_ROWS, RESTRICTED_ROWS } = GAME_CONFIG;
     const gridSize = CanvasState.gridSize;
+    const gridWidth = GRID_COLS * gridSize;
+    const gridHeight = GRID_ROWS * gridSize;
 
-    // Draw board background
+    // Draw board background (full canvas, added to gridLayer which is child of gameContainer)
     const background = new Graphics();
-    background.rect(0, 0, CanvasState.width, CanvasState.height);
+    // Background needs to cover area before gameContainer offset
+    background.rect(-CanvasState.offsetX, -CanvasState.offsetY, CanvasState.width, CanvasState.height);
     background.fill({ color: 0x1a1a2e, alpha: 1.0 });
 
     // Draw chessboard pattern with different colors for tower areas vs enemy path
@@ -112,6 +143,7 @@ export class PixiRenderer {
           color = isLight ? towerLightSquare : towerDarkSquare;
         }
 
+        // NO OFFSET - positions relative to gameContainer
         const x = col * gridSize;
         const y = row * gridSize;
 
@@ -126,35 +158,35 @@ export class PixiRenderer {
       }
     }
 
-    // Draw decorative board border
+    // Draw decorative board border around the grid
     const boardBorder = new Graphics();
-    boardBorder.rect(0, 0, CanvasState.width, CanvasState.height);
+    boardBorder.rect(0, 0, gridWidth, gridHeight);  // NO OFFSET
     boardBorder.stroke({ width: 4, color: 0x1e293b, alpha: 0.8 });
 
     // Inner highlight for depth effect
     const innerBorder = new Graphics();
-    innerBorder.rect(2, 2, CanvasState.width - 4, CanvasState.height - 4);
+    innerBorder.rect(2, 2, gridWidth - 4, gridHeight - 4);  // NO OFFSET
     innerBorder.stroke({ width: 1, color: 0x64748b, alpha: 0.4 });
 
     // Highlight restricted zone (enemy path) with subtle directional indicators
     const restrictedGraphics = new Graphics();
     const restrictedRow = GAME_CONFIG.RESTRICTED_ROWS[0];
     if (restrictedRow !== undefined) {
-      const pathY = restrictedRow * gridSize;
+      const pathY = restrictedRow * gridSize;  // NO OFFSET
       const pathHeight = 2 * gridSize;
 
       // Dashed border lines at top and bottom of path
       const dashLength = 15;
       const gapLength = 10;
 
-      for (let x = 0; x < CanvasState.width; x += dashLength + gapLength) {
-        // Top border
+      for (let x = 0; x < gridWidth; x += dashLength + gapLength) {
+        // Top border - NO OFFSET
         restrictedGraphics.moveTo(x, pathY);
-        restrictedGraphics.lineTo(Math.min(x + dashLength, CanvasState.width), pathY);
+        restrictedGraphics.lineTo(Math.min(x + dashLength, gridWidth), pathY);
 
-        // Bottom border
+        // Bottom border - NO OFFSET
         restrictedGraphics.moveTo(x, pathY + pathHeight);
-        restrictedGraphics.lineTo(Math.min(x + dashLength, CanvasState.width), pathY + pathHeight);
+        restrictedGraphics.lineTo(Math.min(x + dashLength, gridWidth), pathY + pathHeight);
       }
 
       restrictedGraphics.stroke({ width: 2, color: 0x94a3b8, alpha: 0.6 });
@@ -162,14 +194,16 @@ export class PixiRenderer {
 
     // Draw subtle grid lines for reference (less prominent)
     const gridLines = new Graphics();
+
+    // NO OFFSET - all relative to gameContainer
     for (let x = 0; x <= GRID_COLS; x++) {
       gridLines.moveTo(x * gridSize, 0);
-      gridLines.lineTo(x * gridSize, CanvasState.height);
+      gridLines.lineTo(x * gridSize, gridHeight);
     }
 
     for (let y = 0; y <= GRID_ROWS; y++) {
       gridLines.moveTo(0, y * gridSize);
-      gridLines.lineTo(CanvasState.width, y * gridSize);
+      gridLines.lineTo(gridWidth, y * gridSize);
     }
 
     gridLines.stroke({ width: 0.5, color: 0x475569, alpha: 0.25 });
@@ -186,6 +220,7 @@ export class PixiRenderer {
 
   renderTowers(towers: Tower[]): void {
     const currentIds = new Set(towers.map((t) => t.id));
+    const selectedTower = useGameStore.getState().selectedTower;
 
     // Remove destroyed towers
     for (const [id, sprite] of this.towerSprites) {
@@ -201,6 +236,15 @@ export class PixiRenderer {
         this.addTowerSprite(tower);
       } else {
         this.updateTowerSprite(tower);
+      }
+
+      // Show range circle for selected tower
+      const sprite = this.towerSprites.get(tower.id);
+      if (sprite) {
+        const rangeCircle = sprite.children.find((child) => child.label === 'rangeCircle');
+        if (rangeCircle) {
+          rangeCircle.visible = selectedTower?.id === tower.id;
+        }
       }
     }
   }
@@ -426,7 +470,7 @@ export class PixiRenderer {
 
     this.previewContainer.addChild(this.rangeIndicator);
 
-    // Draw grid cell highlight
+    // Draw grid cell highlight (NO OFFSET - relative to gameContainer)
     const gridSize = CanvasState.gridSize;
     const cellHighlight = new Graphics();
     cellHighlight.rect(
@@ -460,6 +504,7 @@ export class PixiRenderer {
     return {
       gridToPixel: (gridX: number, gridY: number) => {
         const gridSize = CanvasState.gridSize;
+        // Return game space coordinates (NO OFFSET - relative to gameContainer)
         return {
           x: gridX * gridSize + gridSize / 2,
           y: gridY * gridSize + gridSize / 2,

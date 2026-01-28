@@ -9,17 +9,17 @@
 
 .game-button {
   border: none;
-  padding: var(--spacing-md) calc(var(--spacing-xl) * 1.5);
-  font-size: 1rem;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: 0.8rem;
   font-weight: 700;
-  border-radius: var(--border-radius-large);
+  border-radius: var(--border-radius-default);
   cursor: pointer;
   transition: all var(--transition-default);
   box-shadow: var(--shadow-default);
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  min-width: 180px;
+  min-width: 140px;
 }
 
 .game-button:hover:not(:disabled) {
@@ -55,7 +55,7 @@
   background: transparent;
   border: 2px solid var(--color-danger);
   color: var(--color-danger);
-  padding: calc(var(--spacing-md) - 2px) calc(var(--spacing-xl) * 1.5 - 2px);
+  padding: calc(var(--spacing-sm) - 2px) calc(var(--spacing-lg) - 2px);
 }
 
 .end-game-button:hover:not(:disabled) {

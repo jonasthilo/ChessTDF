@@ -17,7 +17,7 @@
 }
 
 .wave-label {
-  font-size: 1.2rem;
+  font-size: 0.85rem;
   color: var(--text-light);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -25,15 +25,15 @@
 }
 
 .wave-value {
-  font-size: 1.3rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--text-white);
 }
 
 .wave-status {
-  padding: 0.3rem var(--spacing-md);
+  padding: 0.25rem var(--spacing-sm);
   border-radius: var(--border-radius-small);
-  font-size: 0.9rem;
+  font-size: 0.75rem;
   font-weight: bold;
 }
 

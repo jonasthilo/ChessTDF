@@ -7,11 +7,13 @@ export class SpriteFactory {
   createTowerSprite(tower: Tower): Container {
     const container = new Container();
 
-    // Range circle (hidden by default, shown on hover)
+    // Range circle (hidden by default, shown on hover or selection)
     const rangeCircle = new Graphics();
     rangeCircle.circle(0, 0, tower.stats.range);
-    rangeCircle.stroke({ width: 2, color: 0xffffff, alpha: 0.3 });
+    rangeCircle.stroke({ width: 2, color: 0xffffff, alpha: 0.15 });
+    rangeCircle.fill({ color: 0xffffff, alpha: 0.05 });
     rangeCircle.visible = false;
+    rangeCircle.label = 'rangeCircle';
     container.addChild(rangeCircle);
 
     const towerDef = useGameStore.getState().getTowerDefinition(tower.towerId);
@@ -30,8 +32,8 @@ export class SpriteFactory {
     if (AssetLoader.isLoaded()) {
       try {
         const texture = AssetLoader.getTexture('white', pieceName);
-        const size = 40;
-        const outlinedSprite = this.createOutlinedSprite(texture, size, outlineColor, 3);
+        const size = 28;
+        const outlinedSprite = this.createOutlinedSprite(texture, size, outlineColor, 2);
         container.addChild(outlinedSprite);
 
         // Add level indicator if level > 1
@@ -44,7 +46,7 @@ export class SpriteFactory {
             5: 0xffd700,
           };
           const indicatorColor = levelColorMap[tower.level] || 0xffd700;
-          levelIndicator.circle(size / 2 - 8, -size / 2 + 8, 6);
+          levelIndicator.circle(size / 2 - 6, -size / 2 + 6, 5);
           levelIndicator.fill({ color: indicatorColor });
           container.addChild(levelIndicator);
         }
@@ -116,21 +118,21 @@ export class SpriteFactory {
     switch (towerId) {
       case 1: // basic
         // Circle
-        graphics.circle(0, 0, 20);
+        graphics.circle(0, 0, 14);
         graphics.fill({ color });
         break;
       case 2: // sniper
         // Triangle
-        graphics.moveTo(0, -15);
-        graphics.lineTo(-12, 15);
-        graphics.lineTo(12, 15);
-        graphics.lineTo(0, -15);
+        graphics.moveTo(0, -11);
+        graphics.lineTo(-9, 11);
+        graphics.lineTo(9, 11);
+        graphics.lineTo(0, -11);
         graphics.fill({ color });
         break;
       case 3: // rapid
         // Hexagon
         {
-          const radius = 18;
+          const radius = 13;
           for (let i = 0; i < 6; i++) {
             const angle = (Math.PI / 3) * i;
             const x = radius * Math.cos(angle);

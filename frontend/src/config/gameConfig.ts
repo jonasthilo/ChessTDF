@@ -36,7 +36,9 @@ export const GAME_CONFIG = {
 export class CanvasState {
   private static _width: number = GAME_CONFIG.DEFAULT_CANVAS_WIDTH;
   private static _height: number = GAME_CONFIG.DEFAULT_CANVAS_HEIGHT;
-  private static _gridSize: number = GAME_CONFIG.DEFAULT_CANVAS_WIDTH / GAME_CONFIG.GRID_COLS;
+  private static _gridSize: number = (GAME_CONFIG.DEFAULT_CANVAS_WIDTH * 0.9) / GAME_CONFIG.GRID_COLS;
+  private static _offsetX: number = (GAME_CONFIG.DEFAULT_CANVAS_WIDTH * 0.05);
+  private static _offsetY: number = (GAME_CONFIG.DEFAULT_CANVAS_HEIGHT * 0.05);
 
   static get width(): number {
     return this._width;
@@ -50,10 +52,21 @@ export class CanvasState {
     return this._gridSize;
   }
 
+  static get offsetX(): number {
+    return this._offsetX;
+  }
+
+  static get offsetY(): number {
+    return this._offsetY;
+  }
+
   static updateDimensions(width: number, height: number): void {
     this._width = width;
     this._height = height;
-    this._gridSize = width / GAME_CONFIG.GRID_COLS;
+    // Use 90% of canvas for grid, leaving 5% margin on each side
+    this._gridSize = (width * 0.9) / GAME_CONFIG.GRID_COLS;
+    this._offsetX = width * 0.05;
+    this._offsetY = height * 0.05;
   }
 
   static getEnemyPathY(): number {
@@ -71,11 +84,11 @@ export class CanvasState {
 
 // Helper functions using dynamic canvas state
 export const gridToPixel = (gridPos: number): number => {
-  return gridPos * CanvasState.gridSize + CanvasState.gridSize / 2;
+  return CanvasState.offsetX + gridPos * CanvasState.gridSize + CanvasState.gridSize / 2;
 };
 
 export const pixelToGrid = (pixelPos: number): number => {
-  return Math.floor(pixelPos / CanvasState.gridSize);
+  return Math.floor((pixelPos - CanvasState.offsetX) / CanvasState.gridSize);
 };
 
 export const isValidTowerPlacement = (gridX: number, gridY: number): boolean => {

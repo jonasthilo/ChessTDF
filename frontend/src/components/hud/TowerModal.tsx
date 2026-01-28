@@ -133,12 +133,12 @@ export const TowerModal = () => {
             <div>Fire Rate: {currentStats.fireRate.toFixed(1)} → {nextLevelData.fireRate.toFixed(1)}</div>
           </div>
           <div style={{
-            marginTop: '0.5rem',
-            fontSize: '0.85rem',
+            marginTop: '0.3rem',
+            fontSize: '0.7rem',
             color: canAffordUpgrade ? '#4caf50' : '#f44336',
             textAlign: 'center'
           }}>
-            Your coins: {coins} / {upgradeCost} needed
+            {coins} / {upgradeCost} coins
           </div>
           <button
             className={`upgrade-button ${!canAffordUpgrade ? 'disabled' : ''}`}
