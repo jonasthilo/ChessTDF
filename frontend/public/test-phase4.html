@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 4 Test - Chess Tower Defense</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button.danger {
+            background: #f44336;
+        }
+        button.danger:hover {
+            background: #da190b;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            background: #333;
+        }
+        .status.success {
+            background: #4CAF50;
+        }
+        .status.error {
+            background: #f44336;
+        }
+        .instructions {
+            background: #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        code {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Phase 4 Testing Suite - PixiJS Rendering</h1>
+
+    <div class="instructions">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Open the main application at <a href="http://localhost:3002" target="_blank">http://localhost:3002</a></li>
+            <li>Click "Quick Game" to enter the game screen</li>
+            <li>Open browser DevTools Console (F12)</li>
+            <li>Use the buttons below to test each feature</li>
+            <li>Observe the game canvas for visual results</li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 1: Grid Rendering</h2>
+        <p>Expected: Canvas with 20x10 grid, rows 4-5 highlighted in red</p>
+        <div id="test1-status" class="status">Status: Navigate to game screen to see grid</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Tower Rendering</h2>
+        <p>Expected: 3 towers with different shapes (circle, triangle, hexagon)</p>
+        <button onclick="addTowers()">Add All Towers</button>
+        <button onclick="addBasicTower()">Add Basic Tower (Circle)</button>
+        <button onclick="addSniperTower()">Add Sniper Tower (Triangle)</button>
+        <button onclick="addRapidTower()">Add Rapid Tower (Hexagon)</button>
+        <button class="danger" onclick="clearTowers()">Clear All Towers</button>
+        <div id="test2-status" class="status">Status: Click buttons to test</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Enemy Rendering</h2>
+        <p>Expected: 6 enemy types with different shapes and health bars</p>
+        <button onclick="addAllEnemies()">Add All Enemy Types</button>
+        <button onclick="addPawn()">Add Pawn (Circle)</button>
+        <button onclick="addKnight()">Add Knight (Diamond)</button>
+        <button onclick="addBishop()">Add Bishop (Triangle)</button>
+        <button onclick="addRook()">Add Rook (Square)</button>
+        <button onclick="addQueen()">Add Queen (Star)</button>
+        <button onclick="addKing()">Add King (Crown)</button>
+        <button class="danger" onclick="clearEnemies()">Clear All Enemies</button>
+        <div id="test3-status" class="status">Status: Click buttons to test</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Projectile Rendering</h2>
+        <p>Expected: Golden circles representing projectiles</p>
+        <button onclick="addProjectiles()">Add Projectiles</button>
+        <button class="danger" onclick="clearProjectiles()">Clear Projectiles</button>
+        <div id="test4-status" class="status">Status: Click buttons to test</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: Health Bar Updates</h2>
+        <p>Expected: Health bars shrink as enemy health decreases</p>
+        <button onclick="damageEnemy('enemy-1', 25)">Damage Pawn to 50%</button>
+        <button onclick="damageEnemy('enemy-2', 50)">Damage Knight to 50%</button>
+        <button onclick="damageEnemy('enemy-6', 100)">Damage King to 20%</button>
+        <div id="test5-status" class="status">Status: Add enemies first, then test damage</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 6: Entity Removal</h2>
+        <p>Expected: Entities disappear from canvas</p>
+        <button onclick="removeEntity('enemy-1')">Remove Pawn</button>
+        <button onclick="removeEntity('enemy-2')">Remove Knight</button>
+        <button onclick="removeEntity('tower-1')">Remove Tower 1</button>
+        <div id="test6-status" class="status">Status: Add entities first, then remove</div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 7: Performance Test</h2>
+        <p>Expected: Maintain 60 FPS with 50+ entities</p>
+        <button onclick="performanceTest()">Add 50 Enemies (Performance Test)</button>
+        <button class="danger" onclick="clearAll()">Clear All Entities</button>
+        <div id="test7-status" class="status">Status: Check DevTools Performance tab for FPS</div>
+    </div>
+
+    <script>
+        // Helper to update status
+        function updateStatus(testId, message, isSuccess = true) {
+            const statusEl = document.getElementById(testId);
+            statusEl.textContent = 'Status: ' + message;
+            statusEl.className = 'status ' + (isSuccess ? 'success' : 'error');
+        }
+
+        // Check if game store is available
+        function checkGameStore() {
+            if (typeof useGameStore === 'undefined') {
+                alert('Please open this page in the browser console while on the game screen!');
+                return false;
+            }
+            return true;
+        }
+
+        // Test 2: Tower functions
+        function addBasicTower() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addTower({
+                id: 'tower-1',
+                type: 'basic',
+                gridX: 5,
+                gridY: 2,
+                x: 330,
+                y: 150,
+                definition: store.towerDefinitions[0],
+                lastFireTime: 0
+            });
+            updateStatus('test2-status', 'Basic tower (gray circle) added at grid (5, 2)');
+        }
+
+        function addSniperTower() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addTower({
+                id: 'tower-2',
+                type: 'sniper',
+                gridX: 10,
+                gridY: 7,
+                x: 630,
+                y: 450,
+                definition: store.towerDefinitions[1],
+                lastFireTime: 0
+            });
+            updateStatus('test2-status', 'Sniper tower (blue triangle) added at grid (10, 7)');
+        }
+
+        function addRapidTower() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addTower({
+                id: 'tower-3',
+                type: 'rapid',
+                gridX: 15,
+                gridY: 1,
+                x: 930,
+                y: 90,
+                definition: store.towerDefinitions[2],
+                lastFireTime: 0
+            });
+            updateStatus('test2-status', 'Rapid tower (green hexagon) added at grid (15, 1)');
+        }
+
+        function addTowers() {
+            addBasicTower();
+            setTimeout(addSniperTower, 100);
+            setTimeout(addRapidTower, 200);
+            updateStatus('test2-status', 'All 3 towers added!');
+        }
+
+        function clearTowers() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.towers.forEach(t => store.removeEnemy(t.id));
+            updateStatus('test2-status', 'All towers cleared (note: needs proper clear function)');
+        }
+
+        // Test 3: Enemy functions
+        function addPawn() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addEnemy({
+                id: 'enemy-1',
+                type: 'pawn',
+                definition: store.enemyDefinitions[0],
+                health: 50,
+                maxHealth: 50,
+                x: 100,
+                y: 300,
+                isDead: false
+            });
+            updateStatus('test3-status', 'Pawn (green circle) added at (100, 300)');
+        }
+
+        function addKnight() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addEnemy({
+                id: 'enemy-2',
+                type: 'knight',
+                definition: store.enemyDefinitions[1],
+                health: 100,
+                maxHealth: 100,
+                x: 200,
+                y: 300,
+                isDead: false
+            });
+            updateStatus('test3-status', 'Knight (blue diamond) added at (200, 300)');
+        }
+
+        function addBishop() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addEnemy({
+                id: 'enemy-3',
+                type: 'bishop',
+                definition: store.enemyDefinitions[2],
+                health: 80,
+                maxHealth: 80,
+                x: 300,
+                y: 300,
+                isDead: false
+            });
+            updateStatus('test3-status', 'Bishop (purple triangle) added at (300, 300)');
+        }
+
+        function addRook() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addEnemy({
+                id: 'enemy-4',
+                type: 'rook',
+                definition: store.enemyDefinitions[3],
+                health: 200,
+                maxHealth: 200,
+                x: 400,
+                y: 300,
+                isDead: false
+            });
+            updateStatus('test3-status', 'Rook (orange square) added at (400, 300)');
+        }
+
+        function addQueen() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addEnemy({
+                id: 'enemy-5',
+                type: 'queen',
+                definition: store.enemyDefinitions[4],
+                health: 300,
+                maxHealth: 300,
+                x: 500,
+                y: 300,
+                isDead: false
+            });
+            updateStatus('test3-status', 'Queen (red star) added at (500, 300)');
+        }
+
+        function addKing() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addEnemy({
+                id: 'enemy-6',
+                type: 'king',
+                definition: store.enemyDefinitions[5],
+                health: 500,
+                maxHealth: 500,
+                x: 600,
+                y: 300,
+                isDead: false
+            });
+            updateStatus('test3-status', 'King (gold crown) added at (600, 300)');
+        }
+
+        function addAllEnemies() {
+            addPawn();
+            setTimeout(addKnight, 100);
+            setTimeout(addBishop, 200);
+            setTimeout(addRook, 300);
+            setTimeout(addQueen, 400);
+            setTimeout(addKing, 500);
+            updateStatus('test3-status', 'All 6 enemy types added!');
+        }
+
+        function clearEnemies() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            ['enemy-1', 'enemy-2', 'enemy-3', 'enemy-4', 'enemy-5', 'enemy-6'].forEach(id => {
+                store.removeEnemy(id);
+            });
+            updateStatus('test3-status', 'All enemies cleared');
+        }
+
+        // Test 4: Projectile functions
+        function addProjectiles() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.addProjectile({
+                id: 'proj-1',
+                x: 200,
+                y: 200,
+                targetId: 'enemy-1',
+                damage: 20,
+                speed: 400
+            });
+            store.addProjectile({
+                id: 'proj-2',
+                x: 400,
+                y: 350,
+                targetId: 'enemy-2',
+                damage: 80,
+                speed: 400
+            });
+            store.addProjectile({
+                id: 'proj-3',
+                x: 700,
+                y: 250,
+                targetId: 'enemy-5',
+                damage: 10,
+                speed: 400
+            });
+            updateStatus('test4-status', '3 projectiles (golden circles) added');
+        }
+
+        function clearProjectiles() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            ['proj-1', 'proj-2', 'proj-3'].forEach(id => {
+                store.removeProjectile(id);
+            });
+            updateStatus('test4-status', 'All projectiles cleared');
+        }
+
+        // Test 5: Health bar functions
+        function damageEnemy(enemyId, newHealth) {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            store.updateEnemy(enemyId, { health: newHealth });
+            updateStatus('test5-status', `${enemyId} health updated to ${newHealth}`);
+        }
+
+        // Test 6: Entity removal
+        function removeEntity(entityId) {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+            if (entityId.startsWith('enemy')) {
+                store.removeEnemy(entityId);
+            } else if (entityId.startsWith('proj')) {
+                store.removeProjectile(entityId);
+            }
+            updateStatus('test6-status', `${entityId} removed from canvas`);
+        }
+
+        // Test 7: Performance test
+        function performanceTest() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+
+            for (let i = 0; i < 50; i++) {
+                const enemyTypes = ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king'];
+                const type = enemyTypes[i % 6];
+                const definition = store.enemyDefinitions[i % 6];
+
+                store.addEnemy({
+                    id: `perf-enemy-${i}`,
+                    type: type,
+                    definition: definition,
+                    health: definition.health,
+                    maxHealth: definition.health,
+                    x: Math.random() * 1000 + 100,
+                    y: Math.random() * 400 + 100,
+                    isDead: false
+                });
+            }
+
+            updateStatus('test7-status', '50 enemies added! Check FPS in DevTools Performance tab');
+        }
+
+        function clearAll() {
+            if (!checkGameStore()) return;
+            const store = useGameStore.getState();
+
+            // Clear all enemies
+            store.enemies.forEach(e => store.removeEnemy(e.id));
+
+            // Clear all projectiles
+            store.projectiles.forEach(p => store.removeProjectile(p.id));
+
+            updateStatus('test7-status', 'All entities cleared');
+        }
+
+        // Initial message
+        console.log('%c Phase 4 Test Suite Loaded! ', 'background: #4CAF50; color: white; font-size: 16px; padding: 10px;');
+        console.log('Copy and paste these functions into the console on the game screen:');
+        console.log('- addTowers(), addAllEnemies(), addProjectiles()');
+        console.log('- performanceTest(), clearAll()');
+    </script>
+</body>
+</html>

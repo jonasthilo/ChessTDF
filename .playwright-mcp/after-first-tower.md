@@ -1,0 +1,58 @@
+### Page state
+- Page URL: http://localhost:3002/
+- Page Title: frontend
+- Page Snapshot:
+```yaml
+- generic [ref=e23]:
+  - generic [ref=e24]:
+    - generic [ref=e25]:
+      - generic [ref=e26]:
+        - generic [ref=e27]: $
+        - generic [ref=e28]: "Coins:"
+        - generic [ref=e29]: "300"
+      - generic [ref=e30]:
+        - generic [ref=e31]: ♥
+        - generic [ref=e32]: "Lives:"
+        - generic [ref=e33]: "10"
+    - generic [ref=e35]:
+      - generic [ref=e36]: Wave
+      - generic [ref=e37]: "0"
+    - generic [ref=e38]:
+      - button "Start First Wave" [ref=e39] [cursor=pointer]
+      - button "End Game" [ref=e40] [cursor=pointer]
+  - generic [ref=e43]:
+    - heading "Build Towers" [level=3] [ref=e44]
+    - generic [ref=e45]:
+      - generic [ref=e46] [cursor=pointer]:
+        - generic [ref=e48]:
+          - generic [ref=e49]: Basic Tower
+          - generic [ref=e50]:
+            - generic [ref=e51]: $
+            - text: "25"
+        - generic [ref=e52]:
+          - generic [ref=e53]: "DMG: 20"
+          - generic [ref=e54]: "RNG: 120"
+          - generic [ref=e55]: "SPD: 1.0"
+      - generic [ref=e56] [cursor=pointer]:
+        - generic [ref=e58]:
+          - generic [ref=e59]: Sniper Tower
+          - generic [ref=e60]:
+            - generic [ref=e61]: $
+            - text: "75"
+        - generic [ref=e62]:
+          - generic [ref=e63]: "DMG: 80"
+          - generic [ref=e64]: "RNG: 250"
+          - generic [ref=e65]: "SPD: 0.5"
+      - generic [ref=e66] [cursor=pointer]:
+        - generic [ref=e68]:
+          - generic [ref=e69]: Rapid Tower
+          - generic [ref=e70]:
+            - generic [ref=e71]: $
+            - text: "50"
+        - generic [ref=e72]:
+          - generic [ref=e73]: "DMG: 10"
+          - generic [ref=e74]: "RNG: 100"
+          - generic [ref=e75]: "SPD: 3.0"
+    - generic [ref=e79]: Click on the grid to place tower
+  - generic: v1.1.0
+```

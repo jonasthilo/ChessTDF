@@ -1,0 +1,249 @@
+import { Container, Graphics, Sprite, Texture } from 'pixi.js';
+import type { Tower, Enemy, EnemyDefinition } from '../../types';
+import { useGameStore } from '../../state/gameStore';
+import { AssetLoader } from '../managers/AssetLoader';
+
+export class SpriteFactory {
+  createTowerSprite(tower: Tower): Container {
+    const container = new Container();
+
+    // Range circle (hidden by default, shown on hover)
+    const rangeCircle = new Graphics();
+    rangeCircle.circle(0, 0, tower.stats.range);
+    rangeCircle.stroke({ width: 2, color: 0xffffff, alpha: 0.3 });
+    rangeCircle.visible = false;
+    container.addChild(rangeCircle);
+
+    const towerDef = useGameStore.getState().getTowerDefinition(tower.towerId);
+    const outlineColor = towerDef?.color || '#888888';
+
+    // Map tower ID to chess piece
+    const pieceMap: Record<number, string> = {
+      1: 'pawn',   // Basic Tower
+      2: 'rook',   // Sniper Tower
+      3: 'knight', // Rapid Tower
+    };
+
+    const pieceName = pieceMap[tower.towerId] || 'pawn';
+
+    // Check if assets are loaded
+    if (AssetLoader.isLoaded()) {
+      try {
+        const texture = AssetLoader.getTexture('white', pieceName);
+        const size = 40;
+        const outlinedSprite = this.createOutlinedSprite(texture, size, outlineColor, 3);
+        container.addChild(outlinedSprite);
+
+        // Add level indicator if level > 1
+        if (tower.level > 1) {
+          const levelIndicator = new Graphics();
+          const levelColorMap: Record<number, number> = {
+            2: 0x4caf50,
+            3: 0x2196f3,
+            4: 0x9c27b0,
+            5: 0xffd700,
+          };
+          const indicatorColor = levelColorMap[tower.level] || 0xffd700;
+          levelIndicator.circle(size / 2 - 8, -size / 2 + 8, 6);
+          levelIndicator.fill({ color: indicatorColor });
+          container.addChild(levelIndicator);
+        }
+      } catch (error) {
+        console.warn('Failed to load chess piece texture, falling back to geometric shape:', error);
+        const shape = this.createTowerShape(tower.towerId);
+        container.addChild(shape);
+      }
+    } else {
+      // Fallback to geometric shapes if assets not loaded
+      const shape = this.createTowerShape(tower.towerId);
+      container.addChild(shape);
+    }
+
+    return container;
+  }
+
+  createEnemySprite(enemy: Enemy): Container {
+    const container = new Container();
+    const outlineColor = enemy.definition.color;
+
+    // Map enemy ID to chess piece
+    const pieceMap: Record<number, string> = {
+      1: 'pawn',
+      2: 'knight',
+      3: 'bishop',
+      4: 'rook',
+      5: 'queen',
+      6: 'king',
+    };
+
+    const pieceName = pieceMap[enemy.enemyId] || 'pawn';
+
+    // Check if assets are loaded
+    if (AssetLoader.isLoaded()) {
+      try {
+        const texture = AssetLoader.getTexture('black', pieceName);
+        const size = enemy.definition.size * 1.3;
+        const outlinedSprite = this.createOutlinedSprite(texture, size, outlineColor, 4);
+        container.addChild(outlinedSprite);
+      } catch (error) {
+        console.warn('Failed to load chess piece texture, falling back to geometric shape:', error);
+        const shape = this.createEnemyShape(enemy.definition);
+        container.addChild(shape);
+      }
+    } else {
+      // Fallback to geometric shapes if assets not loaded
+      const shape = this.createEnemyShape(enemy.definition);
+      container.addChild(shape);
+    }
+
+    return container;
+  }
+
+  createProjectileSprite(): Graphics {
+    const graphics = new Graphics();
+    graphics.circle(0, 0, 3);
+    graphics.fill({ color: 0xffd700 });
+    return graphics;
+  }
+
+  private createTowerShape(towerId: number): Graphics {
+    const graphics = new Graphics();
+
+    // Look up tower definition from store to get color
+    const towerDef = useGameStore.getState().getTowerDefinition(towerId);
+    const color = towerDef ? this.hexToNumber(towerDef.color) : 0x888888;
+
+    switch (towerId) {
+      case 1: // basic
+        // Circle
+        graphics.circle(0, 0, 20);
+        graphics.fill({ color });
+        break;
+      case 2: // sniper
+        // Triangle
+        graphics.moveTo(0, -15);
+        graphics.lineTo(-12, 15);
+        graphics.lineTo(12, 15);
+        graphics.lineTo(0, -15);
+        graphics.fill({ color });
+        break;
+      case 3: // rapid
+        // Hexagon
+        {
+          const radius = 18;
+          for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i;
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+            if (i === 0) graphics.moveTo(x, y);
+            else graphics.lineTo(x, y);
+          }
+          graphics.lineTo(radius, 0);
+          graphics.fill({ color });
+        }
+        break;
+    }
+
+    return graphics;
+  }
+
+  private createEnemyShape(def: EnemyDefinition): Graphics {
+    const graphics = new Graphics();
+    const color = this.hexToNumber(def.color);
+    const size = def.size;
+
+    switch (def.id) {
+      case 1: // pawn
+        // Circle
+        graphics.circle(0, 0, size / 2);
+        graphics.fill({ color });
+        break;
+      case 2: // knight
+        // Diamond
+        graphics.moveTo(0, -size / 2);
+        graphics.lineTo(size / 2, 0);
+        graphics.lineTo(0, size / 2);
+        graphics.lineTo(-size / 2, 0);
+        graphics.lineTo(0, -size / 2);
+        graphics.fill({ color });
+        break;
+      case 3: // bishop
+        // Triangle
+        graphics.moveTo(0, -size / 2);
+        graphics.lineTo(size / 2, size / 2);
+        graphics.lineTo(-size / 2, size / 2);
+        graphics.lineTo(0, -size / 2);
+        graphics.fill({ color });
+        break;
+      case 4: // rook
+        // Square
+        graphics.rect(-size / 2, -size / 2, size, size);
+        graphics.fill({ color });
+        break;
+      case 5: // queen
+        // Star (5 points)
+        {
+          const points = 5;
+          const outerRadius = size / 2;
+          const innerRadius = size / 4;
+          for (let i = 0; i < points * 2; i++) {
+            const angle = (Math.PI / points) * i - Math.PI / 2;
+            const radius = i % 2 === 0 ? outerRadius : innerRadius;
+            const x = radius * Math.cos(angle);
+            const y = radius * Math.sin(angle);
+            if (i === 0) graphics.moveTo(x, y);
+            else graphics.lineTo(x, y);
+          }
+          graphics.fill({ color });
+        }
+        break;
+      case 6: // king
+        // Crown (rectangle + triangles)
+        graphics.rect(-size / 2, 0, size, size / 2);
+        graphics.fill({ color });
+        graphics.moveTo(-size / 2, 0);
+        graphics.lineTo(-size / 4, -size / 2);
+        graphics.lineTo(0, 0);
+        graphics.fill({ color });
+        graphics.moveTo(0, 0);
+        graphics.lineTo(size / 4, -size / 2);
+        graphics.lineTo(size / 2, 0);
+        graphics.fill({ color });
+        break;
+    }
+
+    return graphics;
+  }
+
+  private hexToNumber(hex: string): number {
+    return parseInt(hex.replace('#', ''), 16);
+  }
+
+  private createOutlinedSprite(
+    texture: Texture,
+    size: number,
+    outlineColor: string,
+    outlineWidth: number = 3
+  ): Container {
+    const container = new Container();
+
+    // Simple drop shadow for depth
+    const shadow = new Sprite(texture);
+    shadow.width = size;
+    shadow.height = size;
+    shadow.anchor.set(0.5);
+    shadow.position.set(2, 2);
+    shadow.tint = 0x000000;
+    shadow.alpha = 0.3;
+    container.addChild(shadow);
+
+    // Main sprite (no tint, pure white/black)
+    const sprite = new Sprite(texture);
+    sprite.width = size;
+    sprite.height = size;
+    sprite.anchor.set(0.5);
+    container.addChild(sprite);
+
+    return container;
+  }
+}

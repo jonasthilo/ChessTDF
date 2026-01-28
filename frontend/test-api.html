@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess TDF - API Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #0f0;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: #2a2a2a;
+            border: 1px solid #0f0;
+            border-radius: 5px;
+        }
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background: #0c0;
+        }
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #000;
+            border-left: 3px solid #0f0;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .error {
+            border-left-color: #f00;
+            color: #f00;
+        }
+        .success {
+            border-left-color: #0f0;
+            color: #0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Chess Tower Defense - API Integration Tests</h1>
+
+    <div class="test-section">
+        <h2>1. Get Game Configuration</h2>
+        <button onclick="testGetConfig()">Test GET /api/game/config</button>
+        <div id="config-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Start New Game</h2>
+        <button onclick="testStartGame()">Test POST /api/game/start</button>
+        <div id="start-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Build Tower</h2>
+        <p>First start a game, then click this button</p>
+        <button onclick="testBuildTower()">Test POST /api/game/:id/tower</button>
+        <div id="tower-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Start Wave</h2>
+        <button onclick="testStartWave()">Test POST /api/game/:id/wave</button>
+        <div id="wave-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Get Game State</h2>
+        <button onclick="testGetState()">Test GET /api/game/:id/state</button>
+        <div id="state-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Full Integration Test</h2>
+        <button onclick="runFullTest()">Run All Tests</button>
+        <div id="full-result" class="result"></div>
+    </div>
+
+    <script>
+        let currentGameId = null;
+
+        async function testGetConfig() {
+            const result = document.getElementById('config-result');
+            try {
+                const response = await fetch('/api/game/config');
+                const data = await response.json();
+                result.className = 'result success';
+                result.textContent = '✓ SUCCESS\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = '✗ ERROR\n' + error.message;
+            }
+        }
+
+        async function testStartGame() {
+            const result = document.getElementById('start-result');
+            try {
+                const response = await fetch('/api/game/start', { method: 'POST' });
+                const data = await response.json();
+                currentGameId = data.gameId;
+                result.className = 'result success';
+                result.textContent = '✓ SUCCESS\nGame ID: ' + currentGameId + '\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = '✗ ERROR\n' + error.message;
+            }
+        }
+
+        async function testBuildTower() {
+            const result = document.getElementById('tower-result');
+            if (!currentGameId) {
+                result.className = 'result error';
+                result.textContent = '✗ ERROR\nPlease start a game first!';
+                return;
+            }
+            try {
+                const response = await fetch(`/api/game/${currentGameId}/tower`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        towerType: 'basic',
+                        gridX: 5,
+                        gridY: 2
+                    })
+                });
+                const data = await response.json();
+                result.className = 'result success';
+                result.textContent = '✓ SUCCESS\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = '✗ ERROR\n' + error.message;
+            }
+        }
+
+        async function testStartWave() {
+            const result = document.getElementById('wave-result');
+            if (!currentGameId) {
+                result.className = 'result error';
+                result.textContent = '✗ ERROR\nPlease start a game first!';
+                return;
+            }
+            try {
+                const response = await fetch(`/api/game/${currentGameId}/wave`, { method: 'POST' });
+                const data = await response.json();
+                result.className = 'result success';
+                result.textContent = '✓ SUCCESS\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = '✗ ERROR\n' + error.message;
+            }
+        }
+
+        async function testGetState() {
+            const result = document.getElementById('state-result');
+            if (!currentGameId) {
+                result.className = 'result error';
+                result.textContent = '✗ ERROR\nPlease start a game first!';
+                return;
+            }
+            try {
+                const response = await fetch(`/api/game/${currentGameId}/state`);
+                const data = await response.json();
+                result.className = 'result success';
+                result.textContent = '✓ SUCCESS\n' + JSON.stringify(data, null, 2);
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = '✗ ERROR\n' + error.message;
+            }
+        }
+
+        async function runFullTest() {
+            const result = document.getElementById('full-result');
+            result.textContent = 'Running full integration test...\n\n';
+
+            try {
+                // Test 1: Get Config
+                result.textContent += '1. Testing GET /api/game/config...\n';
+                const configRes = await fetch('/api/game/config');
+                const config = await configRes.json();
+                result.textContent += '   ✓ Config loaded: ' + config.towers.length + ' towers, ' + config.enemies.length + ' enemies\n\n';
+
+                // Test 2: Start Game
+                result.textContent += '2. Testing POST /api/game/start...\n';
+                const startRes = await fetch('/api/game/start', { method: 'POST' });
+                const gameData = await startRes.json();
+                currentGameId = gameData.gameId;
+                result.textContent += '   ✓ Game started: ID=' + currentGameId + ', Coins=' + gameData.initialCoins + ', Lives=' + gameData.lives + '\n\n';
+
+                // Test 3: Build Tower
+                result.textContent += '3. Testing POST /api/game/:id/tower...\n';
+                const towerRes = await fetch(`/api/game/${currentGameId}/tower`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ towerType: 'basic', gridX: 5, gridY: 2 })
+                });
+                const towerData = await towerRes.json();
+                result.textContent += '   ✓ Tower built: Success=' + towerData.success + ', Remaining coins=' + towerData.remainingCoins + '\n\n';
+
+                // Test 4: Start Wave
+                result.textContent += '4. Testing POST /api/game/:id/wave...\n';
+                const waveRes = await fetch(`/api/game/${currentGameId}/wave`, { method: 'POST' });
+                const waveData = await waveRes.json();
+                result.textContent += '   ✓ Wave started: Wave=' + waveData.waveNumber + ', Enemies=' + waveData.enemies.length + '\n\n';
+
+                // Test 5: Get State
+                result.textContent += '5. Testing GET /api/game/:id/state...\n';
+                const stateRes = await fetch(`/api/game/${currentGameId}/state`);
+                const stateData = await stateRes.json();
+                result.textContent += '   ✓ State retrieved: Coins=' + stateData.coins + ', Lives=' + stateData.lives + ', Wave=' + stateData.wave + ', Towers=' + stateData.towers.length + '\n\n';
+
+                result.textContent += '═══════════════════════════════════\n';
+                result.textContent += '✓ ALL TESTS PASSED!\n';
+                result.textContent += '═══════════════════════════════════\n';
+                result.className = 'result success';
+            } catch (error) {
+                result.textContent += '\n✗ TEST FAILED: ' + error.message;
+                result.className = 'result error';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,147 @@
+@import '../../styles/variables.css';
+@import '../../styles/animations.css';
+
+.tower-panel {
+  background: var(--color-bg-secondary);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-large);
+  width: 200px;
+  color: var(--text-white);
+  box-shadow: var(--shadow-default);
+}
+
+.tower-panel-title {
+  margin: 0 0 var(--spacing-md) 0;
+  font-size: 1.1rem;
+  text-align: center;
+  color: var(--color-accent-primary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tower-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.tower-item {
+  background: var(--color-bg-tertiary);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-default);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  border: 2px solid transparent;
+}
+
+.tower-item:hover:not(.disabled) {
+  background: #1a2633;
+  transform: translateX(4px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.tower-item.selected {
+  border-color: var(--color-accent-primary);
+  background: rgba(244, 197, 66, 0.15);
+  box-shadow: 0 0 12px rgba(244, 197, 66, 0.2);
+}
+
+.tower-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tower-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--spacing-xs);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+  display: block;
+}
+
+.tower-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xs);
+}
+
+.tower-name {
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.tower-cost {
+  color: var(--color-coins);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.cost-icon::before {
+  content: "$";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--color-coins);
+  color: #1e3c72;
+  border-radius: 50%;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+
+.tower-stats {
+  display: flex;
+  gap: var(--spacing-xs);
+  font-size: 0.75rem;
+}
+
+.tower-stat {
+  flex: 1;
+}
+
+.tower-stat .stat-label {
+  color: #aaa;
+}
+
+.tower-panel-hint {
+  margin-top: var(--spacing-md);
+  padding: var(--spacing-sm);
+  background: rgba(244, 197, 66, 0.15);
+  border: 1px solid var(--color-accent-primary);
+  border-radius: var(--border-radius-small);
+  text-align: center;
+  font-size: 0.8rem;
+  animation: pulse 1.5s infinite;
+  color: var(--color-accent-primary);
+}
+
+@media (max-width: 1200px) {
+  .tower-panel {
+    width: 180px;
+    padding: var(--spacing-sm);
+  }
+
+  .tower-icon {
+    width: 35px;
+    height: 35px;
+  }
+
+  .tower-name {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 900px) {
+  .tower-panel {
+    width: 160px;
+  }
+
+  .tower-stats {
+    font-size: 0.7rem;
+  }
+}

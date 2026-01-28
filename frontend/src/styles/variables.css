@@ -1,0 +1,66 @@
+/* CSS Custom Properties - Design Tokens */
+:root {
+  /* Base Theme Colors */
+  --color-bg-primary: #2b3d4f;
+  --color-bg-secondary: #1e2a35;
+  --color-bg-tertiary: #15202b;
+  --color-accent-primary: #f4c542;
+  --color-accent-secondary: #e0b32d;
+
+  /* Background Overlays */
+  --bg-overlay-light: rgba(21, 32, 43, 0.6);
+  --bg-overlay-medium: rgba(21, 32, 43, 0.8);
+  --bg-overlay-dark: rgba(21, 32, 43, 0.95);
+
+  /* Border Radius */
+  --border-radius-small: 6px;
+  --border-radius-default: 8px;
+  --border-radius-large: 12px;
+
+  /* Shadows */
+  --shadow-default: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-hover: 0 6px 16px rgba(0, 0, 0, 0.5);
+  --shadow-active: 0 2px 8px rgba(0, 0, 0, 0.3);
+
+  /* Colors */
+  --color-success: #4db8a0;
+  --color-success-hover: #3da089;
+  --color-danger: #e85d75;
+  --color-danger-hover: #d44d65;
+  --color-warning: #f4c542;
+  --color-info: #5ba3d0;
+  --color-disabled: #4a5f73;
+
+  /* Text Colors */
+  --text-white: #ffffff;
+  --text-light: #d4dce4;
+  --text-muted: rgba(212, 220, 228, 0.6);
+
+  /* Spacing */
+  --spacing-xs: 0.4rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.8rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 2rem;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-default: 0.3s ease;
+
+  /* UI Component Colors */
+  --color-coins: #f4c542;
+  --color-lives: #e85d75;
+
+  /* Tower Colors */
+  --tower-basic: #607D8B;
+  --tower-sniper: #1565C0;
+  --tower-rapid: #7CB342;
+
+  /* Enemy Colors */
+  --enemy-pawn: #4CAF50;
+  --enemy-knight: #2196F3;
+  --enemy-bishop: #9C27B0;
+  --enemy-rook: #FF9800;
+  --enemy-queen: #F44336;
+  --enemy-king: #FFC107;
+}
