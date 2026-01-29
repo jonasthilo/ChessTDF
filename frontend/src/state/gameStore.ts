@@ -70,6 +70,10 @@ interface GameStore {
   selectedTower: Tower | null;
   selectTower: (tower: Tower | null) => void;
 
+  // Enemy selection (for stats panel)
+  selectedEnemy: Enemy | null;
+  selectEnemy: (enemy: Enemy | null) => void;
+
   // Tower upgrade/sell
   upgradeTower: (towerId: string) => Promise<boolean>;
   sellTower: (towerId: string) => Promise<boolean>;
@@ -148,9 +152,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // Tower selection (for building)
   selectTowerId: (towerId) => set({ selectedTowerId: towerId }),
 
-  // Tower selection (for modal)
+  // Tower selection (for modal) - clears enemy selection for mutual exclusivity
   selectedTower: null,
-  selectTower: (tower) => set({ selectedTower: tower }),
+  selectTower: (tower) => set({ selectedTower: tower, selectedEnemy: tower ? null : get().selectedEnemy }),
+
+  // Enemy selection (for stats panel) - clears tower selection for mutual exclusivity
+  selectedEnemy: null,
+  selectEnemy: (enemy) => set({ selectedEnemy: enemy, selectedTower: enemy ? null : get().selectedTower }),
 
   // Helper methods for tower definitions
   getTowerDefinition: (towerId) => {
@@ -291,6 +299,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         projectiles: [],
         selectedTowerId: null,
         selectedTower: null,
+        selectedEnemy: null,
         currentScreen: 'game',
       });
     } catch (error) {
@@ -576,5 +585,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
       projectiles: [],
       selectedTowerId: null,
       selectedTower: null,
+      selectedEnemy: null,
     }),
 }));

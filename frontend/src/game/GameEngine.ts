@@ -67,13 +67,37 @@ export class GameEngine {
       this.mouseInCanvas = false;
     });
 
-    // Handle clicks for tower placement
+    // Handle clicks for tower placement and enemy selection
     this.app.stage.on('pointerdown', (event: FederatedPointerEvent) => {
       // Convert canvas coordinates to game space coordinates
       const gamePos = this.renderer.canvasToGameSpace(event.global.x, event.global.y);
+
+      // Check enemy click first (only when not in build mode)
+      const state = useGameStore.getState();
+      if (!state.selectedTowerId) {
+        const clickedEnemy = this.findEnemyAtPosition(gamePos.x, gamePos.y);
+        if (clickedEnemy) {
+          state.selectEnemy(clickedEnemy);
+          return;
+        }
+      }
+
       const grid = this.gridManager.pixelToGrid(gamePos.x, gamePos.y);
       this.handleGridClick(grid.gridX, grid.gridY);
     });
+  }
+
+  private findEnemyAtPosition(gameX: number, gameY: number): import('../types').Enemy | null {
+    const HIT_RADIUS = 20;
+    const enemies = useGameStore.getState().enemies;
+    for (const enemy of enemies) {
+      const dx = gameX - enemy.x;
+      const dy = gameY - enemy.y;
+      if (dx * dx + dy * dy <= HIT_RADIUS * HIT_RADIUS) {
+        return enemy;
+      }
+    }
+    return null;
   }
 
   private handleGridClick(gridX: number, gridY: number): void {

@@ -22,6 +22,10 @@ export class EnemySystem {
 
       // Check if reached end
       if (this.pathManager.hasReachedEnd(newX)) {
+        // Auto-deselect if this enemy was selected
+        if (state.selectedEnemy?.id === enemy.id) {
+          state.selectEnemy(null);
+        }
         // Remove enemy, lose life, and mark as dealt with
         state.removeEnemy(enemy.id);
         state.loseLifeFromBackend();
