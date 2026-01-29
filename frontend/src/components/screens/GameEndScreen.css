@@ -25,17 +25,23 @@
   box-shadow: var(--shadow-default);
 }
 
+.game-end-screen .screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
 .game-end-screen .screen-logo {
-  display: block;
-  width: 70px;
+  width: 50px;
   height: auto;
-  margin: 0 auto 0.5rem;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
 }
 
 .game-end-title {
   font-size: 3rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   font-weight: bold;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }

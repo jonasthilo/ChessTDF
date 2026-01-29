@@ -58,8 +58,10 @@ export const StatisticsScreen = () => {
   return (
     <div className="statistics-screen">
       <div className="statistics-content">
-        <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
-        <h1 className="statistics-title">Game Statistics</h1>
+        <div className="screen-header">
+          <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
+          <h1 className="statistics-title">Game Statistics</h1>
+        </div>
 
         <div className="tab-buttons">
           <button

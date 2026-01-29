@@ -22,10 +22,12 @@ export const GameEndScreen = () => {
   return (
     <div className={`game-end-screen ${isVictory ? 'victory' : 'defeat'}`}>
       <div className="game-end-content">
-        <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
-        <h1 className={`game-end-title ${isVictory ? 'victory' : 'defeat'}`}>
-          {isVictory ? 'Victory!' : 'Game Over'}
-        </h1>
+        <div className="screen-header">
+          <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
+          <h1 className={`game-end-title ${isVictory ? 'victory' : 'defeat'}`}>
+            {isVictory ? 'Victory!' : 'Game Over'}
+          </h1>
+        </div>
 
         <div className="game-end-stats">
           <h2>Final Stats</h2>

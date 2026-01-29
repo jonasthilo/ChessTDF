@@ -21,17 +21,23 @@
   max-height: 95vh;
 }
 
+.settings-screen .screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
 .settings-screen .screen-logo {
-  display: block;
-  width: 70px;
+  width: 50px;
   height: auto;
-  margin: 0 auto 0.5rem;
   filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
 }
 
 .settings-title {
   text-align: center;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0;
   color: var(--color-accent-primary);
   font-size: 1.3rem;
 }

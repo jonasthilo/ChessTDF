@@ -13,16 +13,23 @@
   padding: 2rem;
 }
 
+.screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 .start-logo {
-  width: 180px;
+  width: 100px;
   height: auto;
-  margin-bottom: 1rem;
   filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
 }
 
 .game-title {
   font-size: 3.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0;
   font-weight: bold;
   background: linear-gradient(135deg, #f4c542 0%, #ffd700 50%, #f4c542 100%);
   -webkit-background-clip: text;

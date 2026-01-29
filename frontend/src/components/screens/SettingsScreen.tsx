@@ -231,8 +231,10 @@ export const SettingsScreen = () => {
   return (
     <div className="settings-screen">
       <div className={`settings-content ${advancedMode ? 'advanced' : ''}`}>
-        <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
-        <h1 className="settings-title">Game Settings</h1>
+        <div className="screen-header">
+          <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
+          <h1 className="settings-title">Game Settings</h1>
+        </div>
 
         <div className="mode-toggle">
           <button
