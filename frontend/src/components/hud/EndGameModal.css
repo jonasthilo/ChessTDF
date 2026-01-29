@@ -8,24 +8,24 @@
   backdrop-filter: blur(2px);
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: flex-start;
+  padding-top: 20vh;
   z-index: 1000;
 }
 
 .end-game-modal {
   background: var(--color-bg-secondary);
   border: 2px solid var(--color-accent-primary);
-  border-radius: 12px 12px 0 0;
+  border-radius: 12px;
   padding: 2rem;
   max-width: 400px;
   width: 90%;
   text-align: center;
-  animation: slideUpFromBottom 0.3s ease;
-  margin-bottom: 0;
+  animation: slideDown 0.3s ease;
 }
 
 .end-game-modal.closing {
-  animation: slideDownToBottom 0.3s ease forwards;
+  animation: slideUp 0.3s ease forwards;
 }
 
 .end-game-title {
@@ -83,9 +83,9 @@
   color: #ffffff;
 }
 
-@keyframes slideUpFromBottom {
+@keyframes slideDown {
   from {
-    transform: translateY(100%);
+    transform: translateY(-30px);
     opacity: 0;
   }
   to {
@@ -94,13 +94,13 @@
   }
 }
 
-@keyframes slideDownToBottom {
+@keyframes slideUp {
   from {
     transform: translateY(0);
     opacity: 1;
   }
   to {
-    transform: translateY(100%);
+    transform: translateY(-30px);
     opacity: 0;
   }
 }
