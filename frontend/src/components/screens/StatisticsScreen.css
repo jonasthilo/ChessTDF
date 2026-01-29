@@ -100,13 +100,15 @@
 }
 
 .game-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 45px 60px 70px 70px 55px 65px 65px auto;
   align-items: center;
-  gap: 0.8rem;
-  padding: 0.8rem;
+  gap: 0.4rem;
+  padding: 0.6rem 0.8rem;
   background: var(--color-bg-tertiary);
   border-radius: 8px;
   border-left: 4px solid transparent;
+  font-size: 0.85rem;
 }
 
 .game-row.win {
@@ -151,9 +153,14 @@
 .game-wave,
 .game-kills,
 .game-mode,
-.game-date {
-  flex: 1;
-  font-size: 0.9rem;
+.game-date,
+.game-duration,
+.game-towers,
+.game-coins {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.85rem;
 }
 
 .game-date {
@@ -186,6 +193,17 @@
   background: var(--color-bg-secondary);
   border-color: var(--color-accent-primary);
   transform: translateY(-2px);
+}
+
+@media (max-width: 700px) {
+  .game-row {
+    grid-template-columns: 40px 55px 1fr 1fr auto;
+  }
+  .game-duration,
+  .game-towers,
+  .game-coins {
+    display: none;
+  }
 }
 
 @media (max-width: 600px) {
