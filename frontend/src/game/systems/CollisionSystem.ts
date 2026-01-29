@@ -30,6 +30,10 @@ export class CollisionSystem {
 
         // Check if enemy died
         if (newHealth <= 0) {
+          // Auto-deselect if this enemy was selected
+          if (state.selectedEnemy?.id === target.id) {
+            state.selectEnemy(null);
+          }
           state.removeEnemy(target.id);
           state.addCoinsFromBackend(target.definition.reward);
           state.incrementEnemiesKilled();

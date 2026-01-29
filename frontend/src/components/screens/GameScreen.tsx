@@ -6,6 +6,7 @@ import { WaveInfo } from '../hud/WaveInfo';
 import { TowerPanel } from '../hud/TowerPanel';
 import { GameControls } from '../hud/GameControls';
 import { TowerModal } from '../hud/TowerModal';
+import { EnemyStatsPanel } from '../hud/EnemyStatsPanel';
 import { ViewportWarning } from '../hud/ViewportWarning';
 import { VersionDisplay } from '../common/VersionDisplay';
 import { GameEngine } from '../../game/GameEngine';
@@ -18,6 +19,7 @@ export const GameScreen = () => {
   const engineRef = useRef<GameEngine | null>(null);
   const appRef = useRef<Application | null>(null);
   const selectedTower = useGameStore((state) => state.selectedTower);
+  const selectedEnemy = useGameStore((state) => state.selectedEnemy);
 
   useEffect(() => {
     let isCancelled = false;
@@ -116,16 +118,17 @@ export const GameScreen = () => {
         </div>
 
         <div className="game-sidebar game-sidebar-right">
-          {!selectedTower && (
+          {!selectedTower && !selectedEnemy && (
             <div className="tower-panel-placeholder">
               <div className="placeholder-content">
                 <div className="placeholder-icon">🏰</div>
-                <h3>Tower Details</h3>
-                <p>Click on a placed tower to view its stats and upgrade options</p>
+                <h3>Details</h3>
+                <p>Click on a placed tower or an enemy to view its stats</p>
               </div>
             </div>
           )}
           <TowerModal />
+          <EnemyStatsPanel />
         </div>
       </div>
 
