@@ -136,7 +136,7 @@ Backend: http://localhost:3001
 Postgres: localhost:5432
 
 ## Current Version
-Frontend: v1.2.0
+Versioning: Automated git commit short hash (injected via Vite `__GIT_HASH__` define)
 Backend: v1.2.0
 Status: Integer ID migration complete, fully functional
 
