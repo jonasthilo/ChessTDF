@@ -26,7 +26,8 @@ TS strict: strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes, noPrope
 - Bump minor version in front/backend after breaking changes, patch after fixes/features
 - Frontend/Backend auto-reload on code changes (no restart needed)
 - Only restart containers for: database schema changes, dependency installs, or when debugging issues
-- Test modified components: Docker MCP Toolkit Playwright for frontend, call API endpoints for backend
+- Test modified components: Playwright MCP (standalone, visible browser) for frontend, call API endpoints for backend
+- Only use Docker Toolkit Playwright (headless) when explicitly asked
 - Update this file after relevant changes
 
 ---
@@ -119,7 +120,8 @@ docker-compose exec frontend npm install <package>
 docker-compose exec postgres psql -U chess_user -d chess_tdf
 
 ### Testing
-Docker MCP Toolkit Playwright for testing frontend
+Playwright MCP (standalone, visible browser) for testing frontend
+Docker Toolkit Playwright (headless) only when explicitly asked
 Test API endpoints by calling them
 docker-compose exec backend npm test
 
