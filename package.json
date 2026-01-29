@@ -1,0 +1,11 @@
+{
+  "name": "chess-tdf",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "knip": "knip"
+  },
+  "devDependencies": {
+    "knip": "latest"
+  }
+}

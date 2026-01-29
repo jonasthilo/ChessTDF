@@ -26,7 +26,6 @@ const gitHash = (() => {
 export default defineConfig({
   plugins: [react()],
   define: {
-    __APP_VERSION__: JSON.stringify(process.env.npm_package_version),
     __GIT_HASH__: JSON.stringify(gitHash),
   },
   server: {

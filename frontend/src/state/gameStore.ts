@@ -20,7 +20,7 @@ import { gameApi } from '../services/gameApi';
 import { GAME_CONFIG, CanvasState } from '../config/gameConfig';
 import { GridManager } from '../game/managers/GridManager';
 
-export type GameScreen = 'start' | 'game' | 'gameEnd' | 'instructions' | 'settings' | 'statistics';
+export type GameScreen = 'start' | 'game' | 'gameEnd' | 'settings' | 'statistics';
 export type GameResult = 'win' | 'loss' | null;
 
 interface GameStore {
