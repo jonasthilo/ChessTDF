@@ -5,6 +5,7 @@
   min-height: 100vh;
   background: var(--color-bg-primary);
   color: #ffffff;
+  overflow-y: auto;
 }
 
 .settings-content {
@@ -15,6 +16,9 @@
   width: 90%;
   border: 2px solid var(--color-bg-tertiary);
   box-shadow: var(--shadow-default);
+  display: flex;
+  flex-direction: column;
+  max-height: 95vh;
 }
 
 .settings-title {
@@ -184,7 +188,8 @@
 }
 
 .advanced-content {
-  max-height: 400px;
+  max-height: calc(100vh - 320px);
+  min-height: 150px;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
