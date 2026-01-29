@@ -138,6 +138,9 @@ export class GameEngine {
     // Update game time
     state.updateGameTime(deltaTime);
 
+    // Process spawn queue (respects gameSpeed via deltaTime)
+    state.processSpawnQueue(deltaTime);
+
     // Update game systems in order
     this.enemySystem.update(deltaTime);
     this.towerSystem.update(deltaTime);

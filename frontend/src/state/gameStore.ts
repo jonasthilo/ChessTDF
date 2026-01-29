@@ -20,6 +20,7 @@ import type {
 import { gameApi } from '../services/gameApi';
 import { GAME_CONFIG, CanvasState } from '../config/gameConfig';
 import { GridManager } from '../game/managers/GridManager';
+import { PathManager } from '../game/managers/PathManager';
 
 type GameScreen = 'start' | 'game' | 'gameEnd' | 'settings' | 'statistics';
 type GameResult = 'win' | 'loss' | null;
@@ -115,6 +116,12 @@ interface GameStore {
   setWaveEnemiesTotal: (count: number) => void;
   markWaveSurvived: () => void;
 
+  // Spawn queue (game-loop driven, respects gameSpeed)
+  spawnQueue: EnemySpawnData[];
+  spawnElapsed: number;
+  setSpawnQueue: (queue: EnemySpawnData[]) => void;
+  processSpawnQueue: (deltaTime: number) => void;
+
   // Resize
   repositionEntitiesAfterResize: () => void;
 
@@ -146,6 +153,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   enemies: [],
   projectiles: [],
   selectedTowerId: null,
+  spawnQueue: [],
+  spawnElapsed: 0,
 
   // Screen management
   setScreen: (screen) => set({ currentScreen: screen }),
@@ -549,6 +558,49 @@ export const useGameStore = create<GameStore>((set, get) => ({
       waveEnemiesDealt: 0,
     })),
 
+  // Spawn queue management
+  setSpawnQueue: (queue) => set({ spawnQueue: queue, spawnElapsed: 0 }),
+
+  processSpawnQueue: (deltaTime) => {
+    const state = get();
+    if (state.spawnQueue.length === 0) return;
+
+    const newElapsed = state.spawnElapsed + deltaTime;
+    const pathManager = new PathManager();
+    const remaining: EnemySpawnData[] = [];
+
+    for (const data of state.spawnQueue) {
+      if (data.spawnDelay <= newElapsed) {
+        const spawnPos = pathManager.getSpawnPosition();
+        const enemyDef = state.enemyDefinitions.find((e) => e.id === data.enemyId);
+        if (!enemyDef) continue;
+
+        const scaledHealth = Math.round(
+          enemyDef.health * (1 + state.wave * state.enemyHealthWaveMultiplier)
+        );
+        const scaledReward = Math.round(
+          enemyDef.reward * (1 + state.wave * state.enemyRewardWaveMultiplier)
+        );
+
+        state.addEnemy({
+          id: `enemy-${Date.now()}-${Math.random()}`,
+          enemyId: data.enemyId,
+          definition: enemyDef,
+          health: scaledHealth,
+          maxHealth: scaledHealth,
+          scaledReward,
+          x: spawnPos.x,
+          y: spawnPos.y,
+          isDead: false,
+        });
+      } else {
+        remaining.push(data);
+      }
+    }
+
+    set({ spawnQueue: remaining, spawnElapsed: newElapsed });
+  },
+
   // Reposition entities after window resize
   repositionEntitiesAfterResize: () => {
     const gridManager = new GridManager();
@@ -593,5 +645,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       selectedTowerId: null,
       selectedTower: null,
       selectedEnemy: null,
+      spawnQueue: [],
+      spawnElapsed: 0,
     }),
 }));
