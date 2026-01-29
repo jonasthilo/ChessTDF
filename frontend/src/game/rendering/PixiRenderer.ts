@@ -330,6 +330,22 @@ export class PixiRenderer {
       newIndicator.position.set(15, -20);
       sprite.addChild(newIndicator);
     }
+
+    // Update range circle if tower was upgraded
+    const existingRange = sprite.children.find(
+      (child) => child.label === 'rangeCircle'
+    );
+    if (existingRange) {
+      const wasVisible = existingRange.visible;
+      existingRange.destroy();
+      const newRange = new Graphics();
+      newRange.circle(0, 0, tower.stats.range);
+      newRange.stroke({ width: 2, color: 0xffffff, alpha: 0.15 });
+      newRange.fill({ color: 0xffffff, alpha: 0.05 });
+      newRange.visible = wasVisible;
+      newRange.label = 'rangeCircle';
+      sprite.addChildAt(newRange, 0);
+    }
   }
 
   private createLevelIndicator(level: number): Graphics {
