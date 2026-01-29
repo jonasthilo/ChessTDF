@@ -16,9 +16,9 @@ pool.on('error', (err) => {
   console.error('Unexpected database pool error:', err);
 });
 
-export const query = async <T extends QueryResultRow = any>(
+export const query = async <T extends QueryResultRow = QueryResultRow>(
   text: string,
-  params?: any[]
+  params?: unknown[]
 ): Promise<QueryResult<T>> => {
   const start = Date.now();
   try {

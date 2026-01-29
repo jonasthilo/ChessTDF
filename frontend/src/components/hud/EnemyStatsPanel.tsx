@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../../state/gameStore';
+import type { Enemy } from '../../types';
 import './EnemyStatsPanel.css';
 
 const ENEMY_PIECE_MAP: Record<number, string> = {
@@ -16,25 +17,37 @@ export const EnemyStatsPanel = () => {
   const selectEnemy = useGameStore((state) => state.selectEnemy);
 
   const [isClosing, setIsClosing] = useState(false);
-  const [renderPanel, setRenderPanel] = useState(false);
+  const [closingEnemyData, setClosingEnemyData] = useState<Enemy | null>(null);
 
+  // Capture enemy data in cleanup when enemy is deselected
   useEffect(() => {
-    if (selectedEnemy) {
-      setRenderPanel(true);
-      setIsClosing(false);
-    } else if (renderPanel) {
-      setIsClosing(true);
+    const currentEnemy = selectedEnemy;
+    return () => {
+      if (currentEnemy) {
+        setClosingEnemyData(currentEnemy);
+        setIsClosing(true);
+      }
+    };
+  }, [selectedEnemy]);
+
+  // End close animation after timeout
+  useEffect(() => {
+    if (isClosing) {
       const timer = setTimeout(() => {
-        setRenderPanel(false);
         setIsClosing(false);
+        setClosingEnemyData(null);
       }, 300);
       return () => clearTimeout(timer);
     }
-  }, [selectedEnemy, renderPanel]);
+  }, [isClosing]);
 
-  if (!renderPanel || !selectedEnemy) return null;
+  const renderPanel = !!selectedEnemy || isClosing;
+  const displayEnemy = selectedEnemy ?? closingEnemyData;
+  const showClosingAnimation = !selectedEnemy && isClosing;
 
-  const enemy = selectedEnemy;
+  if (!renderPanel || !displayEnemy) return null;
+
+  const enemy = displayEnemy;
   const def = enemy.definition;
   const healthPercent = Math.max(0, (enemy.health / enemy.maxHealth) * 100);
   const pieceImage = ENEMY_PIECE_MAP[enemy.enemyId] ?? ENEMY_PIECE_MAP[1]!;
@@ -50,17 +63,13 @@ export const EnemyStatsPanel = () => {
   };
 
   return (
-    <div className={`enemy-stats-panel ${isClosing ? 'closing' : ''}`}>
+    <div className={`enemy-stats-panel ${showClosingAnimation ? 'closing' : ''}`}>
       <button className="panel-close" onClick={handleClose}>
         X
       </button>
 
       <div className="panel-header">
-        <img
-          src={pieceImage}
-          alt={def.name}
-          className="enemy-panel-icon"
-        />
+        <img src={pieceImage} alt={def.name} className="enemy-panel-icon" />
         <div className="panel-title">
           <h2>{def.name}</h2>
           <span className="enemy-type">{def.description}</span>
@@ -70,7 +79,9 @@ export const EnemyStatsPanel = () => {
       <div className="panel-health">
         <div className="health-label">
           <span>HP</span>
-          <span>{enemy.health} / {enemy.maxHealth}</span>
+          <span>
+            {enemy.health} / {enemy.maxHealth}
+          </span>
         </div>
         <div className="health-bar-bg">
           <div

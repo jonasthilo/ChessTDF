@@ -120,7 +120,11 @@ const options: swaggerJsdoc.Options = {
         StartGameResponse: {
           type: 'object',
           properties: {
-            gameId: { type: 'string', format: 'uuid', example: '6fb3101c-f3f4-4da7-a8c8-6df383f5adc7' },
+            gameId: {
+              type: 'string',
+              format: 'uuid',
+              example: '6fb3101c-f3f4-4da7-a8c8-6df383f5adc7',
+            },
             initialCoins: { type: 'number', example: 200 },
             lives: { type: 'number', example: 10 },
           },

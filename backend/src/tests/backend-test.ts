@@ -117,7 +117,7 @@ async function testDatabase(): Promise<void> {
 
   await test('Query execution', async () => {
     const result = await query('SELECT 1 as num');
-    assertEqual(result.rows[0]?.num, 1, 'Query result mismatch');
+    assertEqual(result.rows[0]?.['num'], 1, 'Query result mismatch');
   });
 
   await test('Tables exist', async () => {
@@ -135,28 +135,28 @@ async function testDatabase(): Promise<void> {
         `SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = $1)`,
         [table]
       );
-      assert(result.rows[0]?.exists, `Table ${table} does not exist`);
+      assert(result.rows[0]?.['exists'], `Table ${table} does not exist`);
     }
   });
 
   await test('Seed data present - towers', async () => {
     const result = await query('SELECT COUNT(*) as count FROM tower_definitions');
-    assert(Number(result.rows[0]?.count) >= 3, 'Missing tower definitions');
+    assert(Number(result.rows[0]?.['count']) >= 3, 'Missing tower definitions');
   });
 
   await test('Seed data present - tower levels', async () => {
     const result = await query('SELECT COUNT(*) as count FROM tower_levels');
-    assert(Number(result.rows[0]?.count) >= 10, 'Missing tower levels');
+    assert(Number(result.rows[0]?.['count']) >= 10, 'Missing tower levels');
   });
 
   await test('Seed data present - enemies', async () => {
     const result = await query('SELECT COUNT(*) as count FROM enemy_definitions');
-    assert(Number(result.rows[0]?.count) >= 6, 'Missing enemy definitions');
+    assert(Number(result.rows[0]?.['count']) >= 6, 'Missing enemy definitions');
   });
 
   await test('Seed data present - settings', async () => {
     const result = await query('SELECT COUNT(*) as count FROM game_settings');
-    assert(Number(result.rows[0]?.count) >= 3, 'Missing game settings');
+    assert(Number(result.rows[0]?.['count']) >= 3, 'Missing game settings');
   });
 }
 
@@ -176,13 +176,13 @@ async function testRepositories(): Promise<void> {
   await test('TowerRepository.getAllTowerDefinitions', async () => {
     const towers = await towerRepo.getAllTowerDefinitions();
     assert(towers.length >= 3, 'Expected at least 3 tower definitions');
-    const basic = towers.find(t => t.id === 'basic');
+    const basic = towers.find((t) => t.id === 1);
     assertDefined(basic, 'Basic tower not found');
     assertEqual(basic.name, 'Basic Tower', 'Basic tower name mismatch');
   });
 
   await test('TowerRepository.getTowerDefinition', async () => {
-    const tower = await towerRepo.getTowerDefinition('sniper');
+    const tower = await towerRepo.getTowerDefinition(2);
     assertDefined(tower, 'Sniper tower not found');
     assertEqual(tower.name, 'Sniper Tower', 'Sniper tower name mismatch');
   });
@@ -193,18 +193,18 @@ async function testRepositories(): Promise<void> {
   });
 
   await test('TowerRepository.getTowerLevels', async () => {
-    const levels = await towerRepo.getTowerLevels('basic');
+    const levels = await towerRepo.getTowerLevels(1);
     assertEqual(levels.length, 5, 'Basic tower should have 5 levels');
   });
 
   await test('TowerRepository.getTowerLevel', async () => {
-    const level = await towerRepo.getTowerLevel('basic', 1);
+    const level = await towerRepo.getTowerLevel(1, 1);
     assertDefined(level, 'Basic tower level 1 not found');
     assertEqual(level.cost, 50, 'Basic tower level 1 cost mismatch');
   });
 
   await test('TowerRepository.getMaxLevel', async () => {
-    const maxLevel = await towerRepo.getMaxLevel('basic');
+    const maxLevel = await towerRepo.getMaxLevel(1);
     assertEqual(maxLevel, 5, 'Basic tower max level should be 5');
   });
 
@@ -212,12 +212,12 @@ async function testRepositories(): Promise<void> {
   await test('EnemyRepository.getAllEnemyDefinitions', async () => {
     const enemies = await enemyRepo.getAllEnemyDefinitions();
     assert(enemies.length >= 6, 'Expected at least 6 enemy definitions');
-    const pawn = enemies.find(e => e.id === 'pawn');
+    const pawn = enemies.find((e) => e.id === 1);
     assertDefined(pawn, 'Pawn enemy not found');
   });
 
   await test('EnemyRepository.getEnemyDefinition', async () => {
-    const enemy = await enemyRepo.getEnemyDefinition('queen');
+    const enemy = await enemyRepo.getEnemyDefinition(5);
     assertDefined(enemy, 'Queen enemy not found');
     assertEqual(enemy.health, 300, 'Queen health mismatch');
   });
@@ -351,16 +351,16 @@ async function testServices(): Promise<void> {
   await test('ConfigService.getTowerDefinitionsWithLevels', async () => {
     const towers = await configService.getTowerDefinitionsWithLevels();
     assert(towers.length >= 3, 'Expected at least 3 towers with levels');
-    const basic = towers.find(t => t.id === 'basic');
+    const basic = towers.find((t) => t.id === 1);
     assertDefined(basic, 'Basic tower not found');
     assertEqual(basic.maxLevel, 5, 'Basic tower max level mismatch');
     assertEqual(basic.levels.length, 5, 'Basic tower should have 5 levels');
   });
 
   await test('ConfigService.getTowerDefinitionsWithLevels (single)', async () => {
-    const towers = await configService.getTowerDefinitionsWithLevels('sniper');
+    const towers = await configService.getTowerDefinitionsWithLevels(2);
     assertEqual(towers.length, 1, 'Should return single tower');
-    assertEqual(towers[0]?.id, 'sniper', 'Should return sniper tower');
+    assertEqual(towers[0]?.id, 2, 'Should return sniper tower');
   });
 
   await test('ConfigService.getAllEnemyDefinitions', async () => {
@@ -410,13 +410,13 @@ async function testServices(): Promise<void> {
   await test('GameService.buildTower', async () => {
     const game = await gameService.createGame('10waves', 'normal');
     const result = await gameService.buildTower(game.id, {
-      towerType: 'basic',
+      towerId: 1,
       gridX: 5,
       gridY: 3,
     });
     assert(result.success, 'Tower build should succeed');
     assertDefined(result.tower, 'Tower should be returned');
-    assertEqual(result.tower.type, 'basic', 'Tower type mismatch');
+    assertEqual(result.tower.towerId, 1, 'Tower type mismatch');
     assertEqual(result.tower.level, 1, 'Tower level should be 1');
     assertEqual(result.remainingCoins, 150, 'Remaining coins mismatch (200 - 50)');
     // Cleanup
@@ -426,7 +426,7 @@ async function testServices(): Promise<void> {
   await test('GameService.upgradeTower', async () => {
     const game = await gameService.createGame('10waves', 'easy'); // More coins
     const buildResult = await gameService.buildTower(game.id, {
-      towerType: 'basic',
+      towerId: 1,
       gridX: 5,
       gridY: 3,
     });
@@ -443,7 +443,7 @@ async function testServices(): Promise<void> {
   await test('GameService.sellTower', async () => {
     const game = await gameService.createGame('10waves', 'normal');
     const buildResult = await gameService.buildTower(game.id, {
-      towerType: 'basic',
+      towerId: 1,
       gridX: 5,
       gridY: 3,
     });
@@ -550,7 +550,7 @@ async function testApiEndpoints(): Promise<void> {
   await test('GET /api/config/towers', async () => {
     const towers = await fetchJson<Array<{ id: string; levels: unknown[] }>>('/api/config/towers');
     assert(towers.length >= 3, 'Expected at least 3 towers');
-    const basic = towers.find(t => t.id === 'basic');
+    const basic = towers.find((t) => t.id === 'basic');
     assertDefined(basic, 'Basic tower not found');
     assert(basic.levels.length >= 5, 'Basic tower should have 5 levels');
   });
@@ -567,7 +567,9 @@ async function testApiEndpoints(): Promise<void> {
   });
 
   await test('GET /api/config/towers/:towerType/levels/:level', async () => {
-    const level = await fetchJson<{ level: number; cost: number }>('/api/config/towers/basic/levels/1');
+    const level = await fetchJson<{ level: number; cost: number }>(
+      '/api/config/towers/basic/levels/1'
+    );
     assertEqual(level.level, 1, 'Level should be 1');
     assertEqual(level.cost, 50, 'Cost should be 50');
   });
@@ -591,7 +593,9 @@ async function testApiEndpoints(): Promise<void> {
   });
 
   await test('GET /api/config/settings/:mode', async () => {
-    const settings = await fetchJson<{ mode: string; initialCoins: number }>('/api/config/settings/normal');
+    const settings = await fetchJson<{ mode: string; initialCoins: number }>(
+      '/api/config/settings/normal'
+    );
     assertEqual(settings.mode, 'normal', 'Mode should be normal');
     assertEqual(settings.initialCoins, 200, 'Initial coins should be 200');
   });
@@ -631,31 +635,32 @@ async function testApiEndpoints(): Promise<void> {
 
   await test('POST /api/game/:gameId/tower', async () => {
     // Create game first
-    const gameResponse = await fetchJson<{ gameId: string }>(
-      '/api/game/start',
-      {
-        method: 'POST',
-        body: JSON.stringify({ difficulty: 'normal', gameMode: '10waves' }),
-      }
-    );
+    const gameResponse = await fetchJson<{ gameId: string }>('/api/game/start', {
+      method: 'POST',
+      body: JSON.stringify({ difficulty: 'normal', gameMode: '10waves' }),
+    });
     testGameId = gameResponse.gameId;
 
-    const response = await fetchJson<{ success: boolean; tower: { type: string }; remainingCoins: number }>(
-      `/api/game/${testGameId}/tower`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ towerType: 'basic', gridX: 5, gridY: 3 }),
-      }
-    );
+    const response = await fetchJson<{
+      success: boolean;
+      tower: { type: string };
+      remainingCoins: number;
+    }>(`/api/game/${testGameId}/tower`, {
+      method: 'POST',
+      body: JSON.stringify({ towerType: 'basic', gridX: 5, gridY: 3 }),
+    });
     assert(response.success, 'Tower build should succeed');
     assertEqual(response.tower.type, 'basic', 'Tower type mismatch');
     assertEqual(response.remainingCoins, 150, 'Remaining coins mismatch');
   });
 
   await test('GET /api/game/:gameId/state', async () => {
-    const state = await fetchJson<{ coins: number; lives: number; wave: number; towers: unknown[] }>(
-      `/api/game/${testGameId}/state`
-    );
+    const state = await fetchJson<{
+      coins: number;
+      lives: number;
+      wave: number;
+      towers: unknown[];
+    }>(`/api/game/${testGameId}/state`);
     assertEqual(state.coins, 150, 'Coins mismatch');
     assertEqual(state.lives, 10, 'Lives mismatch');
     assertEqual(state.wave, 0, 'Wave should be 0');
@@ -672,13 +677,10 @@ async function testApiEndpoints(): Promise<void> {
   });
 
   await test('POST /api/game/:gameId/end', async () => {
-    const response = await fetchJson<{ success: boolean }>(
-      `/api/game/${testGameId}/end`,
-      {
-        method: 'POST',
-        body: JSON.stringify({ finalWave: 1, enemiesKilled: 5 }),
-      }
-    );
+    const response = await fetchJson<{ success: boolean }>(`/api/game/${testGameId}/end`, {
+      method: 'POST',
+      body: JSON.stringify({ finalWave: 1, enemiesKilled: 5 }),
+    });
     assert(response.success, 'End game should succeed');
   });
 
@@ -725,16 +727,18 @@ async function runTests(): Promise<void> {
   log(`${colors.cyan}TEST SUMMARY${colors.reset}`);
   log(`${colors.cyan}${'='.repeat(60)}${colors.reset}`);
 
-  const passed = results.filter(r => r.passed).length;
-  const failed = results.filter(r => !r.passed).length;
+  const passed = results.filter((r) => r.passed).length;
+  const failed = results.filter((r) => !r.passed).length;
   const total = results.length;
 
-  log(`Total: ${total} | ${colors.green}Passed: ${passed}${colors.reset} | ${colors.red}Failed: ${failed}${colors.reset}`);
+  log(
+    `Total: ${total} | ${colors.green}Passed: ${passed}${colors.reset} | ${colors.red}Failed: ${failed}${colors.reset}`
+  );
   log(`Duration: ${totalTime}ms`);
 
   if (failed > 0) {
     log(`\n${colors.red}FAILED TESTS:${colors.reset}`);
-    for (const result of results.filter(r => !r.passed)) {
+    for (const result of results.filter((r) => !r.passed)) {
       log(`  ${colors.red}- ${result.name}${colors.reset}`);
       if (result.error) {
         log(`    ${colors.yellow}${result.error}${colors.reset}`);

@@ -9,12 +9,11 @@ interface EndGameModalProps {
 
 export const EndGameModal = ({ isOpen, onKeepPlaying, onEndGame }: EndGameModalProps) => {
   const [isClosing, setIsClosing] = useState(false);
-  const [renderModal, setRenderModal] = useState(false);
+  const renderModal = isOpen || isClosing;
 
   const handleClose = useCallback(() => {
     setIsClosing(true);
     setTimeout(() => {
-      setRenderModal(false);
       setIsClosing(false);
       onKeepPlaying();
     }, 300);
@@ -23,18 +22,10 @@ export const EndGameModal = ({ isOpen, onKeepPlaying, onEndGame }: EndGameModalP
   const handleEndGame = useCallback(() => {
     setIsClosing(true);
     setTimeout(() => {
-      setRenderModal(false);
       setIsClosing(false);
       onEndGame();
     }, 300);
   }, [onEndGame]);
-
-  useEffect(() => {
-    if (isOpen) {
-      setRenderModal(true);
-      setIsClosing(false);
-    }
-  }, [isOpen]);
 
   useEffect(() => {
     if (!renderModal) return;

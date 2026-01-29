@@ -1,32 +1,47 @@
 import { query } from '../db';
 import { GameSettings, SettingsMode } from '../../types';
 
+interface SettingsRow {
+  id: number;
+  mode: string;
+  initial_coins: number;
+  initial_lives: number;
+  tower_cost_multiplier: string;
+  enemy_health_multiplier: string;
+  enemy_speed_multiplier: string;
+  enemy_reward_multiplier: string;
+  enemy_health_wave_multiplier: string;
+  enemy_reward_wave_multiplier: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
 export class SettingsRepository {
   // Get all settings
   async getAllSettings(): Promise<GameSettings[]> {
-    const result = await query<any>('SELECT * FROM game_settings ORDER BY id ASC');
+    const result = await query<SettingsRow>('SELECT * FROM game_settings ORDER BY id ASC');
     return result.rows.map(this.mapToGameSettings);
   }
 
   // Get settings by mode
   async getSettingsByMode(mode: SettingsMode): Promise<GameSettings | null> {
-    const result = await query<any>('SELECT * FROM game_settings WHERE mode = $1 LIMIT 1', [
+    const result = await query<SettingsRow>('SELECT * FROM game_settings WHERE mode = $1 LIMIT 1', [
       mode,
     ]);
     if (result.rows.length === 0) return null;
-    return this.mapToGameSettings(result.rows[0]);
+    return this.mapToGameSettings(result.rows[0]!);
   }
 
   // Get settings by ID
   async getSettingsById(id: number): Promise<GameSettings | null> {
-    const result = await query<any>('SELECT * FROM game_settings WHERE id = $1', [id]);
+    const result = await query<SettingsRow>('SELECT * FROM game_settings WHERE id = $1', [id]);
     if (result.rows.length === 0) return null;
-    return this.mapToGameSettings(result.rows[0]);
+    return this.mapToGameSettings(result.rows[0]!);
   }
 
   // Create new custom settings
   async createSettings(settings: Omit<GameSettings, 'id'>): Promise<GameSettings> {
-    const result = await query<any>(
+    const result = await query<SettingsRow>(
       `INSERT INTO game_settings (
         mode, initial_coins, initial_lives, tower_cost_multiplier,
         enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier,
@@ -44,13 +59,13 @@ export class SettingsRepository {
         settings.enemyRewardWaveMultiplier,
       ]
     );
-    return this.mapToGameSettings(result.rows[0]);
+    return this.mapToGameSettings(result.rows[0]!);
   }
 
   // Update existing settings
   async updateSettings(id: number, updates: Partial<GameSettings>): Promise<boolean> {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramIndex = 1;
 
     if (updates.mode !== undefined) {
@@ -100,7 +115,7 @@ export class SettingsRepository {
   }
 
   // Helper: Map database row to GameSettings
-  private mapToGameSettings(row: any): GameSettings {
+  private mapToGameSettings(row: SettingsRow): GameSettings {
     return {
       id: row.id,
       mode: row.mode as SettingsMode,

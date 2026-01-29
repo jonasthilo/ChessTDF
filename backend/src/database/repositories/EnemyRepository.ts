@@ -1,24 +1,35 @@
 import { query } from '../db';
 import { EnemyDefinition } from '../../types';
 
+interface EnemyRow {
+  id: number;
+  name: string;
+  description: string;
+  health: number;
+  speed: number;
+  reward: number;
+  color: string;
+  size: number;
+}
+
 export class EnemyRepository {
   // Get all enemy definitions
   async getAllEnemyDefinitions(): Promise<EnemyDefinition[]> {
-    const result = await query<any>('SELECT * FROM enemy_definitions ORDER BY health ASC');
+    const result = await query<EnemyRow>('SELECT * FROM enemy_definitions ORDER BY health ASC');
     return result.rows.map(this.mapToEnemyDefinition);
   }
 
   // Get enemy definition by ID
   async getEnemyDefinition(id: number): Promise<EnemyDefinition | null> {
-    const result = await query<any>('SELECT * FROM enemy_definitions WHERE id = $1', [id]);
+    const result = await query<EnemyRow>('SELECT * FROM enemy_definitions WHERE id = $1', [id]);
     if (result.rows.length === 0) return null;
-    return this.mapToEnemyDefinition(result.rows[0]);
+    return this.mapToEnemyDefinition(result.rows[0]!);
   }
 
   // Update enemy definition (for admin/settings)
   async updateEnemyDefinition(id: number, updates: Partial<EnemyDefinition>): Promise<boolean> {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramIndex = 1;
 
     if (updates.name !== undefined) {
@@ -60,7 +71,7 @@ export class EnemyRepository {
   }
 
   // Helper: Map database row to EnemyDefinition
-  private mapToEnemyDefinition(row: any): EnemyDefinition {
+  private mapToEnemyDefinition(row: EnemyRow): EnemyDefinition {
     return {
       id: row.id,
       name: row.name,

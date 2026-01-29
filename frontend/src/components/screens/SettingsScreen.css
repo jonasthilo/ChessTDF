@@ -298,7 +298,7 @@
   background: rgba(0, 0, 0, 0.4);
 }
 
-.field-row input[type="color"] {
+.field-row input[type='color'] {
   height: 28px;
   cursor: pointer;
 }

@@ -29,8 +29,18 @@ export class AssetLoader {
 
       // Load all assets
       const aliases = [
-        'white-king', 'white-queen', 'white-rook', 'white-bishop', 'white-knight', 'white-pawn',
-        'black-king', 'black-queen', 'black-rook', 'black-bishop', 'black-knight', 'black-pawn',
+        'white-king',
+        'white-queen',
+        'white-rook',
+        'white-bishop',
+        'white-knight',
+        'white-pawn',
+        'black-king',
+        'black-queen',
+        'black-rook',
+        'black-bishop',
+        'black-knight',
+        'black-pawn',
       ];
 
       await Assets.load(aliases);

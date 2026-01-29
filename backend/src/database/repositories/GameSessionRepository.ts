@@ -1,10 +1,30 @@
 import { query } from '../db';
 import { GameSessionDB, GameMode, SessionStatus } from '../../types';
 
+interface GameSessionRow {
+  game_id: string;
+  settings_id: number | null;
+  game_mode: string;
+  current_wave: number;
+  waves_completed: number;
+  coins: number;
+  lives: number;
+  towers: string | unknown[];
+  enemies_killed: number;
+  coins_earned: number;
+  coins_spent: number;
+  damage_dealt: number;
+  started_at: Date;
+  last_updated: Date;
+  status: string;
+}
+
 export class GameSessionRepository {
   // Create new game session
-  async createGameSession(session: Omit<GameSessionDB, 'startedAt' | 'lastUpdated'>): Promise<GameSessionDB> {
-    const result = await query<any>(
+  async createGameSession(
+    session: Omit<GameSessionDB, 'startedAt' | 'lastUpdated'>
+  ): Promise<GameSessionDB> {
+    const result = await query<GameSessionRow>(
       `INSERT INTO game_sessions (
         game_id, settings_id, game_mode, current_wave, waves_completed, coins, lives,
         towers, enemies_killed, coins_earned, coins_spent, damage_dealt, status
@@ -25,20 +45,22 @@ export class GameSessionRepository {
         session.status,
       ]
     );
-    return this.mapToGameSession(result.rows[0]);
+    return this.mapToGameSession(result.rows[0]!);
   }
 
   // Get game session by ID
   async getGameSession(gameId: string): Promise<GameSessionDB | null> {
-    const result = await query<any>('SELECT * FROM game_sessions WHERE game_id = $1', [gameId]);
+    const result = await query<GameSessionRow>('SELECT * FROM game_sessions WHERE game_id = $1', [
+      gameId,
+    ]);
     if (result.rows.length === 0) return null;
-    return this.mapToGameSession(result.rows[0]);
+    return this.mapToGameSession(result.rows[0]!);
   }
 
   // Update game session
   async updateGameSession(gameId: string, updates: Partial<GameSessionDB>): Promise<boolean> {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramIndex = 1;
 
     if (updates.currentWave !== undefined) {
@@ -99,7 +121,7 @@ export class GameSessionRepository {
 
   // Get all active sessions
   async getActiveSessions(): Promise<GameSessionDB[]> {
-    const result = await query<any>(
+    const result = await query<GameSessionRow>(
       `SELECT * FROM game_sessions WHERE status = 'active' ORDER BY last_updated DESC`
     );
     return result.rows.map(this.mapToGameSession);
@@ -117,7 +139,7 @@ export class GameSessionRepository {
   }
 
   // Helper: Map database row to GameSessionDB
-  private mapToGameSession(row: any): GameSessionDB {
+  private mapToGameSession(row: GameSessionRow): GameSessionDB {
     return {
       gameId: row.game_id,
       settingsId: row.settings_id,

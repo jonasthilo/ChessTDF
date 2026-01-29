@@ -383,7 +383,9 @@ export class ConfigController {
 
       // Validate required fields
       if (!settingsData.mode || !settingsData.initialCoins || !settingsData.initialLives) {
-        res.status(400).json({ error: 'Missing required fields: mode, initialCoins, initialLives' });
+        res
+          .status(400)
+          .json({ error: 'Missing required fields: mode, initialCoins, initialLives' });
         return;
       }
 

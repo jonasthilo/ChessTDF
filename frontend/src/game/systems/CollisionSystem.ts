@@ -13,12 +13,7 @@ export class CollisionSystem {
       if (!target) continue;
 
       // Check collision
-      const distance = this.calculateDistance(
-        projectile.x,
-        projectile.y,
-        target.x,
-        target.y
-      );
+      const distance = this.calculateDistance(projectile.x, projectile.y, target.x, target.y);
 
       if (distance < this.HIT_THRESHOLD) {
         // Apply damage

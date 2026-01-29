@@ -16,9 +16,7 @@ export const WaveInfo = () => {
       {isPlaying && (
         <div className={`wave-status active ${gameSpeed === 3 ? 'fast' : ''}`}>In Progress</div>
       )}
-      {!isPlaying && wave > 0 && (
-        <div className="wave-status complete">Complete</div>
-      )}
+      {!isPlaying && wave > 0 && <div className="wave-status complete">Complete</div>}
     </div>
   );
 };

@@ -1,7 +1,8 @@
 /* Shared Animation Keyframes */
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -42,7 +43,8 @@
 }
 
 @keyframes damageFlash {
-  0%, 100% {
+  0%,
+  100% {
     filter: brightness(1);
   }
   50% {
@@ -66,7 +68,8 @@
 }
 
 @keyframes towerFire {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -84,7 +87,8 @@
 }
 
 @keyframes gridCellHover {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.2;
   }
   50% {
@@ -93,7 +97,8 @@
 }
 
 @keyframes rangeIndicatorPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }

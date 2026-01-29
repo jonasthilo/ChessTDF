@@ -98,21 +98,15 @@ export const StatisticsScreen = () => {
                 <span className="stat-label">Losses</span>
               </div>
               <div className="stat-card highlight">
-                <span className="stat-number">
-                  {((summary.winRate || 0) * 100).toFixed(1)}%
-                </span>
+                <span className="stat-number">{((summary.winRate || 0) * 100).toFixed(1)}%</span>
                 <span className="stat-label">Win Rate</span>
               </div>
               <div className="stat-card">
-                <span className="stat-number">
-                  {(summary.avgWaveReached || 0).toFixed(1)}
-                </span>
+                <span className="stat-number">{(summary.avgWaveReached || 0).toFixed(1)}</span>
                 <span className="stat-label">Avg Wave Reached</span>
               </div>
               <div className="stat-card">
-                <span className="stat-number">
-                  {formatDuration(summary.avgDuration || 0)}
-                </span>
+                <span className="stat-number">{formatDuration(summary.avgDuration || 0)}</span>
                 <span className="stat-label">Avg Duration</span>
               </div>
               <div className="stat-card">
@@ -147,9 +141,7 @@ export const StatisticsScreen = () => {
                   <span className="game-duration">{formatDuration(game.duration)}</span>
                   <span className="game-towers">{game.towersBuiltTotal} towers</span>
                   <span className="game-coins">{game.coinsEarned} coins</span>
-                  <span className="game-date">
-                    {new Date(game.timestamp).toLocaleDateString()}
-                  </span>
+                  <span className="game-date">{new Date(game.timestamp).toLocaleDateString()}</span>
                 </div>
               ))
             )}
@@ -164,7 +156,13 @@ export const StatisticsScreen = () => {
               topScores.map((game, index) => (
                 <div key={game.gameId} className="game-row top-score">
                   <span className="game-rank medal">
-                    {index === 0 ? '1st' : index === 1 ? '2nd' : index === 2 ? '3rd' : `#${index + 1}`}
+                    {index === 0
+                      ? '1st'
+                      : index === 1
+                        ? '2nd'
+                        : index === 2
+                          ? '3rd'
+                          : `#${index + 1}`}
                   </span>
                   <span className="game-wave">Wave {game.finalWave}</span>
                   <span className="game-kills">{game.enemiesKilledTotal} kills</span>

@@ -235,9 +235,15 @@ router.get('/towers/:towerId/levels', (req, res) => configController.getTowerLev
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-router.get('/towers/:towerId/levels/:level', (req, res) => configController.getTowerLevel(req, res));
-router.put('/towers/:towerId/levels/:level', (req, res) => configController.upsertTowerLevel(req, res));
-router.delete('/towers/:towerId/levels/:level', (req, res) => configController.deleteTowerLevel(req, res));
+router.get('/towers/:towerId/levels/:level', (req, res) =>
+  configController.getTowerLevel(req, res)
+);
+router.put('/towers/:towerId/levels/:level', (req, res) =>
+  configController.upsertTowerLevel(req, res)
+);
+router.delete('/towers/:towerId/levels/:level', (req, res) =>
+  configController.deleteTowerLevel(req, res)
+);
 
 // ==================== Enemy Definitions ====================
 

@@ -47,14 +47,8 @@ export const gameApi = {
   /**
    * Build a tower at the specified grid position
    */
-  async buildTower(
-    gameId: string,
-    request: BuildTowerRequest
-  ): Promise<BuildTowerResponse> {
-    const response = await api.post<BuildTowerResponse>(
-      `/game/${gameId}/tower`,
-      request
-    );
+  async buildTower(gameId: string, request: BuildTowerRequest): Promise<BuildTowerResponse> {
+    const response = await api.post<BuildTowerResponse>(`/game/${gameId}/tower`, request);
     return response.data;
   },
 
@@ -96,9 +90,7 @@ export const gameApi = {
    * Sell a tower for a partial refund
    */
   async sellTower(gameId: string, towerId: string): Promise<SellTowerResponse> {
-    const response = await api.delete<SellTowerResponse>(
-      `/game/${gameId}/tower/${towerId}`
-    );
+    const response = await api.delete<SellTowerResponse>(`/game/${gameId}/tower/${towerId}`);
     return response.data;
   },
 
@@ -157,10 +149,7 @@ export const gameApi = {
     id: number,
     updates: Partial<Omit<TowerDefinitionWithLevels, 'levels'>>
   ): Promise<TowerDefinitionWithLevels> {
-    const response = await api.patch<TowerDefinitionWithLevels>(
-      `/config/towers/${id}`,
-      updates
-    );
+    const response = await api.patch<TowerDefinitionWithLevels>(`/config/towers/${id}`, updates);
     return response.data;
   },
 
@@ -179,24 +168,15 @@ export const gameApi = {
     id: number,
     updates: Partial<EnemyDefinition>
   ): Promise<EnemyDefinition> {
-    const response = await api.patch<EnemyDefinition>(
-      `/config/enemies/${id}`,
-      updates
-    );
+    const response = await api.patch<EnemyDefinition>(`/config/enemies/${id}`, updates);
     return response.data;
   },
 
   /**
    * Update game settings by ID
    */
-  async updateSettings(
-    id: number,
-    updates: Partial<GameSettings>
-  ): Promise<GameSettings> {
-    const response = await api.patch<GameSettings>(
-      `/config/settings/${id}`,
-      updates
-    );
+  async updateSettings(id: number, updates: Partial<GameSettings>): Promise<GameSettings> {
+    const response = await api.patch<GameSettings>(`/config/settings/${id}`, updates);
     return response.data;
   },
 
@@ -224,20 +204,14 @@ export const gameApi = {
     level: number,
     data: Omit<TowerLevel, 'towerId' | 'level'>
   ): Promise<TowerLevel> {
-    const response = await api.put<TowerLevel>(
-      `/config/towers/${towerId}/levels/${level}`,
-      data
-    );
+    const response = await api.put<TowerLevel>(`/config/towers/${towerId}/levels/${level}`, data);
     return response.data;
   },
 
   /**
    * Delete a tower level
    */
-  async deleteTowerLevel(
-    towerId: number,
-    level: number
-  ): Promise<{ success: boolean }> {
+  async deleteTowerLevel(towerId: number, level: number): Promise<{ success: boolean }> {
     const response = await api.delete<{ success: boolean }>(
       `/config/towers/${towerId}/levels/${level}`
     );
@@ -248,10 +222,9 @@ export const gameApi = {
    * Add coins to the game (when enemy dies)
    */
   async addCoins(gameId: string, amount: number): Promise<{ success: boolean; coins: number }> {
-    const response = await api.post<{ success: boolean; coins: number }>(
-      `/game/${gameId}/coins`,
-      { amount }
-    );
+    const response = await api.post<{ success: boolean; coins: number }>(`/game/${gameId}/coins`, {
+      amount,
+    });
     return response.data;
   },
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGameStore } from '../../state/gameStore';
 import { PathManager } from '../../game/managers/PathManager';
 import { EndGameModal } from './EndGameModal';
+import type { EnemySpawnData } from '../../types';
 import './GameControls.css';
 
 const pathManager = new PathManager();
@@ -35,7 +36,7 @@ export const GameControls = () => {
       const rewardWaveMult = storeState.enemyRewardWaveMultiplier;
 
       // Schedule enemy spawns based on spawn delays
-      spawnData.forEach((data: any) => {
+      spawnData.forEach((data: EnemySpawnData) => {
         setTimeout(() => {
           const spawnPos = pathManager.getSpawnPosition();
           const enemyDef = enemyDefinitions.find((e) => e.id === data.enemyId);
@@ -69,22 +70,13 @@ export const GameControls = () => {
 
   return (
     <div className="game-controls">
-      <button
-        className="game-button speed-button"
-        onClick={toggleGameSpeed}
-      >
+      <button className="game-button speed-button" onClick={toggleGameSpeed}>
         {gameSpeed === 1 ? 'Fast forward' : 'Normal speed'}
       </button>
-      <button
-        className="game-button wave-button"
-        onClick={handleStartWave}
-      >
+      <button className="game-button wave-button" onClick={handleStartWave}>
         {wave === 0 ? 'Start First Wave' : 'Send Next Wave'}
       </button>
-      <button
-        className="game-button end-game-button"
-        onClick={handleEndGame}
-      >
+      <button className="game-button end-game-button" onClick={handleEndGame}>
         End Game
       </button>
       <EndGameModal

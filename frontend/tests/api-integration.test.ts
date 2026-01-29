@@ -9,7 +9,7 @@ interface TestResult {
   name: string;
   passed: boolean;
   error?: string;
-  data?: any;
+  data?: Record<string, unknown>;
 }
 
 class APIIntegrationTests {
@@ -63,11 +63,11 @@ class APIIntegrationTests {
           enemies: data.enemies.length,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'GET /api/game/config',
         passed: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -98,11 +98,11 @@ class APIIntegrationTests {
           lives: data.lives,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'POST /api/game/start',
         passed: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -145,11 +145,11 @@ class APIIntegrationTests {
           tower: data.tower.type,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'POST /api/game/:id/tower',
         passed: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -185,11 +185,11 @@ class APIIntegrationTests {
           enemyCount: data.enemies.length,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'POST /api/game/:id/wave',
         passed: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -229,11 +229,11 @@ class APIIntegrationTests {
           towers: data.towers.length,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'GET /api/game/:id/state',
         passed: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -271,11 +271,11 @@ class APIIntegrationTests {
           message: data.message,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'Invalid Tower Placement',
         passed: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }
@@ -335,11 +335,11 @@ class APIIntegrationTests {
           message: data.message,
         },
       };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         name: 'Insufficient Coins',
         passed: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       };
     }
   }

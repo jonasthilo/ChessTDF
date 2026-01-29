@@ -155,9 +155,7 @@ export class GameEngine {
 
     // Render placement preview if tower is selected and mouse is in canvas
     if (state.selectedTowerId && this.mouseInCanvas) {
-      const towerDef = state.towerDefinitions.find(
-        (t) => t.id === state.selectedTowerId
-      );
+      const towerDef = state.towerDefinitions.find((t) => t.id === state.selectedTowerId);
       const isValid = this.gridManager.isValidPlacement(
         this.mouseGridX,
         this.mouseGridY,
@@ -165,12 +163,7 @@ export class GameEngine {
       );
 
       if (towerDef) {
-        this.renderer.renderPlacementPreview(
-          this.mouseGridX,
-          this.mouseGridY,
-          towerDef,
-          isValid
-        );
+        this.renderer.renderPlacementPreview(this.mouseGridX, this.mouseGridY, towerDef, isValid);
       }
     } else {
       this.renderer.clearPlacementPreview();

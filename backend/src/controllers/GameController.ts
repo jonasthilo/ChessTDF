@@ -10,7 +10,7 @@ import {
   StartWaveResponse,
   EndGameRequest,
   EndGameResponse,
-  GameStateResponse
+  GameStateResponse,
 } from '../types';
 
 export class GameController {
@@ -23,7 +23,7 @@ export class GameController {
       const response: StartGameResponse = {
         gameId: game.id,
         initialCoins: game.coins,
-        lives: game.lives
+        lives: game.lives,
       };
 
       res.status(201).json(response);
@@ -38,12 +38,12 @@ export class GameController {
     try {
       const [towers, enemies] = await Promise.all([
         configService.getTowerDefinitionsWithLevels(),
-        configService.getAllEnemyDefinitions()
+        configService.getAllEnemyDefinitions(),
       ]);
 
       const response: GameConfigResponse = {
         towers,
-        enemies
+        enemies,
       };
 
       res.status(200).json(response);
@@ -68,7 +68,7 @@ export class GameController {
         coins: game.coins,
         lives: game.lives,
         wave: game.wave,
-        towers: game.towers
+        towers: game.towers,
       };
 
       res.status(200).json(response);
@@ -202,7 +202,9 @@ export class GameController {
       const gameId = req.params['gameId'] as string;
       const request: EndGameRequest = req.body;
 
-      console.log(`Game ${gameId} ended - Wave: ${request.finalWave}, Enemies Killed: ${request.enemiesKilled}`);
+      console.log(
+        `Game ${gameId} ended - Wave: ${request.finalWave}, Enemies Killed: ${request.enemiesKilled}`
+      );
 
       const success = await gameService.endGame(gameId, 'loss', {
         duration: 0,
@@ -259,7 +261,7 @@ export class GameController {
       res.status(200).json({
         success: true,
         lives: game?.lives ?? 0,
-        gameOver: !stillAlive
+        gameOver: !stillAlive,
       });
     } catch (error) {
       console.error('Error losing life:', error);

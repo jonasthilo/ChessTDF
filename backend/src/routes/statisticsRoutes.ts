@@ -22,7 +22,9 @@ router.get('/period', (req, res) => statisticsController.getStatisticsForPeriod(
 router.get('/game/:gameId', (req, res) => statisticsController.getGameStatistics(req, res));
 
 // GET /api/statistics/outcome/:outcome - Get statistics by outcome
-router.get('/outcome/:outcome', (req, res) => statisticsController.getStatisticsByOutcome(req, res));
+router.get('/outcome/:outcome', (req, res) =>
+  statisticsController.getStatisticsByOutcome(req, res)
+);
 
 // GET /api/statistics/mode/:gameMode - Get statistics by game mode
 router.get('/mode/:gameMode', (req, res) => statisticsController.getStatisticsByGameMode(req, res));

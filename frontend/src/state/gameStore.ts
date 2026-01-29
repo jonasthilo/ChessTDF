@@ -12,6 +12,7 @@ import type {
   TowerDefinitionWithLevels,
   TowerStats,
   EnemyDefinition,
+  EnemySpawnData,
   Tower,
   Enemy,
   Projectile,
@@ -20,8 +21,8 @@ import { gameApi } from '../services/gameApi';
 import { GAME_CONFIG, CanvasState } from '../config/gameConfig';
 import { GridManager } from '../game/managers/GridManager';
 
-export type GameScreen = 'start' | 'game' | 'gameEnd' | 'settings' | 'statistics';
-export type GameResult = 'win' | 'loss' | null;
+type GameScreen = 'start' | 'game' | 'gameEnd' | 'settings' | 'statistics';
+type GameResult = 'win' | 'loss' | null;
 
 interface GameStore {
   // Screen state
@@ -90,7 +91,7 @@ interface GameStore {
   initializeGame: () => Promise<void>;
   startGame: () => Promise<void>;
   buildTower: (gridX: number, gridY: number) => Promise<boolean>;
-  startWave: () => Promise<any>;
+  startWave: () => Promise<EnemySpawnData[] | undefined>;
   endGame: (result: GameResult) => Promise<void>;
 
   // Game logic (called by GameEngine)
@@ -160,11 +161,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // Tower selection (for modal) - clears enemy selection for mutual exclusivity
   selectedTower: null,
-  selectTower: (tower) => set({ selectedTower: tower, selectedEnemy: tower ? null : get().selectedEnemy }),
+  selectTower: (tower) =>
+    set({ selectedTower: tower, selectedEnemy: tower ? null : get().selectedEnemy }),
 
   // Enemy selection (for stats panel) - clears tower selection for mutual exclusivity
   selectedEnemy: null,
-  selectEnemy: (enemy) => set({ selectedEnemy: enemy, selectedTower: enemy ? null : get().selectedTower }),
+  selectEnemy: (enemy) =>
+    set({ selectedEnemy: enemy, selectedTower: enemy ? null : get().selectedTower }),
 
   // Helper methods for tower definitions
   getTowerDefinition: (towerId) => {
@@ -217,9 +220,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
               : t
           ),
           coins: response.remainingCoins,
-          selectedTower: state.selectedTower?.id === towerId
-            ? { ...state.selectedTower, level: upgradedTower.level, stats: upgradedTower.stats }
-            : state.selectedTower,
+          selectedTower:
+            state.selectedTower?.id === towerId
+              ? { ...state.selectedTower, level: upgradedTower.level, stats: upgradedTower.stats }
+              : state.selectedTower,
         }));
         console.log('Tower upgraded successfully to level:', upgradedTower.level);
         return true;
@@ -230,7 +234,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
       // Extract error message from axios error response
       if (error && typeof error === 'object' && 'response' in error) {
         const axiosError = error as { response?: { data?: { error?: string } } };
-        console.error('Failed to upgrade tower:', axiosError.response?.data?.error || 'Unknown error');
+        console.error(
+          'Failed to upgrade tower:',
+          axiosError.response?.data?.error || 'Unknown error'
+        );
       } else {
         console.error('Failed to upgrade tower:', error);
       }
@@ -393,9 +400,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const { towers, selectedTowerId, towerDefinitions, coins } = state;
 
     // Check if clicking on an existing tower
-    const existingTower = towers.find(
-      (t) => t.gridX === gridX && t.gridY === gridY
-    );
+    const existingTower = towers.find((t) => t.gridX === gridX && t.gridY === gridY);
 
     if (existingTower) {
       // If no tower ID selected, open modal for this tower
@@ -507,9 +512,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   addTower: (tower) => set((state) => ({ towers: [...state.towers, tower] })),
   updateTower: (towerId, updates) =>
     set((state) => ({
-      towers: state.towers.map((t) =>
-        t.id === towerId ? { ...t, ...updates } : t
-      ),
+      towers: state.towers.map((t) => (t.id === towerId ? { ...t, ...updates } : t)),
     })),
 
   addEnemy: (enemy) => set((state) => ({ enemies: [...state.enemies, enemy] })),
@@ -517,9 +520,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     set((state) => ({ enemies: state.enemies.filter((e) => e.id !== enemyId) })),
   updateEnemy: (enemyId, updates) =>
     set((state) => ({
-      enemies: state.enemies.map((e) =>
-        e.id === enemyId ? { ...e, ...updates } : e
-      ),
+      enemies: state.enemies.map((e) => (e.id === enemyId ? { ...e, ...updates } : e)),
     })),
 
   addProjectile: (projectile) =>
@@ -530,19 +531,15 @@ export const useGameStore = create<GameStore>((set, get) => ({
     })),
   updateProjectile: (projectileId, updates) =>
     set((state) => ({
-      projectiles: state.projectiles.map((p) =>
-        p.id === projectileId ? { ...p, ...updates } : p
-      ),
+      projectiles: state.projectiles.map((p) => (p.id === projectileId ? { ...p, ...updates } : p)),
     })),
 
-  incrementEnemiesKilled: () =>
-    set((state) => ({ enemiesKilled: state.enemiesKilled + 1 })),
+  incrementEnemiesKilled: () => set((state) => ({ enemiesKilled: state.enemiesKilled + 1 })),
 
   incrementWaveEnemiesDealt: () =>
     set((state) => ({ waveEnemiesDealt: state.waveEnemiesDealt + 1 })),
 
-  setWaveEnemiesTotal: (count) =>
-    set({ waveEnemiesTotal: count, waveEnemiesDealt: 0 }),
+  setWaveEnemiesTotal: (count) => set({ waveEnemiesTotal: count, waveEnemiesDealt: 0 }),
 
   markWaveSurvived: () =>
     set((state) => ({
@@ -557,7 +554,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     const gridManager = new GridManager();
 
     set((state) => ({
-      towers: state.towers.map(tower => {
+      towers: state.towers.map((tower) => {
         const pixelPos = gridManager.gridToPixel(tower.gridX, tower.gridY);
         return {
           ...tower,
@@ -565,7 +562,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           y: pixelPos.y,
         };
       }),
-      enemies: state.enemies.map(enemy => ({
+      enemies: state.enemies.map((enemy) => ({
         ...enemy,
         y: CanvasState.getEnemyPathY(),
       })),
