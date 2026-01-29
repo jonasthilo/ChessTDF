@@ -1,22 +1,28 @@
+import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { VersionDisplay } from '../common/VersionDisplay';
 import './GameEndScreen.css';
 
 export const GameEndScreen = () => {
+  const navigate = useNavigate();
   const wavesSurvived = useGameStore((state) => state.wavesSurvived);
   const enemiesKilled = useGameStore((state) => state.enemiesKilled);
   const gameResult = useGameStore((state) => state.gameResult);
   const startGame = useGameStore((state) => state.startGame);
-  const setScreen = useGameStore((state) => state.setScreen);
+  const resetGame = useGameStore((state) => state.resetGame);
 
   const isVictory = gameResult === 'win';
 
-  const handlePlayAgain = () => {
-    startGame();
+  const handlePlayAgain = async () => {
+    const newGameId = await startGame();
+    if (newGameId) {
+      navigate(`/game/${newGameId}`);
+    }
   };
 
   const handleReturnHome = () => {
-    setScreen('start');
+    resetGame();
+    navigate('/');
   };
 
   return (

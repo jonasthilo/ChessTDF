@@ -1,21 +1,25 @@
+import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { VersionDisplay } from '../common/VersionDisplay';
 import './StartScreen.css';
 
 export const StartScreen = () => {
+  const navigate = useNavigate();
   const startGame = useGameStore((state) => state.startGame);
-  const setScreen = useGameStore((state) => state.setScreen);
 
   const handleStartGame = async () => {
-    await startGame();
+    const gameId = await startGame();
+    if (gameId) {
+      navigate(`/game/${gameId}`);
+    }
   };
 
   const handleShowSettings = () => {
-    setScreen('settings');
+    navigate('/settings');
   };
 
   const handleShowStatistics = () => {
-    setScreen('statistics');
+    navigate('/statistics');
   };
 
   return (

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { gameApi } from '../../services/gameApi';
 import { VersionDisplay } from '../common/VersionDisplay';
@@ -13,7 +14,7 @@ import './SettingsScreen.css';
 type AdvancedTab = 'gameSettings' | 'towers' | 'towerLevels' | 'enemies';
 
 export const SettingsScreen = () => {
-  const setScreen = useGameStore((state) => state.setScreen);
+  const navigate = useNavigate();
   const selectedDifficulty = useGameStore((state) => state.selectedDifficulty);
   const setDifficulty = useGameStore((state) => state.setDifficulty);
 
@@ -82,7 +83,7 @@ export const SettingsScreen = () => {
   };
 
   const handleBack = () => {
-    setScreen('start');
+    navigate('/');
   };
 
   const handleSelectMode = (mode: string) => {
