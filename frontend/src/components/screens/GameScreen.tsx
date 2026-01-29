@@ -100,6 +100,7 @@ export const GameScreen = () => {
   return (
     <div className="game-screen">
       <div className="game-header">
+        <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="header-logo" />
         <PlayerStats />
         <WaveInfo />
         <ViewportWarning />
