@@ -39,7 +39,7 @@ coverage/
 *.temp
 
 # playwright-mcp
-.playwright-mcp
+.playwright-mcp/
 
 # Docker volumes (optional - data persistence)
 # postgres_data/
