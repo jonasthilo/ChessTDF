@@ -132,8 +132,9 @@ Docker Toolkit Playwright (headless) only when explicitly asked
 Test API endpoints by calling them
 docker-compose exec backend npm test
 
-Test suite: `backend/src/tests/backend-test.ts` (52 tests)
-Covers: Database, Repositories, Services, API endpoints
+Test suite: `backend/src/tests/backend-test.ts` (110 tests)
+Covers: Database, Repositories (incl. Wave), Services (incl. Wave, error cases), API endpoints (incl. error responses, all CRUD)
+Tests use dynamic DB lookups (no hardcoded values), so they stay valid when game balance is tuned
 
 
 ### Health endpoint
