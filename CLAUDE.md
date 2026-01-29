@@ -71,7 +71,8 @@ Statistics: summary, recent, top scores
 ## Game Systems
 Entities: Tower, Enemy, Projectile (data only)
 Systems: EnemySystem, TowerSystem, ProjectileSystem, CollisionSystem
-Loop: 60 FPS → systems update → PixiJS renders
+Spawning: game-loop driven spawn queue in gameStore (respects gameSpeed multiplier)
+Loop: 60 FPS → process spawn queue → systems update → PixiJS renders
 
 ---
 
@@ -202,7 +203,7 @@ Status: Integer ID migration complete, wave DB migration complete, fully functio
 ### Enemy System
 - Integer-based IDs (1=Pawn, 2=Knight, 3=Bishop, 4=Rook, 5=Queen, 6=King)
 - Straight-line left-to-right pathing
-- Wave-based spawning
+- Wave-based spawning via game-loop spawn queue (respects fast-forward)
 - Collision detection with projectiles
 
 ### API Structure
