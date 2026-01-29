@@ -14,11 +14,7 @@ export class EnemySystem {
 
     for (const enemy of enemies) {
       // Update position
-      const newX = this.pathManager.updatePosition(
-        enemy.x,
-        enemy.definition.speed,
-        deltaTime
-      );
+      const newX = this.pathManager.updatePosition(enemy.x, enemy.definition.speed, deltaTime);
 
       // Check if reached end
       if (this.pathManager.hasReachedEnd(newX)) {

@@ -48,11 +48,7 @@ export const TowerPanel = () => {
               }`}
               onClick={() => canAfford && handleTowerClick(towerDef.id)}
             >
-              <img
-                src={getTowerImage(towerDef.id)}
-                alt={towerDef.name}
-                className="tower-icon"
-              />
+              <img src={getTowerImage(towerDef.id)} alt={towerDef.name} className="tower-icon" />
               <div className="tower-info">
                 <div className="tower-name">{towerDef.name}</div>
                 <div className="tower-cost">
@@ -75,11 +71,7 @@ export const TowerPanel = () => {
           );
         })}
       </div>
-      {selectedTowerId && (
-        <div className="tower-panel-hint">
-          Click on the grid to place tower
-        </div>
-      )}
+      {selectedTowerId && <div className="tower-panel-hint">Click on the grid to place tower</div>}
     </div>
   );
 };

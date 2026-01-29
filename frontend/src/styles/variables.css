@@ -52,15 +52,15 @@
   --color-lives: #e85d75;
 
   /* Tower Colors */
-  --tower-basic: #607D8B;
-  --tower-sniper: #1565C0;
-  --tower-rapid: #7CB342;
+  --tower-basic: #607d8b;
+  --tower-sniper: #1565c0;
+  --tower-rapid: #7cb342;
 
   /* Enemy Colors */
-  --enemy-pawn: #4CAF50;
-  --enemy-knight: #2196F3;
-  --enemy-bishop: #9C27B0;
-  --enemy-rook: #FF9800;
-  --enemy-queen: #F44336;
-  --enemy-king: #FFC107;
+  --enemy-pawn: #4caf50;
+  --enemy-knight: #2196f3;
+  --enemy-bishop: #9c27b0;
+  --enemy-rook: #ff9800;
+  --enemy-queen: #f44336;
+  --enemy-king: #ffc107;
 }

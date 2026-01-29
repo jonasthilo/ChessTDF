@@ -65,10 +65,7 @@ export class PixiRenderer {
   updateCanvasDimensions(): void {
     // Update gameContainer position to reflect current canvas offsets
     // This is the ONLY place where offsets are applied to positioning
-    this.gameContainer.position.set(
-      CanvasState.offsetX,
-      CanvasState.offsetY
-    );
+    this.gameContainer.position.set(CanvasState.offsetX, CanvasState.offsetY);
   }
 
   canvasToGameSpace(canvasX: number, canvasY: number): { x: number; y: number } {
@@ -115,19 +112,24 @@ export class PixiRenderer {
     // Draw board background (full canvas, added to gridLayer which is child of gameContainer)
     const background = new Graphics();
     // Background needs to cover area before gameContainer offset
-    background.rect(-CanvasState.offsetX, -CanvasState.offsetY, CanvasState.width, CanvasState.height);
+    background.rect(
+      -CanvasState.offsetX,
+      -CanvasState.offsetY,
+      CanvasState.width,
+      CanvasState.height
+    );
     background.fill({ color: 0x1a1a2e, alpha: 1.0 });
 
     // Draw chessboard pattern with different colors for tower areas vs enemy path
     const boardGraphics = new Graphics();
 
     // Tower placement area colors (cool dark blue-grayish)
-    const towerLightSquare = 0x4a5568;  // Cool blue-gray light
-    const towerDarkSquare = 0x2d3748;   // Cool dark blue-gray
+    const towerLightSquare = 0x4a5568; // Cool blue-gray light
+    const towerDarkSquare = 0x2d3748; // Cool dark blue-gray
 
     // Enemy path colors (lighter, white and grayish)
-    const pathLightSquare = 0xe2e8f0;   // Very light gray-white
-    const pathDarkSquare = 0xb8c5d9;    // Light blue-gray
+    const pathLightSquare = 0xe2e8f0; // Very light gray-white
+    const pathDarkSquare = 0xb8c5d9; // Light blue-gray
 
     for (let row = 0; row < GRID_ROWS; row++) {
       const isPathRow = (RESTRICTED_ROWS as readonly number[]).includes(row);
@@ -160,19 +162,19 @@ export class PixiRenderer {
 
     // Draw decorative board border around the grid
     const boardBorder = new Graphics();
-    boardBorder.rect(0, 0, gridWidth, gridHeight);  // NO OFFSET
+    boardBorder.rect(0, 0, gridWidth, gridHeight); // NO OFFSET
     boardBorder.stroke({ width: 4, color: 0x1e293b, alpha: 0.8 });
 
     // Inner highlight for depth effect
     const innerBorder = new Graphics();
-    innerBorder.rect(2, 2, gridWidth - 4, gridHeight - 4);  // NO OFFSET
+    innerBorder.rect(2, 2, gridWidth - 4, gridHeight - 4); // NO OFFSET
     innerBorder.stroke({ width: 1, color: 0x64748b, alpha: 0.4 });
 
     // Highlight restricted zone (enemy path) with subtle directional indicators
     const restrictedGraphics = new Graphics();
     const restrictedRow = GAME_CONFIG.RESTRICTED_ROWS[0];
     if (restrictedRow !== undefined) {
-      const pathY = restrictedRow * gridSize;  // NO OFFSET
+      const pathY = restrictedRow * gridSize; // NO OFFSET
       const pathHeight = 2 * gridSize;
 
       // Dashed border lines at top and bottom of path
@@ -314,9 +316,7 @@ export class PixiRenderer {
 
     // Check if level indicator needs updating
     const level = tower.level ?? 1;
-    const existingIndicator = sprite.children.find(
-      (child) => child.label === 'levelIndicator'
-    );
+    const existingIndicator = sprite.children.find((child) => child.label === 'levelIndicator');
 
     if (level > 1 && !existingIndicator) {
       // Add level indicator
@@ -332,9 +332,7 @@ export class PixiRenderer {
     }
 
     // Update range circle if tower was upgraded
-    const existingRange = sprite.children.find(
-      (child) => child.label === 'rangeCircle'
-    );
+    const existingRange = sprite.children.find((child) => child.label === 'rangeCircle');
     if (existingRange) {
       const wasVisible = existingRange.visible;
       existingRange.destroy();
@@ -391,11 +389,7 @@ export class PixiRenderer {
     // Update health bar
     const healthBar = sprite.children[1] as Container | undefined;
     if (healthBar) {
-      this.healthBarRenderer.updateHealthBar(
-        healthBar,
-        enemy.health,
-        enemy.maxHealth
-      );
+      this.healthBarRenderer.updateHealthBar(healthBar, enemy.health, enemy.maxHealth);
     }
   }
 
@@ -419,7 +413,12 @@ export class PixiRenderer {
     isValid: boolean
   ): void {
     // Don't render preview for invalid grid positions (outside canvas bounds)
-    if (gridX < 0 || gridY < 0 || gridX >= GAME_CONFIG.GRID_COLS || gridY >= GAME_CONFIG.GRID_ROWS) {
+    if (
+      gridX < 0 ||
+      gridY < 0 ||
+      gridX >= GAME_CONFIG.GRID_COLS ||
+      gridY >= GAME_CONFIG.GRID_ROWS
+    ) {
       this.clearPlacementPreview();
       return;
     }
@@ -436,17 +435,19 @@ export class PixiRenderer {
     // Create tower preview sprite
     // Get level 1 stats for this tower type to show preview stats
     const level1 = useGameStore.getState().getTowerLevelStats(towerDef.id, 1);
-    const previewStats = level1 ? {
-      cost: level1.cost,
-      damage: level1.damage,
-      range: level1.range,
-      fireRate: level1.fireRate,
-    } : {
-      cost: 0,
-      damage: 0,
-      range: 0,
-      fireRate: 0,
-    };
+    const previewStats = level1
+      ? {
+          cost: level1.cost,
+          damage: level1.damage,
+          range: level1.range,
+          fireRate: level1.fireRate,
+        }
+      : {
+          cost: 0,
+          damage: 0,
+          range: 0,
+          fireRate: 0,
+        };
 
     const towerSprite = this.spriteFactory.createTowerSprite({
       id: 'preview',
@@ -489,12 +490,7 @@ export class PixiRenderer {
     // Draw grid cell highlight (NO OFFSET - relative to gameContainer)
     const gridSize = CanvasState.gridSize;
     const cellHighlight = new Graphics();
-    cellHighlight.rect(
-      gridX * gridSize,
-      gridY * gridSize,
-      gridSize,
-      gridSize
-    );
+    cellHighlight.rect(gridX * gridSize, gridY * gridSize, gridSize, gridSize);
     cellHighlight.fill({
       color: isValid ? 0x00ff00 : 0xff0000,
       alpha: 0.2,

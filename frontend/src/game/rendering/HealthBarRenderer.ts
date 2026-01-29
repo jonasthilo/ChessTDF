@@ -26,11 +26,7 @@ export class HealthBarRenderer {
     return container;
   }
 
-  updateHealthBar(
-    healthBar: Container,
-    currentHealth: number,
-    maxHealth: number
-  ): void {
+  updateHealthBar(healthBar: Container, currentHealth: number, maxHealth: number): void {
     const fg = healthBar.children[1];
     if (!fg) return;
 

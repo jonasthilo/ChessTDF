@@ -2,7 +2,12 @@ import { useState, useEffect } from 'react';
 import { useGameStore } from '../../state/gameStore';
 import { gameApi } from '../../services/gameApi';
 import { VersionDisplay } from '../common/VersionDisplay';
-import type { GameSettings, TowerDefinitionWithLevels, TowerLevel, EnemyDefinition } from '../../types';
+import type {
+  GameSettings,
+  TowerDefinitionWithLevels,
+  TowerLevel,
+  EnemyDefinition,
+} from '../../types';
 import './SettingsScreen.css';
 
 type AdvancedTab = 'gameSettings' | 'towers' | 'towerLevels' | 'enemies';
@@ -32,9 +37,9 @@ export const SettingsScreen = () => {
   const [editedSettings, setEditedSettings] = useState<Map<number, Partial<GameSettings>>>(
     new Map()
   );
-  const [editedTowers, setEditedTowers] = useState<Map<number, Partial<Omit<TowerDefinitionWithLevels, 'levels'>>>>(
-    new Map()
-  );
+  const [editedTowers, setEditedTowers] = useState<
+    Map<number, Partial<Omit<TowerDefinitionWithLevels, 'levels'>>>
+  >(new Map());
   const [editedTowerLevels, setEditedTowerLevels] = useState<Map<string, Partial<TowerLevel>>>(
     new Map()
   );
@@ -109,7 +114,7 @@ export const SettingsScreen = () => {
   const handleTowerLevelChange = (
     towerId: number,
     level: number,
-    field: keyof Omit<TowerLevel, 'towerId' | 'level'>,
+    field: keyof Omit<TowerLevel, 'id' | 'towerId' | 'level'>,
     value: number
   ) => {
     const key = `${towerId}-${level}`;
@@ -120,11 +125,7 @@ export const SettingsScreen = () => {
   };
 
   // Enemy edit handlers
-  const handleEnemyChange = (
-    id: number,
-    field: keyof EnemyDefinition,
-    value: number | string
-  ) => {
+  const handleEnemyChange = (id: number, field: keyof EnemyDefinition, value: number | string) => {
     const newEdited = new Map(editedEnemies);
     const current = newEdited.get(id) ?? {};
     newEdited.set(id, { ...current, [field]: value });
@@ -209,7 +210,10 @@ export const SettingsScreen = () => {
   };
 
   const hasUnsavedChanges =
-    editedSettings.size > 0 || editedTowers.size > 0 || editedTowerLevels.size > 0 || editedEnemies.size > 0;
+    editedSettings.size > 0 ||
+    editedTowers.size > 0 ||
+    editedTowerLevels.size > 0 ||
+    editedEnemies.size > 0;
 
   const currentSettings = settings.find((s) => s.mode === selectedMode);
 
@@ -400,7 +404,11 @@ export const SettingsScreen = () => {
                           className={`tower-type-button ${selectedTowerForLevels === tower.id ? 'active' : ''}`}
                           onClick={() => setSelectedTowerForLevels(tower.id)}
                         >
-                          <img src={getTowerImage(tower.id)} alt={tower.name} className="piece-icon-small" />
+                          <img
+                            src={getTowerImage(tower.id)}
+                            alt={tower.name}
+                            className="piece-icon-small"
+                          />
                           {tower.name}
                         </button>
                       );
@@ -415,7 +423,9 @@ export const SettingsScreen = () => {
 
                         return (
                           <>
-                            <h3>{tower.name} Levels (Max: {tower.maxLevel})</h3>
+                            <h3>
+                              {tower.name} Levels (Max: {tower.maxLevel})
+                            </h3>
                             <div className="levels-list">
                               {tower.levels
                                 .filter((level) => level.level <= tower.maxLevel)
@@ -423,9 +433,10 @@ export const SettingsScreen = () => {
                                 .map((level) => (
                                   <TowerLevelEditor
                                     key={`${tower.id}-${level.level}`}
-                                    towerId={tower.id}
                                     level={level}
-                                    edits={editedTowerLevels.get(`${tower.id}-${level.level}`) ?? {}}
+                                    edits={
+                                      editedTowerLevels.get(`${tower.id}-${level.level}`) ?? {}
+                                    }
                                     onChange={(field, value) =>
                                       handleTowerLevelChange(tower.id, level.level, field, value)
                                     }
@@ -596,11 +607,16 @@ const SettingsEditor = ({ setting, edits, onChange }: SettingsEditorProps) => {
 interface TowerEditorProps {
   tower: TowerDefinitionWithLevels;
   edits: Partial<Omit<TowerDefinitionWithLevels, 'levels'>>;
-  onChange: (field: keyof Omit<TowerDefinitionWithLevels, 'levels'>, value: number | string) => void;
+  onChange: (
+    field: keyof Omit<TowerDefinitionWithLevels, 'levels'>,
+    value: number | string
+  ) => void;
 }
 
 const TowerEditor = ({ tower, edits, onChange }: TowerEditorProps) => {
-  const getValue = <K extends keyof TowerDefinitionWithLevels>(field: K): TowerDefinitionWithLevels[K] => {
+  const getValue = <K extends keyof TowerDefinitionWithLevels>(
+    field: K
+  ): TowerDefinitionWithLevels[K] => {
     const editValue = edits[field as keyof typeof edits];
     if (editValue !== undefined) return editValue as TowerDefinitionWithLevels[K];
     return tower[field];
@@ -770,14 +786,13 @@ const EnemyEditor = ({ enemy, edits, onChange }: EnemyEditorProps) => {
 };
 
 interface TowerLevelEditorProps {
-  towerId: number;
   level: TowerLevel;
   edits: Partial<TowerLevel>;
-  onChange: (field: keyof Omit<TowerLevel, 'towerId' | 'level'>, value: number) => void;
+  onChange: (field: keyof Omit<TowerLevel, 'id' | 'towerId' | 'level'>, value: number) => void;
 }
 
-const TowerLevelEditor = ({ towerId, level, edits, onChange }: TowerLevelEditorProps) => {
-  const getValue = (field: keyof Omit<TowerLevel, 'towerId' | 'level'>): number => {
+const TowerLevelEditor = ({ level, edits, onChange }: TowerLevelEditorProps) => {
+  const getValue = (field: keyof Omit<TowerLevel, 'id' | 'towerId' | 'level'>): number => {
     const editValue = edits[field];
     if (editValue !== undefined) return editValue as number;
     return level[field];

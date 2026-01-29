@@ -1,10 +1,40 @@
 import { query } from '../db';
 import { GameStatistics, StatisticsSummary, GameOutcome, GameMode } from '../../types';
 
+interface StatisticsRow {
+  id: number;
+  game_id: string;
+  timestamp: Date;
+  duration: number;
+  outcome: string;
+  game_mode: string;
+  final_wave: number;
+  waves_completed: number;
+  enemies_killed_total: number;
+  enemies_killed_by_type: string | Record<string, number>;
+  towers_built_total: number;
+  towers_built_by_type: string | Record<string, number>;
+  coins_earned: number;
+  coins_spent: number;
+  damage_dealt: number;
+  settings_id: number | null;
+  created_at: Date;
+}
+
+interface SummaryRow {
+  total_games: string;
+  wins: string;
+  losses: string;
+  avg_wave_reached: string;
+  avg_duration: string;
+  total_enemies_killed: string;
+  total_towers_built: string;
+}
+
 export class StatisticsRepository {
   // Create new game statistics entry
   async createStatistics(stats: Omit<GameStatistics, 'id' | 'createdAt'>): Promise<GameStatistics> {
-    const result = await query<any>(
+    const result = await query<StatisticsRow>(
       `INSERT INTO game_statistics (
         game_id, timestamp, duration, outcome, game_mode, final_wave, waves_completed,
         enemies_killed_total, enemies_killed_by_type, towers_built_total, towers_built_by_type,
@@ -28,12 +58,12 @@ export class StatisticsRepository {
         stats.settingsId || null,
       ]
     );
-    return this.mapToStatistics(result.rows[0]);
+    return this.mapToStatistics(result.rows[0]!);
   }
 
   // Get all statistics (with pagination)
   async getAllStatistics(limit = 100, offset = 0): Promise<GameStatistics[]> {
-    const result = await query<any>(
+    const result = await query<StatisticsRow>(
       `SELECT * FROM game_statistics ORDER BY timestamp DESC LIMIT $1 OFFSET $2`,
       [limit, offset]
     );
@@ -42,14 +72,16 @@ export class StatisticsRepository {
 
   // Get statistics by game ID
   async getStatisticsByGameId(gameId: string): Promise<GameStatistics | null> {
-    const result = await query<any>('SELECT * FROM game_statistics WHERE game_id = $1', [gameId]);
+    const result = await query<StatisticsRow>('SELECT * FROM game_statistics WHERE game_id = $1', [
+      gameId,
+    ]);
     if (result.rows.length === 0) return null;
-    return this.mapToStatistics(result.rows[0]);
+    return this.mapToStatistics(result.rows[0]!);
   }
 
   // Get statistics summary (aggregated)
   async getStatisticsSummary(): Promise<StatisticsSummary> {
-    const result = await query<any>(`
+    const result = await query<SummaryRow>(`
       SELECT
         COUNT(*) as total_games,
         SUM(CASE WHEN outcome = 'win' THEN 1 ELSE 0 END) as wins,
@@ -61,7 +93,7 @@ export class StatisticsRepository {
       FROM game_statistics
     `);
 
-    const row = result.rows[0];
+    const row = result.rows[0]!;
     const totalGames = parseInt(row.total_games) || 0;
     const wins = parseInt(row.wins) || 0;
     const losses = parseInt(row.losses) || 0;
@@ -80,7 +112,7 @@ export class StatisticsRepository {
 
   // Get statistics filtered by outcome
   async getStatisticsByOutcome(outcome: GameOutcome, limit = 50): Promise<GameStatistics[]> {
-    const result = await query<any>(
+    const result = await query<StatisticsRow>(
       `SELECT * FROM game_statistics WHERE outcome = $1 ORDER BY timestamp DESC LIMIT $2`,
       [outcome, limit]
     );
@@ -89,7 +121,7 @@ export class StatisticsRepository {
 
   // Get statistics filtered by game mode
   async getStatisticsByGameMode(gameMode: GameMode, limit = 50): Promise<GameStatistics[]> {
-    const result = await query<any>(
+    const result = await query<StatisticsRow>(
       `SELECT * FROM game_statistics WHERE game_mode = $1 ORDER BY timestamp DESC LIMIT $2`,
       [gameMode, limit]
     );
@@ -98,7 +130,7 @@ export class StatisticsRepository {
 
   // Get top scores (highest wave reached)
   async getTopScores(limit = 10): Promise<GameStatistics[]> {
-    const result = await query<any>(
+    const result = await query<StatisticsRow>(
       `SELECT * FROM game_statistics
        ORDER BY final_wave DESC, enemies_killed_total DESC
        LIMIT $1`,
@@ -109,7 +141,7 @@ export class StatisticsRepository {
 
   // Get recent games
   async getRecentGames(limit = 20): Promise<GameStatistics[]> {
-    const result = await query<any>(
+    const result = await query<StatisticsRow>(
       `SELECT * FROM game_statistics ORDER BY timestamp DESC LIMIT $1`,
       [limit]
     );
@@ -125,7 +157,7 @@ export class StatisticsRepository {
   }
 
   // Helper: Map database row to GameStatistics
-  private mapToStatistics(row: any): GameStatistics {
+  private mapToStatistics(row: StatisticsRow): GameStatistics {
     return {
       id: row.id,
       gameId: row.game_id,

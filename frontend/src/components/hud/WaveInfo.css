@@ -38,7 +38,7 @@
 }
 
 .wave-status.active {
-  background: #FF9800;
+  background: #ff9800;
   color: white;
   animation: pulse 1.5s infinite;
 }

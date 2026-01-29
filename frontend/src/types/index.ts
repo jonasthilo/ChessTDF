@@ -86,27 +86,6 @@ export interface Projectile {
   speed: number;
 }
 
-// Game State
-export interface GameState {
-  gameId: string;
-  coins: number;
-  lives: number;
-  wave: number;
-  isPlaying: boolean;
-  selectedTowerId: number | null;
-}
-
-// Game Session (Server-side)
-export interface GameSession {
-  id: string;
-  coins: number;
-  lives: number;
-  wave: number;
-  towers: Tower[];
-  createdAt: Date;
-  lastUpdated: Date;
-}
-
 // Enemy Spawn Data
 export interface EnemySpawnData {
   enemyId: number;

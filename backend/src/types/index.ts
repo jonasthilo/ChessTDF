@@ -191,6 +191,9 @@ export interface WaveDefinition {
   difficultyLabel: string;
 }
 
+// Tower data as stored in JSONB (excludes runtime-computed fields)
+export type TowerDB = Pick<Tower, 'id' | 'towerId' | 'gridX' | 'gridY' | 'level' | 'stats'>;
+
 export interface GameSessionDB {
   id?: number;
   gameId: string;
@@ -200,7 +203,7 @@ export interface GameSessionDB {
   wavesCompleted: number;
   coins: number;
   lives: number;
-  towers: any; // JSONB
+  towers: TowerDB[]; // JSONB
   enemiesKilled: number;
   coinsEarned: number;
   coinsSpent: number;
@@ -277,13 +280,13 @@ export interface WaveCompleteResponse {
   wavesCompleted: number;
 }
 
-export interface GetSettingsResponse extends GameSettings {}
+export type GetSettingsResponse = GameSettings;
 
-export interface UpdateSettingsRequest extends Partial<GameSettings> {}
+export type UpdateSettingsRequest = Partial<GameSettings>;
 
 export interface GetStatisticsResponse {
   statistics: GameStatistics[];
   total: number;
 }
 
-export interface GetStatisticsSummaryResponse extends StatisticsSummary {}
+export type GetStatisticsSummaryResponse = StatisticsSummary;

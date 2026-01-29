@@ -1,5 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
-import { GameSession, BuildTowerRequest, Tower, TowerStats, GameMode, SettingsMode } from '../types';
+import {
+  GameSession,
+  BuildTowerRequest,
+  Tower,
+  TowerStats,
+  GameMode,
+  SettingsMode,
+} from '../types';
 import { GameSessionRepository } from '../database/repositories/GameSessionRepository';
 import { ConfigService } from './ConfigService';
 import { StatisticsService } from './StatisticsService';
@@ -24,7 +31,10 @@ export class GameService {
   /**
    * Create a new game session with settings
    */
-  async createGame(gameMode: GameMode = '10waves', difficulty: SettingsMode = 'normal'): Promise<GameSession> {
+  async createGame(
+    gameMode: GameMode = '10waves',
+    difficulty: SettingsMode = 'normal'
+  ): Promise<GameSession> {
     // Get settings for the difficulty
     const settings = await this.configService.getSettingsByMode(difficulty);
     if (!settings) {
@@ -72,7 +82,7 @@ export class GameService {
     if (!session) return undefined;
 
     // Convert database towers to game towers
-    const towers: Tower[] = session.towers.map((t: any) => ({
+    const towers: Tower[] = session.towers.map((t) => ({
       id: t.id,
       towerId: t.towerId,
       gridX: t.gridX,
@@ -229,8 +239,22 @@ export class GameService {
 
     const updatedTowers = game.towers.map((t) =>
       t.id === towerId
-        ? { id: t.id, towerId: t.towerId, gridX: t.gridX, gridY: t.gridY, level: nextLevel, stats: newStats }
-        : { id: t.id, towerId: t.towerId, gridX: t.gridX, gridY: t.gridY, level: t.level, stats: t.stats }
+        ? {
+            id: t.id,
+            towerId: t.towerId,
+            gridX: t.gridX,
+            gridY: t.gridY,
+            level: nextLevel,
+            stats: newStats,
+          }
+        : {
+            id: t.id,
+            towerId: t.towerId,
+            gridX: t.gridX,
+            gridY: t.gridY,
+            level: t.level,
+            stats: t.stats,
+          }
     );
 
     await this.gameSessionRepo.updateGameSession(gameId, {
@@ -248,7 +272,12 @@ export class GameService {
   async sellTower(
     gameId: string,
     towerId: string
-  ): Promise<{ success: boolean; refundAmount?: number; remainingCoins?: number; message?: string }> {
+  ): Promise<{
+    success: boolean;
+    refundAmount?: number;
+    remainingCoins?: number;
+    message?: string;
+  }> {
     const game = await this.getGame(gameId);
     if (!game) {
       return { success: false, message: 'Game not found' };

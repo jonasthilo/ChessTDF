@@ -32,15 +32,17 @@ export class ConfigService {
   // If id provided: return single tower, otherwise return all
   async getTowerDefinitionsWithLevels(id?: number): Promise<TowerDefinitionWithLevels[]> {
     const definitions = id
-      ? [await this.towerRepo.getTowerDefinition(id)].filter((d): d is TowerDefinition => d !== null)
+      ? [await this.towerRepo.getTowerDefinition(id)].filter(
+          (d): d is TowerDefinition => d !== null
+        )
       : await this.towerRepo.getAllTowerDefinitions();
 
     const allLevels = id
       ? await this.towerRepo.getTowerLevels(id)
       : await this.towerRepo.getAllTowerLevels();
 
-    return definitions.map(def => {
-      const levels = allLevels.filter(l => l.towerId === def.id);
+    return definitions.map((def) => {
+      const levels = allLevels.filter((l) => l.towerId === def.id);
       return { ...def, levels };
     });
   }
@@ -64,10 +66,10 @@ export class ConfigService {
   // Ensure all tower levels from 1 to maxLevel exist, creating missing ones with default values
   private async ensureTowerLevelsExist(towerId: number, maxLevel: number): Promise<void> {
     const existingLevels = await this.towerRepo.getTowerLevels(towerId);
-    const existingLevelNumbers = new Set(existingLevels.map(l => l.level));
+    const existingLevelNumbers = new Set(existingLevels.map((l) => l.level));
 
     // Get level 1 as base for calculating defaults
-    const baseLevel = existingLevels.find(l => l.level === 1);
+    const baseLevel = existingLevels.find((l) => l.level === 1);
     if (!baseLevel) {
       throw new Error(`Tower ${towerId} must have at least level 1 defined`);
     }
@@ -201,11 +203,17 @@ export class ConfigService {
       }
     }
 
-    if (settings.initialCoins !== undefined && (settings.initialCoins < 50 || settings.initialCoins > 1000)) {
+    if (
+      settings.initialCoins !== undefined &&
+      (settings.initialCoins < 50 || settings.initialCoins > 1000)
+    ) {
       throw new Error(`initialCoins must be between 50 and 1000, got ${settings.initialCoins}`);
     }
 
-    if (settings.initialLives !== undefined && (settings.initialLives < 1 || settings.initialLives > 50)) {
+    if (
+      settings.initialLives !== undefined &&
+      (settings.initialLives < 1 || settings.initialLives > 50)
+    ) {
       throw new Error(`initialLives must be between 1 and 50, got ${settings.initialLives}`);
     }
   }

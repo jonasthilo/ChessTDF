@@ -44,7 +44,11 @@ export class TowerSystem {
     return nearest;
   }
 
-  private fireProjectile(tower: Tower, target: Enemy, state: ReturnType<typeof useGameStore.getState>): void {
+  private fireProjectile(
+    tower: Tower,
+    target: Enemy,
+    state: ReturnType<typeof useGameStore.getState>
+  ): void {
     const projectile: Projectile = {
       id: `proj-${this.nextProjectileId++}`,
       x: tower.x,

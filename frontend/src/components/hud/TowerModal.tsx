@@ -62,7 +62,9 @@ export const TowerModal = () => {
 
   // Get next level data (if not at max)
   const isAtMaxLevel = currentLevel >= maxLevel;
-  const nextLevelData = !isAtMaxLevel ? towerDef.levels.find((l) => l.level === currentLevel + 1) : null;
+  const nextLevelData = !isAtMaxLevel
+    ? towerDef.levels.find((l) => l.level === currentLevel + 1)
+    : null;
   const upgradeCost = nextLevelData?.cost ?? null;
   const canAffordUpgrade = upgradeCost !== null && coins >= upgradeCost;
 
@@ -97,14 +99,12 @@ export const TowerModal = () => {
       </button>
 
       <div className="modal-header">
-        <img
-          src={getTowerImage(tower.towerId)}
-          alt={towerDef.name}
-          className="tower-modal-icon"
-        />
+        <img src={getTowerImage(tower.towerId)} alt={towerDef.name} className="tower-modal-icon" />
         <div className="modal-title">
           <h2>{towerDef.name}</h2>
-          <span className="tower-level">Level {currentLevel} / {maxLevel}</span>
+          <span className="tower-level">
+            Level {currentLevel} / {maxLevel}
+          </span>
         </div>
       </div>
 
@@ -128,16 +128,24 @@ export const TowerModal = () => {
         <div className="modal-upgrade">
           <h3>Upgrade to Level {currentLevel + 1}</h3>
           <div className="upgrade-preview">
-            <div>Damage: {currentStats.damage} → {nextLevelData.damage}</div>
-            <div>Range: {currentStats.range} → {nextLevelData.range}</div>
-            <div>Fire Rate: {currentStats.fireRate.toFixed(1)} → {nextLevelData.fireRate.toFixed(1)}</div>
+            <div>
+              Damage: {currentStats.damage} → {nextLevelData.damage}
+            </div>
+            <div>
+              Range: {currentStats.range} → {nextLevelData.range}
+            </div>
+            <div>
+              Fire Rate: {currentStats.fireRate.toFixed(1)} → {nextLevelData.fireRate.toFixed(1)}
+            </div>
           </div>
-          <div style={{
-            marginTop: '0.3rem',
-            fontSize: '0.7rem',
-            color: canAffordUpgrade ? '#4caf50' : '#f44336',
-            textAlign: 'center'
-          }}>
+          <div
+            style={{
+              marginTop: '0.3rem',
+              fontSize: '0.7rem',
+              color: canAffordUpgrade ? '#4caf50' : '#f44336',
+              textAlign: 'center',
+            }}
+          >
             {coins} / {upgradeCost} coins
           </div>
           <button

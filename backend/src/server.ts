@@ -21,10 +21,14 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Chess TDF API Documentation',
-}));
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerSpec, {
+    customCss: '.swagger-ui .topbar { display: none }',
+    customSiteTitle: 'Chess TDF API Documentation',
+  })
+);
 
 // Swagger JSON endpoint
 app.get('/api-docs.json', (req: Request, res: Response) => {
@@ -88,7 +92,7 @@ app.get('/health', async (req: Request, res: Response) => {
     };
 
     res.status(dbConnected ? 200 : 503).json(response);
-  } catch (error) {
+  } catch (_error) {
     res.status(503).json({
       status: 'degraded',
       timestamp: new Date().toISOString(),
@@ -108,12 +112,12 @@ app.use('/api/config', configRoutes);
 app.use('/api/statistics', statisticsRoutes);
 
 // 404 handler
-app.use((req: Request, res: Response) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({ error: 'Not found' });
 });
 
 // Error handler
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({ error: 'Internal server error' });
 });

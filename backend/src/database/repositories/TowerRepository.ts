@@ -1,29 +1,58 @@
 import { query } from '../db';
 import { TowerDefinition, TowerLevel } from '../../types';
 
+interface TowerDefinitionRow {
+  id: number;
+  name: string;
+  color: string;
+  description: string;
+  max_level: number;
+}
+
+interface TowerLevelRow {
+  id: number;
+  tower_id: number;
+  level: number;
+  cost: number;
+  damage: number;
+  range: number;
+  fire_rate: string;
+}
+
+interface MaxLevelRow {
+  max_level: number;
+}
+
 export class TowerRepository {
   // Get all tower definitions (metadata only)
   async getAllTowerDefinitions(): Promise<TowerDefinition[]> {
-    const result = await query<any>('SELECT * FROM tower_definitions ORDER BY id ASC');
+    const result = await query<TowerDefinitionRow>(
+      'SELECT * FROM tower_definitions ORDER BY id ASC'
+    );
     return result.rows.map(this.mapToTowerDefinition);
   }
 
   // Get tower definition by ID (metadata only)
   async getTowerDefinition(id: number): Promise<TowerDefinition | null> {
-    const result = await query<any>('SELECT * FROM tower_definitions WHERE id = $1', [id]);
+    const result = await query<TowerDefinitionRow>(
+      'SELECT * FROM tower_definitions WHERE id = $1',
+      [id]
+    );
     if (result.rows.length === 0) return null;
-    return this.mapToTowerDefinition(result.rows[0]);
+    return this.mapToTowerDefinition(result.rows[0]!);
   }
 
   // Get all tower levels for all towers
   async getAllTowerLevels(): Promise<TowerLevel[]> {
-    const result = await query<any>('SELECT * FROM tower_levels ORDER BY tower_id ASC, level ASC');
+    const result = await query<TowerLevelRow>(
+      'SELECT * FROM tower_levels ORDER BY tower_id ASC, level ASC'
+    );
     return result.rows.map(this.mapToTowerLevel);
   }
 
   // Get all levels for a tower ID
   async getTowerLevels(towerId: number): Promise<TowerLevel[]> {
-    const result = await query<any>(
+    const result = await query<TowerLevelRow>(
       'SELECT * FROM tower_levels WHERE tower_id = $1 ORDER BY level ASC',
       [towerId]
     );
@@ -32,17 +61,17 @@ export class TowerRepository {
 
   // Get specific level for a tower ID
   async getTowerLevel(towerId: number, level: number): Promise<TowerLevel | null> {
-    const result = await query<any>(
+    const result = await query<TowerLevelRow>(
       'SELECT * FROM tower_levels WHERE tower_id = $1 AND level = $2',
       [towerId, level]
     );
     if (result.rows.length === 0) return null;
-    return this.mapToTowerLevel(result.rows[0]);
+    return this.mapToTowerLevel(result.rows[0]!);
   }
 
   // Get max level for a tower ID
   async getMaxLevel(towerId: number): Promise<number> {
-    const result = await query<any>(
+    const result = await query<MaxLevelRow>(
       'SELECT MAX(level) as max_level FROM tower_levels WHERE tower_id = $1',
       [towerId]
     );
@@ -52,7 +81,7 @@ export class TowerRepository {
   // Update tower definition (metadata only)
   async updateTowerDefinition(id: number, updates: Partial<TowerDefinition>): Promise<boolean> {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramIndex = 1;
 
     if (updates.name !== undefined) {
@@ -82,9 +111,13 @@ export class TowerRepository {
   }
 
   // Update a tower level
-  async updateTowerLevel(towerId: number, level: number, updates: Partial<TowerLevel>): Promise<boolean> {
+  async updateTowerLevel(
+    towerId: number,
+    level: number,
+    updates: Partial<TowerLevel>
+  ): Promise<boolean> {
     const fields: string[] = [];
-    const values: any[] = [];
+    const values: unknown[] = [];
     let paramIndex = 1;
 
     if (updates.cost !== undefined) {
@@ -123,22 +156,29 @@ export class TowerRepository {
          damage = EXCLUDED.damage,
          range = EXCLUDED.range,
          fire_rate = EXCLUDED.fire_rate`,
-      [towerLevel.towerId, towerLevel.level, towerLevel.cost, towerLevel.damage, towerLevel.range, towerLevel.fireRate]
+      [
+        towerLevel.towerId,
+        towerLevel.level,
+        towerLevel.cost,
+        towerLevel.damage,
+        towerLevel.range,
+        towerLevel.fireRate,
+      ]
     );
     return (result.rowCount ?? 0) > 0;
   }
 
   // Delete a tower level
   async deleteTowerLevel(towerId: number, level: number): Promise<boolean> {
-    const result = await query(
-      'DELETE FROM tower_levels WHERE tower_id = $1 AND level = $2',
-      [towerId, level]
-    );
+    const result = await query('DELETE FROM tower_levels WHERE tower_id = $1 AND level = $2', [
+      towerId,
+      level,
+    ]);
     return (result.rowCount ?? 0) > 0;
   }
 
   // Helper: Map database row to TowerDefinition
-  private mapToTowerDefinition(row: any): TowerDefinition {
+  private mapToTowerDefinition(row: TowerDefinitionRow): TowerDefinition {
     return {
       id: row.id,
       name: row.name,
@@ -149,7 +189,7 @@ export class TowerRepository {
   }
 
   // Helper: Map database row to TowerLevel
-  private mapToTowerLevel(row: any): TowerLevel {
+  private mapToTowerLevel(row: TowerLevelRow): TowerLevel {
     return {
       id: row.id,
       towerId: row.tower_id,

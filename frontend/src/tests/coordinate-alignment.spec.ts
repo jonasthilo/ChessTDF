@@ -45,7 +45,7 @@ test.describe('Coordinate System Alignment', () => {
         y: canvasBoundingBox.y,
         width: canvasBoundingBox.width,
         height: canvasBoundingBox.height,
-      }
+      },
     });
 
     // Verify tower was placed (gold should decrease)
@@ -89,7 +89,7 @@ test.describe('Coordinate System Alignment', () => {
           y: canvasBoundingBox.y,
           width: canvasBoundingBox.width,
           height: canvasBoundingBox.height,
-        }
+        },
       });
 
       // Click to place
@@ -108,7 +108,7 @@ test.describe('Coordinate System Alignment', () => {
         y: canvasBoundingBox.y,
         width: canvasBoundingBox.width,
         height: canvasBoundingBox.height,
-      }
+      },
     });
   });
 
@@ -139,7 +139,7 @@ test.describe('Coordinate System Alignment', () => {
         y: canvasBoundingBox.y,
         width: canvasBoundingBox.width,
         height: canvasBoundingBox.height,
-      }
+      },
     });
 
     // Get gold before click
@@ -176,7 +176,7 @@ test.describe('Coordinate System Alignment', () => {
         y: canvasBoundingBox.y,
         width: canvasBoundingBox.width,
         height: canvasBoundingBox.height,
-      }
+      },
     });
 
     // Enemies should be moving horizontally through rows 4-5
@@ -212,7 +212,7 @@ test.describe('Coordinate System Alignment', () => {
         y: canvasBoundingBox.y,
         width: canvasBoundingBox.width,
         height: canvasBoundingBox.height,
-      }
+      },
     });
 
     // Range circle should be centered on tower sprite (visual verification)
@@ -251,7 +251,7 @@ test.describe('Coordinate System Alignment', () => {
         y: canvasBoundingBox.y,
         width: canvasBoundingBox.width,
         height: canvasBoundingBox.height,
-      }
+      },
     });
 
     // Resize window
@@ -272,7 +272,7 @@ test.describe('Coordinate System Alignment', () => {
         y: canvasBoundingBox.y,
         width: canvasBoundingBox.width,
         height: canvasBoundingBox.height,
-      }
+      },
     });
 
     // Towers should remain centered in their grid cells (visual verification)
@@ -313,7 +313,7 @@ test.describe('Coordinate System Alignment', () => {
           y: canvasBoundingBox.y,
           width: canvasBoundingBox.width,
           height: canvasBoundingBox.height,
-        }
+        },
       });
     }
 

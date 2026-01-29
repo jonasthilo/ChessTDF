@@ -81,7 +81,7 @@
 }
 
 .cost-icon::before {
-  content: "$";
+  content: '$';
   display: flex;
   align-items: center;
   justify-content: center;

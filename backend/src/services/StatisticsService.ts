@@ -88,17 +88,14 @@ export class StatisticsService {
     const allStats = await this.getAllStatistics(1000, 0);
 
     const periodStats = allStats.filter(
-      (stat) =>
-        stat.timestamp >= startDate && stat.timestamp <= endDate
+      (stat) => stat.timestamp >= startDate && stat.timestamp <= endDate
     );
 
     const totalGames = periodStats.length;
     const wins = periodStats.filter((s) => s.outcome === 'win').length;
     const losses = totalGames - wins;
     const avgWave =
-      totalGames > 0
-        ? periodStats.reduce((sum, s) => sum + s.finalWave, 0) / totalGames
-        : 0;
+      totalGames > 0 ? periodStats.reduce((sum, s) => sum + s.finalWave, 0) / totalGames : 0;
 
     return {
       totalGames,

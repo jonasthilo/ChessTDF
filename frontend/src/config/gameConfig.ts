@@ -36,9 +36,10 @@ export const GAME_CONFIG = {
 export class CanvasState {
   private static _width: number = GAME_CONFIG.DEFAULT_CANVAS_WIDTH;
   private static _height: number = GAME_CONFIG.DEFAULT_CANVAS_HEIGHT;
-  private static _gridSize: number = (GAME_CONFIG.DEFAULT_CANVAS_WIDTH * 0.9) / GAME_CONFIG.GRID_COLS;
-  private static _offsetX: number = (GAME_CONFIG.DEFAULT_CANVAS_WIDTH * 0.05);
-  private static _offsetY: number = (GAME_CONFIG.DEFAULT_CANVAS_HEIGHT * 0.05);
+  private static _gridSize: number =
+    (GAME_CONFIG.DEFAULT_CANVAS_WIDTH * 0.9) / GAME_CONFIG.GRID_COLS;
+  private static _offsetX: number = GAME_CONFIG.DEFAULT_CANVAS_WIDTH * 0.05;
+  private static _offsetY: number = GAME_CONFIG.DEFAULT_CANVAS_HEIGHT * 0.05;
 
   static get width(): number {
     return this._width;
@@ -81,31 +82,3 @@ export class CanvasState {
     return this._width + this._gridSize;
   }
 }
-
-// Helper functions using dynamic canvas state
-export const gridToPixel = (gridPos: number): number => {
-  return CanvasState.offsetX + gridPos * CanvasState.gridSize + CanvasState.gridSize / 2;
-};
-
-export const pixelToGrid = (pixelPos: number): number => {
-  return Math.floor((pixelPos - CanvasState.offsetX) / CanvasState.gridSize);
-};
-
-export const isValidTowerPlacement = (gridX: number, gridY: number): boolean => {
-  // Check if within bounds
-  if (
-    gridX < 0 ||
-    gridX >= GAME_CONFIG.GRID_COLS ||
-    gridY < 0 ||
-    gridY >= GAME_CONFIG.GRID_ROWS
-  ) {
-    return false;
-  }
-
-  // Check if in restricted zone (enemy path)
-  if ((GAME_CONFIG.RESTRICTED_ROWS as readonly number[]).includes(gridY)) {
-    return false;
-  }
-
-  return true;
-};

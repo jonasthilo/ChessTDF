@@ -21,8 +21,8 @@ export class SpriteFactory {
 
     // Map tower ID to chess piece
     const pieceMap: Record<number, string> = {
-      1: 'pawn',   // Basic Tower
-      2: 'rook',   // Sniper Tower
+      1: 'pawn', // Basic Tower
+      2: 'rook', // Sniper Tower
       3: 'knight', // Rapid Tower
     };
 
@@ -224,8 +224,8 @@ export class SpriteFactory {
   private createOutlinedSprite(
     texture: Texture,
     size: number,
-    outlineColor: string,
-    outlineWidth: number = 3
+    _outlineColor: string,
+    _outlineWidth: number = 3
   ): Container {
     const container = new Container();
 
