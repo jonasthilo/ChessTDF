@@ -23,7 +23,6 @@ TS strict: strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes, noPrope
 
 ## Dev Practices
 - Group related edits per file
-- Bump minor version in front/backend after breaking changes, patch after fixes/features
 - Frontend/Backend auto-reload on code changes (no restart needed)
 - Only restart containers for: database schema changes, dependency installs, or when debugging issues
 - Test modified components: Playwright MCP (standalone, visible browser) for frontend, call API endpoints for backend
@@ -88,7 +87,7 @@ See `frontend/COORDINATE_SYSTEM.md` for complete documentation
 
 ## Data Model
 Definitions stored in PostgreSQL
-Tables: enemy_definitions, tower_definitions, tower_levels, game_settings, game_sessions, game_statistics
+Tables: enemy_definitions, tower_definitions, tower_levels, wave_definitions, game_settings, game_sessions, game_statistics
 All IDs: Integer (SERIAL primary keys)
 Tower IDs: 1=Basic, 2=Sniper, 3=Rapid
 Enemy IDs: 1=Pawn, 2=Knight, 3=Bishop, 4=Rook, 5=Queen, 6=King
@@ -119,6 +118,13 @@ docker-compose exec frontend npm install <package>
 ### DB tools
 docker-compose exec postgres psql -U chess_user -d chess_tdf
 
+### Linting & Formatting
+docker-compose exec frontend npm run lint
+docker-compose exec backend npm run lint
+docker-compose exec frontend npm run format
+docker-compose exec backend npm run format
+npm run knip (from project root - dead code detection)
+
 ### Testing
 Playwright MCP (standalone, visible browser) for testing frontend
 Docker Toolkit Playwright (headless) only when explicitly asked
@@ -139,17 +145,15 @@ Postgres: localhost:5432
 
 ## Current Version
 Versioning: Automated git commit short hash (injected via Vite `__GIT_HASH__` define)
-Backend: v1.2.0
-Status: Integer ID migration complete, fully functional
+package.json versions set to 0.0.0 (not used for display)
+Status: Integer ID migration complete, wave DB migration complete, fully functional
 
 ---
 
 ## Open Tasks
-- Move wave config into DB (deprecate data/waveDefinitions.ts)
-- Remove unused objects, clean data/
 - Test 50+ enemies, add object pooling
 - Tune tower costs + enemy stats
-- Post‑MVP: area effects, curved paths, maps, achievements, graphics, audio, auto waves  
+- Post‑MVP: area effects, curved paths, maps, achievements, graphics, audio, auto waves
 
 ---
 
@@ -161,6 +165,7 @@ Status: Integer ID migration complete, fully functional
 - `services/ConfigService.ts` - Tower/enemy/settings logic
 - `services/GameService.ts` - Game session + tower building
 - `services/WaveService.ts` - Wave progression
+- `database/repositories/WaveRepository.ts` - Wave definitions data access
 - `controllers/ConfigController.ts` - Config API endpoints
 - `controllers/GameController.ts` - Game API endpoints
 
