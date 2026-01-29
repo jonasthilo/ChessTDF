@@ -21,12 +21,14 @@ export const StartScreen = () => {
   return (
     <div className="start-screen">
       <div className="start-screen-content">
-        <img
-          src="/assets/logo/Chess-tdf-logo.png"
-          alt="Chess Tower Defense"
-          className="start-logo"
-        />
-        <h1 className="game-title">Chess Tower Defense</h1>
+        <div className="screen-header">
+          <img
+            src="/assets/logo/Chess-tdf-logo.png"
+            alt="Chess Tower Defense"
+            className="start-logo"
+          />
+          <h1 className="game-title">Chess Tower Defense</h1>
+        </div>
         <p className="game-subtitle">Defend against the chess army!</p>
 
         <div className="button-group">
