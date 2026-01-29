@@ -26,7 +26,8 @@
       "mcp__playwright__browser_install",
       "mcp__playwright__browser_close",
       "Bash(python -m json.tool:*)",
-      "mcp__playwright__browser_resize"
+      "mcp__playwright__browser_resize",
+      "mcp__excalidraw__batch_create_elements"
     ]
   }
 }

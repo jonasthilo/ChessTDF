@@ -16,9 +16,7 @@ Database: PostgreSQL 16 (Docker, persistent volumes)
 ---
 
 ## Principles
-Maintain: KISS, YAGNI, DRY  
-Team: ownership, initiative, collaboration  
-Rules: no emojis in code  
+Team: ownership, initiative, collaboration
 TS strict: strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes, noPropertyAccessFromIndexSignature, useUnknownInCatchVariables
 
 ---
@@ -30,14 +28,6 @@ TS strict: strict, noUncheckedIndexedAccess, exactOptionalPropertyTypes, noPrope
 - Only restart containers for: database schema changes, dependency installs, or when debugging issues
 - Test modified components: MCP Playwright for frontend, call API endpoints for backend
 - Update this file after relevant changes
-
-### Git Workflow
-- **ALWAYS** checkout a feature branch before making changes (e.g., `git checkout -b feature/coordinate-system-refactor`)
-- Branch naming: `feature/description`, `fix/description`, `refactor/description`
-- Commit after completing each logical task or feature
-- Write clear commit messages describing what and why (not how)
-- **IMPORTANT**: Remind to merge feature branch back to main when task is complete
-- Delete feature branch after successful merge  
 
 ---
 
