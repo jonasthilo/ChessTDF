@@ -1,0 +1,115 @@
+.end-game-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  z-index: 1000;
+}
+
+.end-game-modal {
+  background: var(--color-bg-secondary);
+  border: 2px solid var(--color-accent-primary);
+  border-radius: 12px 12px 0 0;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+  animation: slideUpFromBottom 0.3s ease;
+  margin-bottom: 0;
+}
+
+.end-game-modal.closing {
+  animation: slideDownToBottom 0.3s ease forwards;
+}
+
+.end-game-title {
+  color: var(--color-accent-primary);
+  font-size: 1.5rem;
+  margin: 0 0 0.8rem 0;
+}
+
+.end-game-message {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1rem;
+  margin: 0 0 1.5rem 0;
+}
+
+.end-game-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.keep-playing-btn {
+  width: 100%;
+  padding: 0.9rem;
+  background: #4caf50;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+.keep-playing-btn:hover {
+  background: #45a049;
+  transform: translateY(-2px);
+}
+
+.confirm-end-btn {
+  width: 100%;
+  padding: 0.9rem;
+  background: transparent;
+  color: #f44336;
+  border: 2px solid #f44336;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.confirm-end-btn:hover {
+  background: #f44336;
+  color: #ffffff;
+}
+
+@keyframes slideUpFromBottom {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideDownToBottom {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(76, 175, 80, 0.6);
+  }
+}

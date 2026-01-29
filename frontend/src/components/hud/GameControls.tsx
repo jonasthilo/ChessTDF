@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import { useGameStore } from '../../state/gameStore';
 import { PathManager } from '../../game/managers/PathManager';
+import { EndGameModal } from './EndGameModal';
 import './GameControls.css';
 
 const pathManager = new PathManager();
@@ -14,6 +16,7 @@ export const GameControls = () => {
   const addEnemy = useGameStore((state) => state.addEnemy);
   const enemyDefinitions = useGameStore((state) => state.enemyDefinitions);
   const setWaveEnemiesTotal = useGameStore((state) => state.setWaveEnemiesTotal);
+  const [showEndGameModal, setShowEndGameModal] = useState(false);
 
   const handleStartWave = async () => {
     if (!gameId) return;
@@ -50,9 +53,7 @@ export const GameControls = () => {
   };
 
   const handleEndGame = () => {
-    if (confirm('Are you sure you want to end the game?')) {
-      endGame('loss');
-    }
+    setShowEndGameModal(true);
   };
 
   return (
@@ -75,6 +76,14 @@ export const GameControls = () => {
       >
         End Game
       </button>
+      <EndGameModal
+        isOpen={showEndGameModal}
+        onKeepPlaying={() => setShowEndGameModal(false)}
+        onEndGame={() => {
+          setShowEndGameModal(false);
+          endGame('loss');
+        }}
+      />
     </div>
   );
 };
