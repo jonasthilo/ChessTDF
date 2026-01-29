@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useGameStore } from './state/gameStore';
 import { StartScreen } from './components/screens/StartScreen';
 import { GameScreen } from './components/screens/GameScreen';
@@ -8,22 +9,25 @@ import { StatisticsScreen } from './components/screens/StatisticsScreen';
 import './App.css';
 
 function App() {
-  const currentScreen = useGameStore((state) => state.currentScreen);
   const initializeGame = useGameStore((state) => state.initializeGame);
 
   useEffect(() => {
-    // Load game configuration on app startup
     initializeGame();
   }, [initializeGame]);
 
   return (
-    <div className="app">
-      {currentScreen === 'start' && <StartScreen />}
-      {currentScreen === 'game' && <GameScreen />}
-      {currentScreen === 'gameEnd' && <GameEndScreen />}
-      {currentScreen === 'settings' && <SettingsScreen />}
-      {currentScreen === 'statistics' && <StatisticsScreen />}
-    </div>
+    <BrowserRouter>
+      <div className="app">
+        <Routes>
+          <Route path="/" element={<StartScreen />} />
+          <Route path="/settings" element={<SettingsScreen />} />
+          <Route path="/statistics" element={<StatisticsScreen />} />
+          <Route path="/game/:gameId" element={<GameScreen />} />
+          <Route path="/game/:gameId/end" element={<GameEndScreen />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 

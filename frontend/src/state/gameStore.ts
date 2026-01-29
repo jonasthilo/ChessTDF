@@ -22,14 +22,9 @@ import { GAME_CONFIG, CanvasState } from '../config/gameConfig';
 import { GridManager } from '../game/managers/GridManager';
 import { PathManager } from '../game/managers/PathManager';
 
-type GameScreen = 'start' | 'game' | 'gameEnd' | 'settings' | 'statistics';
 type GameResult = 'win' | 'loss' | null;
 
 interface GameStore {
-  // Screen state
-  currentScreen: GameScreen;
-  setScreen: (screen: GameScreen) => void;
-
   // Settings
   selectedDifficulty: string;
   setDifficulty: (difficulty: string) => void;
@@ -90,7 +85,7 @@ interface GameStore {
 
   // Actions
   initializeGame: () => Promise<void>;
-  startGame: () => Promise<void>;
+  startGame: () => Promise<string | null>;
   buildTower: (gridX: number, gridY: number) => Promise<boolean>;
   startWave: () => Promise<EnemySpawnData[] | undefined>;
   endGame: (result: GameResult) => Promise<void>;
@@ -131,7 +126,6 @@ interface GameStore {
 
 export const useGameStore = create<GameStore>((set, get) => ({
   // Initial state
-  currentScreen: 'start',
   selectedDifficulty: 'normal',
   gameSpeed: 1,
   gameId: null,
@@ -155,9 +149,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
   selectedTowerId: null,
   spawnQueue: [],
   spawnElapsed: 0,
-
-  // Screen management
-  setScreen: (screen) => set({ currentScreen: screen }),
 
   // Difficulty setting
   setDifficulty: (difficulty) => set({ selectedDifficulty: difficulty }),
@@ -322,10 +313,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
         selectedTowerId: null,
         selectedTower: null,
         selectedEnemy: null,
-        currentScreen: 'game',
+        gameResult: null,
       });
+      return response.gameId;
     } catch (error) {
       console.error('Failed to start game:', error);
+      return null;
     }
   },
 
@@ -396,10 +389,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         finalWave: wave,
         enemiesKilled,
       });
-      set({ gameResult: result, currentScreen: 'gameEnd' });
+      set({ gameResult: result });
     } catch (error) {
       console.error('Failed to end game:', error);
-      set({ gameResult: result, currentScreen: 'gameEnd' });
+      set({ gameResult: result });
     }
   },
 
@@ -624,7 +617,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // Reset game state
   resetGame: () =>
     set({
-      currentScreen: 'start',
       gameSpeed: 1,
       gameId: null,
       coins: 0,

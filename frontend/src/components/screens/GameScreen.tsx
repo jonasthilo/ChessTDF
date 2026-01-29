@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { Application } from 'pixi.js';
 import { PlayerStats } from '../hud/PlayerStats';
@@ -15,11 +16,29 @@ import { CanvasState } from '../../config/gameConfig';
 import './GameScreen.css';
 
 export const GameScreen = () => {
+  const { gameId } = useParams<{ gameId: string }>();
+  const navigate = useNavigate();
   const canvasRef = useRef<HTMLDivElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
   const appRef = useRef<Application | null>(null);
+  const storeGameId = useGameStore((state) => state.gameId);
+  const gameResult = useGameStore((state) => state.gameResult);
   const selectedTower = useGameStore((state) => state.selectedTower);
   const selectedEnemy = useGameStore((state) => state.selectedEnemy);
+
+  // Validate that the URL gameId matches the store's active game
+  useEffect(() => {
+    if (!gameId || !storeGameId || storeGameId !== gameId) {
+      navigate('/', { replace: true });
+    }
+  }, [gameId, storeGameId, navigate]);
+
+  // Navigate to end screen when game ends
+  useEffect(() => {
+    if (gameResult && gameId) {
+      navigate(`/game/${gameId}/end`);
+    }
+  }, [gameResult, gameId, navigate]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -96,8 +115,6 @@ export const GameScreen = () => {
       engineRef.current = null;
     };
   }, []);
-
-  // Removed resize handler - using fixed canvas size for simplicity
 
   return (
     <div className="game-screen">

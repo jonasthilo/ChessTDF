@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { useGameStore } from '../../state/gameStore';
+import { useNavigate } from 'react-router-dom';
 import { gameApi } from '../../services/gameApi';
 import { VersionDisplay } from '../common/VersionDisplay';
 import type { StatisticsSummary, GameStatistics } from '../../types';
 import './StatisticsScreen.css';
 
 export const StatisticsScreen = () => {
-  const setScreen = useGameStore((state) => state.setScreen);
+  const navigate = useNavigate();
   const [summary, setSummary] = useState<StatisticsSummary | null>(null);
   const [recentGames, setRecentGames] = useState<GameStatistics[]>([]);
   const [topScores, setTopScores] = useState<GameStatistics[]>([]);
@@ -35,7 +35,7 @@ export const StatisticsScreen = () => {
   };
 
   const handleBack = () => {
-    setScreen('start');
+    navigate('/');
   };
 
   const formatDuration = (ms: number): string => {
