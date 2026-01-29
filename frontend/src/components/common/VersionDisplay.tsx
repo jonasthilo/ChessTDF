@@ -1,5 +1,4 @@
 import { useGameStore } from '../../state/gameStore';
-import packageJson from '../../../package.json';
 import './VersionDisplay.css';
 
 export const VersionDisplay = () => {
@@ -7,7 +6,7 @@ export const VersionDisplay = () => {
 
   return (
     <div className="version-display">
-      v{packageJson.version}
+      {__GIT_HASH__}
       {gameId && (
         <span
           className="game-id-badge"
