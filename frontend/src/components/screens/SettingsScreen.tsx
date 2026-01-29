@@ -300,6 +300,18 @@ export const SettingsScreen = () => {
                       {(currentSettings.enemyRewardMultiplier * 100).toFixed(0)}%
                     </span>
                   </div>
+                  <div className="setting-item">
+                    <span className="setting-label">Health Wave Scaling:</span>
+                    <span className="setting-value">
+                      +{(currentSettings.enemyHealthWaveMultiplier * 100).toFixed(0)}%/wave
+                    </span>
+                  </div>
+                  <div className="setting-item">
+                    <span className="setting-label">Reward Wave Scaling:</span>
+                    <span className="setting-value">
+                      +{(currentSettings.enemyRewardWaveMultiplier * 100).toFixed(0)}%/wave
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -552,6 +564,28 @@ const SettingsEditor = ({ setting, edits, onChange }: SettingsEditorProps) => {
             step={0.1}
             value={getValue('enemyRewardMultiplier')}
             onChange={(e) => onChange('enemyRewardMultiplier', Number(e.target.value))}
+          />
+        </div>
+        <div className="field-row">
+          <label>Enemy Health Wave Scaling (0-1):</label>
+          <input
+            type="number"
+            min={0}
+            max={1}
+            step={0.01}
+            value={getValue('enemyHealthWaveMultiplier')}
+            onChange={(e) => onChange('enemyHealthWaveMultiplier', Number(e.target.value))}
+          />
+        </div>
+        <div className="field-row">
+          <label>Enemy Reward Wave Scaling (0-1):</label>
+          <input
+            type="number"
+            min={0}
+            max={1}
+            step={0.01}
+            value={getValue('enemyRewardWaveMultiplier')}
+            onChange={(e) => onChange('enemyRewardWaveMultiplier', Number(e.target.value))}
           />
         </div>
       </div>

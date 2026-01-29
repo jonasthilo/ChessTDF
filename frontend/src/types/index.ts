@@ -70,6 +70,7 @@ export interface Enemy {
   definition: EnemyDefinition;
   health: number;
   maxHealth: number;
+  scaledReward?: number; // wave-scaled reward (if different from definition.reward)
   x: number;
   y: number;
   isDead: boolean;
@@ -141,6 +142,8 @@ export interface BuildTowerResponse {
 export interface StartWaveResponse {
   waveNumber: number;
   enemies: EnemySpawnData[];
+  enemyHealthWaveMultiplier: number;
+  enemyRewardWaveMultiplier: number;
 }
 
 export interface EndGameRequest {
@@ -211,4 +214,6 @@ export interface GameSettings {
   enemyHealthMultiplier: number;
   enemySpeedMultiplier: number;
   enemyRewardMultiplier: number;
+  enemyHealthWaveMultiplier: number;
+  enemyRewardWaveMultiplier: number;
 }

@@ -58,8 +58,24 @@ CREATE TABLE IF NOT EXISTS game_settings (
     enemy_health_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
     enemy_speed_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
     enemy_reward_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
+    enemy_health_wave_multiplier DECIMAL(4,3) NOT NULL DEFAULT 0.100,
+    enemy_reward_wave_multiplier DECIMAL(4,3) NOT NULL DEFAULT 0.050,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table: wave_definitions
+-- Stores wave composition per wave number
+CREATE TABLE IF NOT EXISTS wave_definitions (
+    id SERIAL PRIMARY KEY,
+    wave_number INTEGER NOT NULL,
+    enemy_id INTEGER NOT NULL REFERENCES enemy_definitions(id),
+    count INTEGER NOT NULL DEFAULT 1,
+    spawn_delay_ms INTEGER NOT NULL DEFAULT 500,
+    difficulty_label VARCHAR(20) NOT NULL DEFAULT 'normal',
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(wave_number, enemy_id)
 );
 
 -- Table: game_sessions
@@ -113,6 +129,7 @@ CREATE INDEX IF NOT EXISTS idx_game_statistics_game_id ON game_statistics(game_i
 CREATE INDEX IF NOT EXISTS idx_game_statistics_timestamp ON game_statistics(timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_game_statistics_outcome ON game_statistics(outcome);
 CREATE INDEX IF NOT EXISTS idx_game_statistics_game_mode ON game_statistics(game_mode);
+CREATE INDEX IF NOT EXISTS idx_wave_definitions_wave ON wave_definitions(wave_number);
 
 -- Insert default tower definitions (metadata only)
 INSERT INTO tower_definitions (name, color, description, max_level)
@@ -153,12 +170,60 @@ VALUES
     ('King', 'Ultimate boss unit', 500, 40, 250, '#FFC107', 40)
 ON CONFLICT (name) DO NOTHING;
 
+-- Insert default wave definitions
+INSERT INTO wave_definitions (wave_number, enemy_id, count, spawn_delay_ms, difficulty_label) VALUES
+    -- Wave 1: 7 pawns
+    (1, 1, 7, 800, 'easy'),
+    -- Wave 2: 9 pawns
+    (2, 1, 9, 800, 'easy'),
+    -- Wave 3: 11 pawns
+    (3, 1, 11, 800, 'easy'),
+    -- Wave 4: 8 pawns + 3 knights
+    (4, 1, 8, 600, 'medium'),
+    (4, 2, 3, 1000, 'medium'),
+    -- Wave 5: 8 pawns + 3 knights
+    (5, 1, 8, 600, 'medium'),
+    (5, 2, 3, 1000, 'medium'),
+    -- Wave 6: 8 pawns + 3 knights
+    (6, 1, 8, 600, 'medium'),
+    (6, 2, 3, 1000, 'medium'),
+    -- Wave 7: mixed (4 of each basic type)
+    (7, 1, 4, 500, 'hard'),
+    (7, 2, 4, 500, 'hard'),
+    (7, 3, 4, 500, 'hard'),
+    (7, 4, 3, 500, 'hard'),
+    -- Wave 8: similar mixed
+    (8, 1, 4, 500, 'hard'),
+    (8, 2, 4, 500, 'hard'),
+    (8, 3, 4, 500, 'hard'),
+    (8, 4, 3, 500, 'hard'),
+    -- Wave 9: harder mixed
+    (9, 1, 3, 450, 'hard'),
+    (9, 2, 4, 450, 'hard'),
+    (9, 3, 4, 450, 'hard'),
+    (9, 4, 4, 450, 'hard'),
+    -- Wave 10: introduce queen + king
+    (10, 1, 3, 450, 'hard'),
+    (10, 2, 3, 450, 'hard'),
+    (10, 3, 3, 450, 'hard'),
+    (10, 4, 3, 450, 'hard'),
+    (10, 5, 2, 450, 'hard'),
+    (10, 6, 1, 450, 'hard'),
+    -- Wave 11+: all types, heavy (used for waves beyond max defined)
+    (11, 1, 5, 400, 'extreme'),
+    (11, 2, 4, 400, 'extreme'),
+    (11, 3, 4, 400, 'extreme'),
+    (11, 4, 4, 400, 'extreme'),
+    (11, 5, 2, 400, 'extreme'),
+    (11, 6, 1, 400, 'extreme')
+ON CONFLICT (wave_number, enemy_id) DO NOTHING;
+
 -- Insert default game settings presets
-INSERT INTO game_settings (mode, initial_coins, initial_lives, tower_cost_multiplier, enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier)
+INSERT INTO game_settings (mode, initial_coins, initial_lives, tower_cost_multiplier, enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier, enemy_health_wave_multiplier, enemy_reward_wave_multiplier)
 VALUES
-    ('easy', 400, 15, 0.80, 0.80, 0.80, 1.50),
-    ('normal', 300, 10, 1.00, 1.00, 1.00, 1.00),
-    ('hard', 200, 7, 1.20, 1.50, 1.20, 0.75)
+    ('easy', 400, 15, 0.80, 0.80, 0.80, 1.50, 0.080, 0.040),
+    ('normal', 300, 10, 1.00, 1.00, 1.00, 1.00, 0.100, 0.050),
+    ('hard', 200, 7, 1.20, 1.50, 1.20, 0.75, 0.150, 0.070)
 ON CONFLICT (mode) DO NOTHING;
 
 -- Function to update updated_at timestamp
@@ -197,6 +262,11 @@ EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_game_settings_updated_at
 BEFORE UPDATE ON game_settings
+FOR EACH ROW
+EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_wave_definitions_updated_at
+BEFORE UPDATE ON wave_definitions
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 

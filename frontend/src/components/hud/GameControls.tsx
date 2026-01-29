@@ -28,6 +28,12 @@ export const GameControls = () => {
       // Track total enemies for this wave
       setWaveEnemiesTotal(spawnData.length);
 
+      // Get wave scaling multipliers from store
+      const storeState = useGameStore.getState();
+      const waveNumber = storeState.wave;
+      const healthWaveMult = storeState.enemyHealthWaveMultiplier;
+      const rewardWaveMult = storeState.enemyRewardWaveMultiplier;
+
       // Schedule enemy spawns based on spawn delays
       spawnData.forEach((data: any) => {
         setTimeout(() => {
@@ -35,12 +41,17 @@ export const GameControls = () => {
           const enemyDef = enemyDefinitions.find((e) => e.id === data.enemyId);
           if (!enemyDef) return;
 
+          // Apply per-wave scaling: baseStat * (1 + waveNumber * waveMultiplier)
+          const scaledHealth = Math.round(enemyDef.health * (1 + waveNumber * healthWaveMult));
+          const scaledReward = Math.round(enemyDef.reward * (1 + waveNumber * rewardWaveMult));
+
           addEnemy({
             id: `enemy-${Date.now()}-${Math.random()}`,
             enemyId: data.enemyId,
             definition: enemyDef,
-            health: enemyDef.health,
-            maxHealth: enemyDef.health,
+            health: scaledHealth,
+            maxHealth: scaledHealth,
+            scaledReward,
             x: spawnPos.x,
             y: spawnPos.y,
             isDead: false,

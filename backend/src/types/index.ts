@@ -140,6 +140,8 @@ export interface BuildTowerResponse {
 export interface StartWaveResponse {
   waveNumber: number;
   enemies: EnemySpawnData[];
+  enemyHealthWaveMultiplier: number;
+  enemyRewardWaveMultiplier: number;
 }
 
 export interface EndGameRequest {
@@ -175,8 +177,18 @@ export interface GameSettings {
   enemyHealthMultiplier: number;
   enemySpeedMultiplier: number;
   enemyRewardMultiplier: number;
+  enemyHealthWaveMultiplier: number;
+  enemyRewardWaveMultiplier: number;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface WaveDefinition {
+  waveNumber: number;
+  enemyId: number;
+  count: number;
+  spawnDelayMs: number;
+  difficultyLabel: string;
 }
 
 export interface GameSessionDB {
