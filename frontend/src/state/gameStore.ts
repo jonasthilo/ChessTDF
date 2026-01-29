@@ -392,7 +392,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     if (existingTower) {
       // If no tower ID selected, open modal for this tower
       if (!selectedTowerId) {
-        set({ selectedTower: existingTower });
+        get().selectTower(existingTower);
         return;
       }
       // If tower ID is selected, cannot place on occupied cell
