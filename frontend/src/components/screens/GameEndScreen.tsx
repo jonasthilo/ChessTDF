@@ -22,6 +22,7 @@ export const GameEndScreen = () => {
   return (
     <div className={`game-end-screen ${isVictory ? 'victory' : 'defeat'}`}>
       <div className="game-end-content">
+        <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
         <h1 className={`game-end-title ${isVictory ? 'victory' : 'defeat'}`}>
           {isVictory ? 'Victory!' : 'Game Over'}
         </h1>

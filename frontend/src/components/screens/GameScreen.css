@@ -18,6 +18,12 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
 }
 
+.header-logo {
+  width: 28px;
+  height: auto;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.4));
+}
+
 .game-content {
   display: flex;
   flex: 1;
