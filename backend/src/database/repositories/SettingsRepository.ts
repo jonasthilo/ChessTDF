@@ -29,8 +29,9 @@ export class SettingsRepository {
     const result = await query<any>(
       `INSERT INTO game_settings (
         mode, initial_coins, initial_lives, tower_cost_multiplier,
-        enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *`,
+        enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier,
+        enemy_health_wave_multiplier, enemy_reward_wave_multiplier
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
       [
         settings.mode,
         settings.initialCoins,
@@ -39,6 +40,8 @@ export class SettingsRepository {
         settings.enemyHealthMultiplier,
         settings.enemySpeedMultiplier,
         settings.enemyRewardMultiplier,
+        settings.enemyHealthWaveMultiplier,
+        settings.enemyRewardWaveMultiplier,
       ]
     );
     return this.mapToGameSettings(result.rows[0]);
@@ -78,6 +81,14 @@ export class SettingsRepository {
       fields.push(`enemy_reward_multiplier = $${paramIndex++}`);
       values.push(updates.enemyRewardMultiplier);
     }
+    if (updates.enemyHealthWaveMultiplier !== undefined) {
+      fields.push(`enemy_health_wave_multiplier = $${paramIndex++}`);
+      values.push(updates.enemyHealthWaveMultiplier);
+    }
+    if (updates.enemyRewardWaveMultiplier !== undefined) {
+      fields.push(`enemy_reward_wave_multiplier = $${paramIndex++}`);
+      values.push(updates.enemyRewardWaveMultiplier);
+    }
 
     if (fields.length === 0) return false;
 
@@ -99,6 +110,8 @@ export class SettingsRepository {
       enemyHealthMultiplier: parseFloat(row.enemy_health_multiplier),
       enemySpeedMultiplier: parseFloat(row.enemy_speed_multiplier),
       enemyRewardMultiplier: parseFloat(row.enemy_reward_multiplier),
+      enemyHealthWaveMultiplier: parseFloat(row.enemy_health_wave_multiplier),
+      enemyRewardWaveMultiplier: parseFloat(row.enemy_reward_wave_multiplier),
       createdAt: row.created_at,
       updatedAt: row.updated_at,
     };

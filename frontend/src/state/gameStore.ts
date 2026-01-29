@@ -48,6 +48,10 @@ interface GameStore {
   gameTime: number;
   updateGameTime: (deltaTime: number) => void;
 
+  // Wave scaling multipliers (from startWave response)
+  enemyHealthWaveMultiplier: number;
+  enemyRewardWaveMultiplier: number;
+
   // Game configuration (from backend)
   towerDefinitions: TowerDefinitionWithLevels[];
   enemyDefinitions: EnemyDefinition[];
@@ -133,6 +137,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
   enemiesKilled: 0,
   gameResult: null,
   gameTime: 0,
+  enemyHealthWaveMultiplier: 0.1,
+  enemyRewardWaveMultiplier: 0.05,
   towerDefinitions: [],
   enemyDefinitions: [],
   towers: [],
@@ -353,6 +359,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       set({
         wave: response.waveNumber,
         isPlaying: true,
+        enemyHealthWaveMultiplier: response.enemyHealthWaveMultiplier,
+        enemyRewardWaveMultiplier: response.enemyRewardWaveMultiplier,
       });
 
       // Return spawn data for game engine to handle
@@ -580,6 +588,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
       enemiesKilled: 0,
       gameResult: null,
       gameTime: 0,
+      enemyHealthWaveMultiplier: 0.1,
+      enemyRewardWaveMultiplier: 0.05,
       towers: [],
       enemies: [],
       projectiles: [],

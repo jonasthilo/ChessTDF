@@ -190,6 +190,17 @@ export class ConfigService {
       }
     }
 
+    const waveMultipliers = [
+      { name: 'enemyHealthWaveMultiplier', value: settings.enemyHealthWaveMultiplier },
+      { name: 'enemyRewardWaveMultiplier', value: settings.enemyRewardWaveMultiplier },
+    ];
+
+    for (const { name, value } of waveMultipliers) {
+      if (value !== undefined && (value < 0 || value > 1.0)) {
+        throw new Error(`${name} must be between 0 and 1.0, got ${value}`);
+      }
+    }
+
     if (settings.initialCoins !== undefined && (settings.initialCoins < 50 || settings.initialCoins > 1000)) {
       throw new Error(`initialCoins must be between 50 and 1000, got ${settings.initialCoins}`);
     }

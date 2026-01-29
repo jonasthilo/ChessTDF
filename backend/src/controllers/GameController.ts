@@ -169,11 +169,24 @@ export class GameController {
         return;
       }
 
-      const enemies = waveService.getWaveEnemies(game.wave);
+      const enemies = await waveService.getWaveEnemies(game.wave);
+
+      // Get settings for wave scaling multipliers
+      let enemyHealthWaveMultiplier = 0.1;
+      let enemyRewardWaveMultiplier = 0.05;
+      if (game.settingsId) {
+        const settings = await configService.getSettingsById(game.settingsId);
+        if (settings) {
+          enemyHealthWaveMultiplier = settings.enemyHealthWaveMultiplier;
+          enemyRewardWaveMultiplier = settings.enemyRewardWaveMultiplier;
+        }
+      }
 
       const response: StartWaveResponse = {
         waveNumber: game.wave,
-        enemies
+        enemies,
+        enemyHealthWaveMultiplier,
+        enemyRewardWaveMultiplier,
       };
 
       res.status(200).json(response);

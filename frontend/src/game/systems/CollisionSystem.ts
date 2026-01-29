@@ -35,7 +35,7 @@ export class CollisionSystem {
             state.selectEnemy(null);
           }
           state.removeEnemy(target.id);
-          state.addCoinsFromBackend(target.definition.reward);
+          state.addCoinsFromBackend(target.scaledReward ?? target.definition.reward);
           state.incrementEnemiesKilled();
           state.incrementWaveEnemiesDealt();
         }
