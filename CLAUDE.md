@@ -9,7 +9,7 @@ Core loop: place towers → spawn waves → enemies move left→right → protec
 ---
 
 ## Tech Stack
-Frontend: React, TypeScript, PixiJS (60 FPS), Zustand, Vite  
+Frontend: React, TypeScript, PixiJS (60 FPS), Zustand, React Router, Vite
 Backend: Node.js, Express, TypeScript  
 Database: PostgreSQL 16 (Docker, persistent volumes)
 
@@ -51,13 +51,25 @@ Backend: routes/, controllers/, services/, database/
 | Change game state | state/gameStore.ts |
 | Call backend API | state/gameStore.ts |
 | Validate rules | state/gameStore.ts |
+| Navigation/routing | App.tsx (React Router) |
 | Loop timing | game/GameEngine.ts |
 | Entity math | game/systems/ |
 | Grid math | game/managers/ |
 | UI | components/ |
 
-state/gameStore.ts = single source of truth  
-game/GameEngine.ts = loop timing + system execution  
+state/gameStore.ts = single source of truth (game data only, no screen navigation)
+game/GameEngine.ts = loop timing + system execution
+
+### Navigation (React Router)
+Routes defined in `App.tsx` using `react-router-dom`:
+- `/` → StartScreen
+- `/settings` → SettingsScreen
+- `/statistics` → StatisticsScreen
+- `/game/:gameId` → GameScreen (active game, gameId in URL)
+- `/game/:gameId/end` → GameEndScreen (completed game)
+- `*` → redirects to `/`
+
+Screen components use `useNavigate()` for navigation. `startGame()` returns the gameId for URL construction. GameScreen validates URL gameId against store and auto-navigates to end screen when `gameResult` is set. Invalid/stale game URLs redirect home.
 
 ---
 
@@ -172,9 +184,10 @@ Status: Integer ID migration complete, wave DB migration complete, fully functio
 - `controllers/GameController.ts` - Game API endpoints
 
 ### Frontend
+- `App.tsx` - React Router route definitions
 - `types/index.ts` - Type definitions (Tower, TowerLevel, TowerStats, etc.)
 - `services/gameApi.ts` - Backend API client
-- `state/gameStore.ts` - Zustand state management (single source of truth)
+- `state/gameStore.ts` - Zustand state management (game data, no screen navigation)
 - `game/GameEngine.ts` - 60 FPS game loop + input handling
 - `game/rendering/PixiRenderer.ts` - PixiJS rendering with Container hierarchy
 - `game/managers/GridManager.ts` - Grid-to-pixel coordinate transformations
