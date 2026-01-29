@@ -144,6 +144,9 @@ export const StatisticsScreen = () => {
                   </span>
                   <span className="game-wave">Wave {game.finalWave}</span>
                   <span className="game-kills">{game.enemiesKilledTotal} kills</span>
+                  <span className="game-duration">{formatDuration(game.duration)}</span>
+                  <span className="game-towers">{game.towersBuiltTotal} towers</span>
+                  <span className="game-coins">{game.coinsEarned} coins</span>
                   <span className="game-date">
                     {new Date(game.timestamp).toLocaleDateString()}
                   </span>
@@ -165,6 +168,8 @@ export const StatisticsScreen = () => {
                   </span>
                   <span className="game-wave">Wave {game.finalWave}</span>
                   <span className="game-kills">{game.enemiesKilledTotal} kills</span>
+                  <span className="game-duration">{formatDuration(game.duration)}</span>
+                  <span className="game-towers">{game.towersBuiltTotal} towers</span>
                   <span className="game-mode">{game.gameMode}</span>
                 </div>
               ))

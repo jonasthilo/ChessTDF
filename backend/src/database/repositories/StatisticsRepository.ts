@@ -96,12 +96,11 @@ export class StatisticsRepository {
     return result.rows.map(this.mapToStatistics);
   }
 
-  // Get top scores (highest wave reached in endless mode)
+  // Get top scores (highest wave reached)
   async getTopScores(limit = 10): Promise<GameStatistics[]> {
     const result = await query<any>(
       `SELECT * FROM game_statistics
-       WHERE game_mode = 'endless'
-       ORDER BY final_wave DESC, duration ASC
+       ORDER BY final_wave DESC, enemies_killed_total DESC
        LIMIT $1`,
       [limit]
     );
