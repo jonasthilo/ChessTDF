@@ -13,10 +13,7 @@
   padding: 2rem;
 }
 
-.screen-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.start-screen .screen-header {
   gap: 1rem;
   margin-bottom: 0.5rem;
 }
