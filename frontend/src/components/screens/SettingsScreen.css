@@ -22,17 +22,7 @@
 }
 
 .settings-screen .screen-header {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.75rem;
   margin-bottom: 0.75rem;
-}
-
-.settings-screen .screen-logo {
-  width: 50px;
-  height: auto;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
 }
 
 .settings-title {
@@ -70,7 +60,7 @@
 }
 
 .difficulty-button:hover {
-  background: #1a2633;
+  background: var(--color-bg-hover);
   border-color: var(--text-light);
 }
 
@@ -159,7 +149,7 @@
 }
 
 .toggle-button:hover {
-  background: #1a2633;
+  background: var(--color-bg-hover);
   border-color: var(--text-light);
 }
 
@@ -196,7 +186,7 @@
 }
 
 .tab-button:hover {
-  background: #1a2633;
+  background: var(--color-bg-hover);
 }
 
 .tab-button.active {
@@ -393,7 +383,7 @@
 }
 
 .tower-type-button:hover {
-  background: #1a2633;
+  background: var(--color-bg-hover);
   border-color: var(--text-light);
 }
 

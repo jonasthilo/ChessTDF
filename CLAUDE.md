@@ -39,8 +39,8 @@ Pattern: service layer + data‑driven design + simplified ECS
 ---
 
 ## Project Layout
-Frontend: components/, game/, state/gameStore, services/gameApi  
-Backend: routes/, controllers/, services/, database/  
+Frontend: components/, game/, state/gameStore, services/gameApi, utils/, styles/
+Backend: routes/, controllers/, services/, database/
 
 ---
 
@@ -56,6 +56,8 @@ Backend: routes/, controllers/, services/, database/
 | Entity math | game/systems/ |
 | Grid math | game/managers/ |
 | UI | components/ |
+| Shared utilities | utils/pieceAssets.ts, utils/math.ts |
+| Shared styles | styles/shared.css, styles/variables.css |
 
 state/gameStore.ts = single source of truth (game data only, no screen navigation)
 game/GameEngine.ts = loop timing + system execution
@@ -147,6 +149,7 @@ docker-compose exec backend npm test
 Test suite: `backend/src/tests/backend-test.ts` (110 tests)
 Covers: Database, Repositories (incl. Wave), Services (incl. Wave, error cases), API endpoints (incl. error responses, all CRUD)
 Tests use dynamic DB lookups (no hardcoded values), so they stay valid when game balance is tuned
+Test factories: makeSessionPayload(), makeEndGameStats(), makeStatsPayload() reduce boilerplate
 
 
 ### Health endpoint
@@ -176,26 +179,36 @@ Status: Integer ID migration complete, wave DB migration complete, fully functio
 ### Backend
 - `database/init.sql` - Database schema + tower_levels seed data
 - `database/repositories/` - Data access layer
+- `database/helpers.ts` - Shared DB helpers (buildUpdateFields for dynamic UPDATE queries)
 - `services/ConfigService.ts` - Tower/enemy/settings logic
-- `services/GameService.ts` - Game session + tower building
+- `services/GameService.ts` - Game session + tower building (levelToStats, towerToDb helpers)
 - `services/WaveService.ts` - Wave progression
 - `database/repositories/WaveRepository.ts` - Wave definitions data access
 - `controllers/ConfigController.ts` - Config API endpoints
 - `controllers/GameController.ts` - Game API endpoints
+- `controllers/helpers.ts` - Shared controller helpers (parseIntParam)
+- `routes/swagger/` - Swagger JSDoc annotations (separate from route definitions)
 
 ### Frontend
 - `App.tsx` - React Router route definitions
-- `types/index.ts` - Type definitions (Tower, TowerLevel, TowerStats, etc.)
+- `types/index.ts` - Type definitions (TowerStats via Pick, TowerDefinitionWithLevels via extends)
 - `services/gameApi.ts` - Backend API client
 - `state/gameStore.ts` - Zustand state management (game data, no screen navigation)
+- `utils/pieceAssets.ts` - Shared tower/enemy image helpers and piece name maps
+- `utils/math.ts` - Shared math utilities (distance)
+- `styles/shared.css` - Shared screen styles (screen-header, screen-logo)
+- `styles/variables.css` - CSS custom properties
 - `game/GameEngine.ts` - 60 FPS game loop + input handling
-- `game/rendering/PixiRenderer.ts` - PixiJS rendering with Container hierarchy
+- `game/rendering/PixiRenderer.ts` - PixiJS rendering with Container hierarchy (syncSprites generic method)
 - `game/managers/GridManager.ts` - Grid-to-pixel coordinate transformations
 - `game/systems/TowerSystem.ts` - Tower combat logic
 - `game/rendering/SpriteFactory.ts` - PixiJS sprite creation
+- `components/common/NumberField.tsx` - Reusable number input field
+- `components/common/TextField.tsx` - Reusable text/color input field
 - `components/hud/TowerModal.tsx` - Tower upgrade UI
 - `components/hud/TowerPanel.tsx` - Tower selection UI
-- `components/screens/SettingsScreen.tsx` - Settings + Tower Levels editor
+- `components/screens/SettingsScreen.tsx` - Settings orchestrator (imports sub-components)
+- `components/screens/settings/` - Settings sub-components (TowerEditor, EnemyEditor, SettingsEditor, TowerLevelEditor)
 - `COORDINATE_SYSTEM.md` - Coordinate system architecture documentation
 
 ---

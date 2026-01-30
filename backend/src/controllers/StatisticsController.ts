@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { StatisticsService } from '../services/StatisticsService';
 import { GameStatistics } from '../types';
+import { parseIntParam } from './helpers';
 
 const statisticsService = new StatisticsService();
 
@@ -205,7 +206,7 @@ export class StatisticsController {
   async cleanupOldStatistics(req: Request, res: Response): Promise<void> {
     try {
       const daysParam = req.params['days'];
-      const days = parseInt(typeof daysParam === 'string' ? daysParam : '');
+      const days = parseIntParam(daysParam);
 
       if (isNaN(days) || days < 30) {
         res.status(400).json({ error: 'Invalid days parameter. Must be at least 30 days' });

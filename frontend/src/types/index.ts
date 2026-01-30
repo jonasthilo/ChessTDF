@@ -21,22 +21,12 @@ export interface TowerLevel {
 }
 
 // Tower definition with all its levels included
-export interface TowerDefinitionWithLevels {
-  id: number;
-  name: string;
-  color: string;
-  description: string;
+export interface TowerDefinitionWithLevels extends TowerDefinition {
   levels: TowerLevel[];
-  maxLevel: number;
 }
 
 // Tower runtime stats (derived from TowerLevel at current level)
-export interface TowerStats {
-  cost: number;
-  damage: number;
-  range: number;
-  fireRate: number;
-}
+export type TowerStats = Pick<TowerLevel, 'cost' | 'damage' | 'range' | 'fireRate'>;
 
 // Enemy Definition (Static configuration)
 export interface EnemyDefinition {

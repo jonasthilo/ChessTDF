@@ -1,16 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../../state/gameStore';
+import { getEnemyImage } from '../../utils/pieceAssets';
 import type { Enemy } from '../../types';
 import './EnemyStatsPanel.css';
-
-const ENEMY_PIECE_MAP: Record<number, string> = {
-  1: '/assets/pieces/black/pawn.svg',
-  2: '/assets/pieces/black/knight.svg',
-  3: '/assets/pieces/black/bishop.svg',
-  4: '/assets/pieces/black/rook.svg',
-  5: '/assets/pieces/black/queen.svg',
-  6: '/assets/pieces/black/king.svg',
-};
 
 export const EnemyStatsPanel = () => {
   const selectedEnemy = useGameStore((state) => state.selectedEnemy);
@@ -50,7 +42,7 @@ export const EnemyStatsPanel = () => {
   const enemy = displayEnemy;
   const def = enemy.definition;
   const healthPercent = Math.max(0, (enemy.health / enemy.maxHealth) * 100);
-  const pieceImage = ENEMY_PIECE_MAP[enemy.enemyId] ?? ENEMY_PIECE_MAP[1]!;
+  const pieceImage = getEnemyImage(enemy.enemyId);
 
   const getHealthColor = (percent: number): string => {
     if (percent > 60) return '#4db8a0';

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { ConfigService } from '../services/ConfigService';
 import { TowerLevel, EnemyDefinition, GameSettings } from '../types';
+import { parseIntParam } from './helpers';
 
 const configService = new ConfigService();
 
@@ -49,7 +50,7 @@ export class ConfigController {
   async updateTowerDefinition(req: Request, res: Response): Promise<void> {
     try {
       const idParam = req.params['id'];
-      const id = parseInt(typeof idParam === 'string' ? idParam : '');
+      const id = parseIntParam(idParam);
 
       if (isNaN(id)) {
         res.status(400).json({ error: 'Invalid tower ID' });
@@ -86,7 +87,7 @@ export class ConfigController {
   async getTowerLevels(req: Request, res: Response): Promise<void> {
     try {
       const towerIdParam = req.params['towerId'];
-      const towerId = parseInt(typeof towerIdParam === 'string' ? towerIdParam : '');
+      const towerId = parseIntParam(towerIdParam);
 
       if (isNaN(towerId)) {
         res.status(400).json({ error: 'Invalid tower ID' });
@@ -114,9 +115,9 @@ export class ConfigController {
   async getTowerLevel(req: Request, res: Response): Promise<void> {
     try {
       const towerIdParam = req.params['towerId'];
-      const towerId = parseInt(typeof towerIdParam === 'string' ? towerIdParam : '');
+      const towerId = parseIntParam(towerIdParam);
       const levelParam = req.params['level'];
-      const level = parseInt(typeof levelParam === 'string' ? levelParam : '');
+      const level = parseIntParam(levelParam);
 
       if (isNaN(towerId)) {
         res.status(400).json({ error: 'Invalid tower ID' });
@@ -149,9 +150,9 @@ export class ConfigController {
   async upsertTowerLevel(req: Request, res: Response): Promise<void> {
     try {
       const towerIdParam = req.params['towerId'];
-      const towerId = parseInt(typeof towerIdParam === 'string' ? towerIdParam : '');
+      const towerId = parseIntParam(towerIdParam);
       const levelParam = req.params['level'];
-      const level = parseInt(typeof levelParam === 'string' ? levelParam : '');
+      const level = parseIntParam(levelParam);
 
       if (isNaN(towerId)) {
         res.status(400).json({ error: 'Invalid tower ID' });
@@ -195,9 +196,9 @@ export class ConfigController {
   async deleteTowerLevel(req: Request, res: Response): Promise<void> {
     try {
       const towerIdParam = req.params['towerId'];
-      const towerId = parseInt(typeof towerIdParam === 'string' ? towerIdParam : '');
+      const towerId = parseIntParam(towerIdParam);
       const levelParam = req.params['level'];
-      const level = parseInt(typeof levelParam === 'string' ? levelParam : '');
+      const level = parseIntParam(levelParam);
 
       if (isNaN(towerId)) {
         res.status(400).json({ error: 'Invalid tower ID' });
@@ -246,7 +247,7 @@ export class ConfigController {
   async getEnemyDefinition(req: Request, res: Response): Promise<void> {
     try {
       const idParam = req.params['id'];
-      const id = parseInt(typeof idParam === 'string' ? idParam : '');
+      const id = parseIntParam(idParam);
 
       if (isNaN(id)) {
         res.status(400).json({ error: 'Invalid enemy ID' });
@@ -274,7 +275,7 @@ export class ConfigController {
   async updateEnemyDefinition(req: Request, res: Response): Promise<void> {
     try {
       const idParam = req.params['id'];
-      const id = parseInt(typeof idParam === 'string' ? idParam : '');
+      const id = parseIntParam(idParam);
 
       if (isNaN(id)) {
         res.status(400).json({ error: 'Invalid enemy ID' });
@@ -352,7 +353,7 @@ export class ConfigController {
   async getSettingsById(req: Request, res: Response): Promise<void> {
     try {
       const idParam = req.params['id'];
-      const id = parseInt(typeof idParam === 'string' ? idParam : '');
+      const id = parseIntParam(idParam);
 
       if (isNaN(id)) {
         res.status(400).json({ error: 'Invalid settings ID' });
@@ -411,7 +412,7 @@ export class ConfigController {
   async updateSettings(req: Request, res: Response): Promise<void> {
     try {
       const idParam = req.params['id'];
-      const id = parseInt(typeof idParam === 'string' ? idParam : '');
+      const id = parseIntParam(idParam);
 
       if (isNaN(id)) {
         res.status(400).json({ error: 'Invalid settings ID' });

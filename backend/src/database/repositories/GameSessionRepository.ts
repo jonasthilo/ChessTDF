@@ -1,5 +1,6 @@
 import { query } from '../db';
 import { GameSessionDB, GameMode, SessionStatus } from '../../types';
+import { buildUpdateFields } from '../helpers';
 
 interface GameSessionRow {
   game_id: string;
@@ -59,57 +60,23 @@ export class GameSessionRepository {
 
   // Update game session
   async updateGameSession(gameId: string, updates: Partial<GameSessionDB>): Promise<boolean> {
-    const fields: string[] = [];
-    const values: unknown[] = [];
-    let paramIndex = 1;
+    const built = buildUpdateFields(updates, {
+      currentWave: 'current_wave',
+      wavesCompleted: 'waves_completed',
+      coins: 'coins',
+      lives: 'lives',
+      towers: ['towers', (v) => JSON.stringify(v)],
+      enemiesKilled: 'enemies_killed',
+      coinsEarned: 'coins_earned',
+      coinsSpent: 'coins_spent',
+      damageDealt: 'damage_dealt',
+      status: 'status',
+    });
+    if (!built) return false;
 
-    if (updates.currentWave !== undefined) {
-      fields.push(`current_wave = $${paramIndex++}`);
-      values.push(updates.currentWave);
-    }
-    if (updates.wavesCompleted !== undefined) {
-      fields.push(`waves_completed = $${paramIndex++}`);
-      values.push(updates.wavesCompleted);
-    }
-    if (updates.coins !== undefined) {
-      fields.push(`coins = $${paramIndex++}`);
-      values.push(updates.coins);
-    }
-    if (updates.lives !== undefined) {
-      fields.push(`lives = $${paramIndex++}`);
-      values.push(updates.lives);
-    }
-    if (updates.towers !== undefined) {
-      fields.push(`towers = $${paramIndex++}`);
-      values.push(JSON.stringify(updates.towers));
-    }
-    if (updates.enemiesKilled !== undefined) {
-      fields.push(`enemies_killed = $${paramIndex++}`);
-      values.push(updates.enemiesKilled);
-    }
-    if (updates.coinsEarned !== undefined) {
-      fields.push(`coins_earned = $${paramIndex++}`);
-      values.push(updates.coinsEarned);
-    }
-    if (updates.coinsSpent !== undefined) {
-      fields.push(`coins_spent = $${paramIndex++}`);
-      values.push(updates.coinsSpent);
-    }
-    if (updates.damageDealt !== undefined) {
-      fields.push(`damage_dealt = $${paramIndex++}`);
-      values.push(updates.damageDealt);
-    }
-    if (updates.status !== undefined) {
-      fields.push(`status = $${paramIndex++}`);
-      values.push(updates.status);
-    }
-
-    if (fields.length === 0) return false;
-
-    values.push(gameId);
-    const sql = `UPDATE game_sessions SET ${fields.join(', ')} WHERE game_id = $${paramIndex}`;
-
-    const result = await query(sql, values);
+    built.values.push(gameId);
+    const sql = `UPDATE game_sessions SET ${built.fields.join(', ')} WHERE game_id = $${built.nextParam}`;
+    const result = await query(sql, built.values);
     return (result.rowCount ?? 0) > 0;
   }
 
