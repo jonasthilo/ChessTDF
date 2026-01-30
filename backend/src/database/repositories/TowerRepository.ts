@@ -1,5 +1,6 @@
 import { query } from '../db';
 import { TowerDefinition, TowerLevel } from '../../types';
+import { buildUpdateFields } from '../helpers';
 
 interface TowerDefinitionRow {
   id: number;
@@ -80,33 +81,17 @@ export class TowerRepository {
 
   // Update tower definition (metadata only)
   async updateTowerDefinition(id: number, updates: Partial<TowerDefinition>): Promise<boolean> {
-    const fields: string[] = [];
-    const values: unknown[] = [];
-    let paramIndex = 1;
+    const built = buildUpdateFields(updates, {
+      name: 'name',
+      color: 'color',
+      description: 'description',
+      maxLevel: 'max_level',
+    });
+    if (!built) return false;
 
-    if (updates.name !== undefined) {
-      fields.push(`name = $${paramIndex++}`);
-      values.push(updates.name);
-    }
-    if (updates.color !== undefined) {
-      fields.push(`color = $${paramIndex++}`);
-      values.push(updates.color);
-    }
-    if (updates.description !== undefined) {
-      fields.push(`description = $${paramIndex++}`);
-      values.push(updates.description);
-    }
-    if (updates.maxLevel !== undefined) {
-      fields.push(`max_level = $${paramIndex++}`);
-      values.push(updates.maxLevel);
-    }
-
-    if (fields.length === 0) return false;
-
-    values.push(id);
-    const sql = `UPDATE tower_definitions SET ${fields.join(', ')} WHERE id = $${paramIndex}`;
-
-    const result = await query(sql, values);
+    built.values.push(id);
+    const sql = `UPDATE tower_definitions SET ${built.fields.join(', ')} WHERE id = $${built.nextParam}`;
+    const result = await query(sql, built.values);
     return (result.rowCount ?? 0) > 0;
   }
 
@@ -116,33 +101,17 @@ export class TowerRepository {
     level: number,
     updates: Partial<TowerLevel>
   ): Promise<boolean> {
-    const fields: string[] = [];
-    const values: unknown[] = [];
-    let paramIndex = 1;
+    const built = buildUpdateFields(updates, {
+      cost: 'cost',
+      damage: 'damage',
+      range: 'range',
+      fireRate: 'fire_rate',
+    });
+    if (!built) return false;
 
-    if (updates.cost !== undefined) {
-      fields.push(`cost = $${paramIndex++}`);
-      values.push(updates.cost);
-    }
-    if (updates.damage !== undefined) {
-      fields.push(`damage = $${paramIndex++}`);
-      values.push(updates.damage);
-    }
-    if (updates.range !== undefined) {
-      fields.push(`range = $${paramIndex++}`);
-      values.push(updates.range);
-    }
-    if (updates.fireRate !== undefined) {
-      fields.push(`fire_rate = $${paramIndex++}`);
-      values.push(updates.fireRate);
-    }
-
-    if (fields.length === 0) return false;
-
-    values.push(towerId, level);
-    const sql = `UPDATE tower_levels SET ${fields.join(', ')} WHERE tower_id = $${paramIndex} AND level = $${paramIndex + 1}`;
-
-    const result = await query(sql, values);
+    built.values.push(towerId, level);
+    const sql = `UPDATE tower_levels SET ${built.fields.join(', ')} WHERE tower_id = $${built.nextParam} AND level = $${built.nextParam + 1}`;
+    const result = await query(sql, built.values);
     return (result.rowCount ?? 0) > 0;
   }
 

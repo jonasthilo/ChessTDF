@@ -1,5 +1,6 @@
 import { query } from '../db';
 import { EnemyDefinition } from '../../types';
+import { buildUpdateFields } from '../helpers';
 
 interface EnemyRow {
   id: number;
@@ -28,45 +29,20 @@ export class EnemyRepository {
 
   // Update enemy definition (for admin/settings)
   async updateEnemyDefinition(id: number, updates: Partial<EnemyDefinition>): Promise<boolean> {
-    const fields: string[] = [];
-    const values: unknown[] = [];
-    let paramIndex = 1;
+    const built = buildUpdateFields(updates, {
+      name: 'name',
+      description: 'description',
+      health: 'health',
+      speed: 'speed',
+      reward: 'reward',
+      color: 'color',
+      size: 'size',
+    });
+    if (!built) return false;
 
-    if (updates.name !== undefined) {
-      fields.push(`name = $${paramIndex++}`);
-      values.push(updates.name);
-    }
-    if (updates.description !== undefined) {
-      fields.push(`description = $${paramIndex++}`);
-      values.push(updates.description);
-    }
-    if (updates.health !== undefined) {
-      fields.push(`health = $${paramIndex++}`);
-      values.push(updates.health);
-    }
-    if (updates.speed !== undefined) {
-      fields.push(`speed = $${paramIndex++}`);
-      values.push(updates.speed);
-    }
-    if (updates.reward !== undefined) {
-      fields.push(`reward = $${paramIndex++}`);
-      values.push(updates.reward);
-    }
-    if (updates.color !== undefined) {
-      fields.push(`color = $${paramIndex++}`);
-      values.push(updates.color);
-    }
-    if (updates.size !== undefined) {
-      fields.push(`size = $${paramIndex++}`);
-      values.push(updates.size);
-    }
-
-    if (fields.length === 0) return false;
-
-    values.push(id);
-    const sql = `UPDATE enemy_definitions SET ${fields.join(', ')} WHERE id = $${paramIndex}`;
-
-    const result = await query(sql, values);
+    built.values.push(id);
+    const sql = `UPDATE enemy_definitions SET ${built.fields.join(', ')} WHERE id = $${built.nextParam}`;
+    const result = await query(sql, built.values);
     return (result.rowCount ?? 0) > 0;
   }
 

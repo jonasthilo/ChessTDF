@@ -1,5 +1,6 @@
 import { query } from '../db';
 import { GameSettings, SettingsMode } from '../../types';
+import { buildUpdateFields } from '../helpers';
 
 interface SettingsRow {
   id: number;
@@ -64,53 +65,22 @@ export class SettingsRepository {
 
   // Update existing settings
   async updateSettings(id: number, updates: Partial<GameSettings>): Promise<boolean> {
-    const fields: string[] = [];
-    const values: unknown[] = [];
-    let paramIndex = 1;
+    const built = buildUpdateFields(updates, {
+      mode: 'mode',
+      initialCoins: 'initial_coins',
+      initialLives: 'initial_lives',
+      towerCostMultiplier: 'tower_cost_multiplier',
+      enemyHealthMultiplier: 'enemy_health_multiplier',
+      enemySpeedMultiplier: 'enemy_speed_multiplier',
+      enemyRewardMultiplier: 'enemy_reward_multiplier',
+      enemyHealthWaveMultiplier: 'enemy_health_wave_multiplier',
+      enemyRewardWaveMultiplier: 'enemy_reward_wave_multiplier',
+    });
+    if (!built) return false;
 
-    if (updates.mode !== undefined) {
-      fields.push(`mode = $${paramIndex++}`);
-      values.push(updates.mode);
-    }
-    if (updates.initialCoins !== undefined) {
-      fields.push(`initial_coins = $${paramIndex++}`);
-      values.push(updates.initialCoins);
-    }
-    if (updates.initialLives !== undefined) {
-      fields.push(`initial_lives = $${paramIndex++}`);
-      values.push(updates.initialLives);
-    }
-    if (updates.towerCostMultiplier !== undefined) {
-      fields.push(`tower_cost_multiplier = $${paramIndex++}`);
-      values.push(updates.towerCostMultiplier);
-    }
-    if (updates.enemyHealthMultiplier !== undefined) {
-      fields.push(`enemy_health_multiplier = $${paramIndex++}`);
-      values.push(updates.enemyHealthMultiplier);
-    }
-    if (updates.enemySpeedMultiplier !== undefined) {
-      fields.push(`enemy_speed_multiplier = $${paramIndex++}`);
-      values.push(updates.enemySpeedMultiplier);
-    }
-    if (updates.enemyRewardMultiplier !== undefined) {
-      fields.push(`enemy_reward_multiplier = $${paramIndex++}`);
-      values.push(updates.enemyRewardMultiplier);
-    }
-    if (updates.enemyHealthWaveMultiplier !== undefined) {
-      fields.push(`enemy_health_wave_multiplier = $${paramIndex++}`);
-      values.push(updates.enemyHealthWaveMultiplier);
-    }
-    if (updates.enemyRewardWaveMultiplier !== undefined) {
-      fields.push(`enemy_reward_wave_multiplier = $${paramIndex++}`);
-      values.push(updates.enemyRewardWaveMultiplier);
-    }
-
-    if (fields.length === 0) return false;
-
-    values.push(id);
-    const sql = `UPDATE game_settings SET ${fields.join(', ')} WHERE id = $${paramIndex}`;
-
-    const result = await query(sql, values);
+    built.values.push(id);
+    const sql = `UPDATE game_settings SET ${built.fields.join(', ')} WHERE id = $${built.nextParam}`;
+    const result = await query(sql, built.values);
     return (result.rowCount ?? 0) > 0;
   }
 
