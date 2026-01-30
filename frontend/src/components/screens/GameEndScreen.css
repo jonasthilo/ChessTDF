@@ -1,28 +1,16 @@
 .game-end-screen {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  color: white;
-  background: var(--color-bg-primary);
-}
-
-.game-end-screen.defeat {
-  background: var(--color-bg-primary);
-}
-
-.game-end-screen.victory {
-  background: var(--color-bg-primary);
 }
 
 .game-end-content {
   text-align: center;
   max-width: 500px;
+  width: 90%;
   padding: 2rem;
   background: var(--color-bg-secondary);
-  border-radius: 12px;
-  border: 2px solid var(--color-bg-tertiary);
-  box-shadow: var(--shadow-default);
+  border-radius: var(--border-radius-large);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin: auto;
 }
 
 .game-end-title {
@@ -109,7 +97,7 @@
 
 .home-button {
   background: var(--color-bg-tertiary);
-  border: 2px solid var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .home-button:hover {

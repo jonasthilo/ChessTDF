@@ -10,6 +10,7 @@ import { TowerModal } from '../hud/TowerModal';
 import { EnemyStatsPanel } from '../hud/EnemyStatsPanel';
 import { ViewportWarning } from '../hud/ViewportWarning';
 import { VersionDisplay } from '../common/VersionDisplay';
+import { AppNav } from '../common/AppNav';
 import { GameEngine } from '../../game/GameEngine';
 import { AssetLoader } from '../../game/managers/AssetLoader';
 import { CanvasState } from '../../config/gameConfig';
@@ -117,14 +118,17 @@ export const GameScreen = () => {
   }, []);
 
   return (
-    <div className="game-screen">
-      <div className="game-header">
-        <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="header-logo" />
-        <PlayerStats />
-        <WaveInfo />
-        <ViewportWarning />
-        <GameControls />
-      </div>
+    <div className="screen game-screen">
+      <AppNav
+        center={
+          <>
+            <PlayerStats />
+            <WaveInfo />
+            <ViewportWarning />
+          </>
+        }
+        right={<GameControls />}
+      />
 
       <div className="game-content">
         <div className="game-sidebar game-sidebar-left">
@@ -139,7 +143,6 @@ export const GameScreen = () => {
           {!selectedTower && !selectedEnemy && (
             <div className="tower-panel-placeholder">
               <div className="placeholder-content">
-                <div className="placeholder-icon">🏰</div>
                 <h3>Details</h3>
                 <p>Click on a placed tower or an enemy to view its stats</p>
               </div>

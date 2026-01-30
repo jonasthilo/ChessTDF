@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gameApi } from '../../services/gameApi';
 import { VersionDisplay } from '../common/VersionDisplay';
+import { AppNav } from '../common/AppNav';
 import type { StatisticsSummary, GameStatistics } from '../../types';
 import './StatisticsScreen.css';
 
@@ -45,9 +46,16 @@ export const StatisticsScreen = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const navRight = (
+    <button className="nav-back-btn" onClick={handleBack}>
+      Back
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="statistics-screen">
+      <div className="screen statistics-screen">
+        <AppNav right={navRight} />
         <div className="statistics-content">
           <p>Loading statistics...</p>
         </div>
@@ -56,12 +64,10 @@ export const StatisticsScreen = () => {
   }
 
   return (
-    <div className="statistics-screen">
+    <div className="screen statistics-screen">
+      <AppNav right={navRight} />
       <div className="statistics-content">
-        <div className="screen-header">
-          <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
-          <h1 className="statistics-title">Game Statistics</h1>
-        </div>
+        <h1 className="statistics-title">Game Statistics</h1>
 
         <div className="tab-buttons">
           <button
@@ -177,9 +183,6 @@ export const StatisticsScreen = () => {
           </div>
         )}
 
-        <button className="back-button" onClick={handleBack}>
-          Back to Menu
-        </button>
       </div>
       <VersionDisplay />
     </div>

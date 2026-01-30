@@ -1,35 +1,42 @@
 .settings-screen {
-  display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: var(--color-bg-primary);
-  color: #ffffff;
   overflow-y: auto;
 }
 
 .settings-content {
   background: var(--color-bg-secondary);
   padding: 1rem 1.25rem;
-  border-radius: 10px;
+  border-radius: var(--border-radius-large);
   max-width: 560px;
   width: 90%;
-  border: 2px solid var(--color-bg-tertiary);
-  box-shadow: var(--shadow-default);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
-  max-height: 95vh;
-}
-
-.settings-screen .screen-header {
-  margin-bottom: 0.75rem;
+  margin: 1.5rem auto;
 }
 
 .settings-title {
   text-align: center;
-  margin-bottom: 0;
+  margin: 0 0 0.75rem 0;
   color: var(--color-accent-primary);
   font-size: 1.3rem;
+}
+
+.nav-back-btn {
+  background: var(--color-bg-tertiary);
+  color: var(--text-light);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.35rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border-radius: var(--border-radius-default);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.nav-back-btn:hover {
+  background: var(--color-bg-hover);
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
 .difficulty-section {
@@ -104,25 +111,6 @@
 .setting-value {
   font-weight: bold;
   color: var(--color-accent-primary);
-}
-
-.back-button {
-  width: 100%;
-  padding: 0.6rem;
-  background: var(--color-bg-tertiary);
-  color: white;
-  border: 2px solid var(--text-light);
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.back-button:hover {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-accent-primary);
-  transform: translateY(-2px);
 }
 
 /* Advanced Mode Styles */

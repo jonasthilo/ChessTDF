@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { VersionDisplay } from '../common/VersionDisplay';
+import { AppNav } from '../common/AppNav';
 import './StartScreen.css';
 
 export const StartScreen = () => {
@@ -23,17 +24,8 @@ export const StartScreen = () => {
   };
 
   return (
-    <div className="start-screen">
-      <nav className="start-nav">
-        <div className="start-nav-left">
-          <img
-            src="/assets/logo/Chess-tdf-logo.png"
-            alt="Chess Tower Defense"
-            className="start-logo"
-          />
-          <span className="start-nav-title">Chess Tower Defense</span>
-        </div>
-      </nav>
+    <div className="screen start-screen">
+      <AppNav />
 
       <main className="start-hero">
         <img

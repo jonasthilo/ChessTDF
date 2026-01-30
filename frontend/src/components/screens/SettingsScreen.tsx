@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { gameApi } from '../../services/gameApi';
 import { VersionDisplay } from '../common/VersionDisplay';
+import { AppNav } from '../common/AppNav';
 import { getTowerImage } from '../../utils/pieceAssets';
 import { SettingsEditor } from './settings/SettingsEditor';
 import { TowerEditor } from './settings/TowerEditor';
@@ -223,9 +224,16 @@ export const SettingsScreen = () => {
 
   const currentSettings = settings.find((s) => s.mode === selectedMode);
 
+  const navRight = (
+    <button className="nav-back-btn" onClick={handleBack}>
+      Back
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="settings-screen">
+      <div className="screen settings-screen">
+        <AppNav right={navRight} />
         <div className="settings-content">
           <p>Loading settings...</p>
         </div>
@@ -235,12 +243,10 @@ export const SettingsScreen = () => {
   }
 
   return (
-    <div className="settings-screen">
+    <div className="screen settings-screen">
+      <AppNav right={navRight} />
       <div className={`settings-content ${advancedMode ? 'advanced' : ''}`}>
-        <div className="screen-header">
-          <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
-          <h1 className="settings-title">Game Settings</h1>
-        </div>
+        <h1 className="settings-title">Game Settings</h1>
 
         <div className="mode-toggle">
           <button
@@ -478,9 +484,6 @@ export const SettingsScreen = () => {
           </div>
         )}
 
-        <button className="back-button" onClick={handleBack}>
-          Back to Menu
-        </button>
       </div>
       <VersionDisplay />
     </div>

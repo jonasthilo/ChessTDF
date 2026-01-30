@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { VersionDisplay } from '../common/VersionDisplay';
+import { AppNav } from '../common/AppNav';
 import './GameEndScreen.css';
 
 export const GameEndScreen = () => {
@@ -26,14 +27,12 @@ export const GameEndScreen = () => {
   };
 
   return (
-    <div className={`game-end-screen ${isVictory ? 'victory' : 'defeat'}`}>
+    <div className={`screen game-end-screen ${isVictory ? 'victory' : 'defeat'}`}>
+      <AppNav />
       <div className="game-end-content">
-        <div className="screen-header">
-          <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
-          <h1 className={`game-end-title ${isVictory ? 'victory' : 'defeat'}`}>
-            {isVictory ? 'Victory!' : 'Checkmate!'}
-          </h1>
-        </div>
+        <h1 className={`game-end-title ${isVictory ? 'victory' : 'defeat'}`}>
+          {isVictory ? 'Victory!' : 'Checkmate!'}
+        </h1>
 
         <div className="game-end-stats">
           <h2>Final Stats</h2>
