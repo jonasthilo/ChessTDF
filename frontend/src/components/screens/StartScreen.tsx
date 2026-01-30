@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { gameApi } from '../../services/gameApi';
@@ -36,12 +36,61 @@ export const StartScreen = () => {
   const selectedDifficulty = useGameStore((state) => state.selectedDifficulty);
   const setDifficulty = useGameStore((state) => state.setDifficulty);
 
-  const [expanded, setExpanded] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [closing, setClosing] = useState(false);
+  const [panelPos, setPanelPos] = useState<{ top: number; right: number } | null>(null);
   const [settings, setSettings] = useState<GameSettings[]>([]);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     gameApi.getAllSettings().then(setSettings).catch(console.error);
   }, []);
+
+  const closePanel = useCallback(() => {
+    setClosing(true);
+    const onEnd = () => {
+      setVisible(false);
+      setClosing(false);
+    };
+    const el = panelRef.current;
+    if (el) {
+      el.addEventListener('animationend', onEnd, { once: true });
+    } else {
+      onEnd();
+    }
+  }, []);
+
+  const togglePanel = useCallback(() => {
+    if (visible) {
+      closePanel();
+    } else {
+      if (btnRef.current) {
+        const rect = btnRef.current.getBoundingClientRect();
+        setPanelPos({
+          top: rect.bottom + 8,
+          right: window.innerWidth - rect.right,
+        });
+      }
+      setVisible(true);
+    }
+  }, [visible, closePanel]);
+
+  useEffect(() => {
+    if (!visible || closing) return;
+    const handleClick = (e: MouseEvent) => {
+      if (
+        panelRef.current &&
+        !panelRef.current.contains(e.target as Node) &&
+        btnRef.current &&
+        !btnRef.current.contains(e.target as Node)
+      ) {
+        closePanel();
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [visible, closing, closePanel]);
 
   const handleStartGame = async () => {
     const gameId = await startGame();
@@ -52,13 +101,20 @@ export const StartScreen = () => {
 
   const navRight = (
     <>
-      <button className="nav-action-btn" onClick={() => navigate('/settings')}>
-        Settings
+      <button className="btn nav-action-btn" onClick={() => navigate('/settings')}>
+        Configuration
       </button>
-      <button className="nav-action-btn" onClick={() => navigate('/statistics')}>
+      <button className="btn nav-action-btn" onClick={() => navigate('/statistics')}>
         Statistics
       </button>
-      <button className="nav-action-btn nav-play-btn" onClick={handleStartGame}>
+      <button
+        ref={btnRef}
+        className={`btn nav-action-btn nav-difficulty-btn ${visible ? 'active' : ''}`}
+        onClick={togglePanel}
+      >
+        Game Mode: {capitalize(selectedDifficulty)}
+      </button>
+      <button className="btn nav-action-btn nav-play-btn" onClick={handleStartGame}>
         Play Game
       </button>
     </>
@@ -73,21 +129,19 @@ export const StartScreen = () => {
       subtitle="Strategic tower defense with chess pieces"
       cards={featureCards}
     >
-      <div className="difficulty-collapsible">
-        <button className="difficulty-toggle" onClick={() => setExpanded(!expanded)}>
-          <span>Difficulty: {capitalize(selectedDifficulty)}</span>
-          <span className="difficulty-toggle-arrow">{expanded ? '\u25B2' : '\u25BC'}</span>
-        </button>
-        {expanded && settings.length > 0 && (
-          <div className="difficulty-expanded">
-            <DifficultySelector
-              settings={settings}
-              selectedMode={selectedDifficulty}
-              onSelectMode={setDifficulty}
-            />
-          </div>
-        )}
-      </div>
+      {visible && settings.length > 0 && panelPos && (
+        <div
+          ref={panelRef}
+          className={`difficulty-panel ${closing ? 'closing' : ''}`}
+          style={{ top: panelPos.top, right: panelPos.right }}
+        >
+          <DifficultySelector
+            settings={settings}
+            selectedMode={selectedDifficulty}
+            onSelectMode={setDifficulty}
+          />
+        </div>
+      )}
     </ScreenLayout>
   );
 };

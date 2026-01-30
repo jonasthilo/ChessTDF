@@ -56,7 +56,7 @@ export const EnemyStatsPanel = () => {
 
   return (
     <div className={`enemy-stats-panel ${showClosingAnimation ? 'closing' : ''}`}>
-      <button className="panel-close" onClick={handleClose}>
+      <button className="btn panel-close" onClick={handleClose}>
         X
       </button>
 

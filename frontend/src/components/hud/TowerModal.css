@@ -112,29 +112,29 @@
 
 .upgrade-button {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.6rem;
   background: var(--color-accent-primary);
   color: var(--color-bg-secondary);
   border: none;
-  border-radius: 6px;
   font-size: 0.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .upgrade-button:hover:not(.disabled) {
   background: var(--color-accent-secondary);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(244, 197, 66, 0.4);
+}
+
+.upgrade-button:active:not(.disabled) {
+  transform: scale(0.97);
+  box-shadow: none;
 }
 
 .upgrade-button.disabled {
   background: var(--color-disabled);
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
 .max-level-badge {
@@ -158,19 +158,24 @@
 
 .sell-button {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.6rem;
   background: transparent;
-  color: #f44336;
-  border: 2px solid #f44336;
-  border-radius: 6px;
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
   font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .sell-button:hover {
-  background: #f44336;
-  color: white;
+  background: var(--color-danger);
+  color: var(--text-white);
+  transform: translateY(-1px);
+}
+
+.sell-button:active {
+  transform: scale(0.97);
 }
 
 @keyframes slideInFromRight {

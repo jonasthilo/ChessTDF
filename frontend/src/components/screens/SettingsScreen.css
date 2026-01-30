@@ -171,21 +171,22 @@
   align-items: center;
   gap: 0.4rem;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.55rem;
   margin-bottom: 0.3rem;
   background: var(--color-bg-tertiary);
   border: 2px solid transparent;
-  border-radius: 6px;
-  color: #ffffff;
+  color: var(--text-light);
   font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 600;
 }
 
 .tower-type-button:hover {
   background: var(--color-bg-hover);
-  border-color: var(--text-light);
+  border-color: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.tower-type-button:active {
+  transform: scale(0.97);
 }
 
 .tower-type-button.active {

@@ -52,25 +52,25 @@ export const StatisticsScreen = () => {
     <>
       <div className="stats-tabs">
         <button
-          className={`toggle-button ${activeTab === 'overview' ? 'active' : ''}`}
+          className={`btn toggle-button ${activeTab === 'overview' ? 'active' : ''}`}
           onClick={() => setActiveTab('overview')}
         >
           Overview
         </button>
         <button
-          className={`toggle-button ${activeTab === 'recent' ? 'active' : ''}`}
+          className={`btn toggle-button ${activeTab === 'recent' ? 'active' : ''}`}
           onClick={() => setActiveTab('recent')}
         >
           Recent
         </button>
         <button
-          className={`toggle-button ${activeTab === 'top' ? 'active' : ''}`}
+          className={`btn toggle-button ${activeTab === 'top' ? 'active' : ''}`}
           onClick={() => setActiveTab('top')}
         >
           Top Scores
         </button>
       </div>
-      <button className="nav-action-btn" onClick={() => navigate('/')}>
+      <button className="btn nav-action-btn" onClick={() => navigate('/')}>
         Back
       </button>
     </>

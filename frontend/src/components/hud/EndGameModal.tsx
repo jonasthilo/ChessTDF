@@ -52,10 +52,10 @@ export const EndGameModal = ({ isOpen, onKeepPlaying, onEndGame }: EndGameModalP
           Your pieces will fall and the board will be lost. Are you sure?
         </p>
         <div className="end-game-actions">
-          <button className="keep-playing-btn" onClick={handleClose}>
+          <button className="btn keep-playing-btn" onClick={handleClose}>
             Keep Playing
           </button>
-          <button className="confirm-end-btn" onClick={handleEndGame}>
+          <button className="btn confirm-end-btn" onClick={handleEndGame}>
             Resign
           </button>
         </div>

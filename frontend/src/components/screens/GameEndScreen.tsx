@@ -47,15 +47,15 @@ export const GameEndScreen = () => {
       subtitle={isVictory ? 'You held the line against every wave' : 'The enemy army has broken through'}
       cards={statCards}
     >
-      <button className="btn-primary" onClick={handlePlayAgain}>
+      <button className="btn btn-primary" onClick={handlePlayAgain}>
         Play Again
       </button>
 
       <div className="btn-group">
-        <button className="btn-secondary" onClick={handleReturnHome}>
+        <button className="btn btn-secondary" onClick={handleReturnHome}>
           Return Home
         </button>
-        <button className="btn-secondary" onClick={() => navigate('/statistics')}>
+        <button className="btn btn-secondary" onClick={() => navigate('/statistics')}>
           Statistics
         </button>
       </div>

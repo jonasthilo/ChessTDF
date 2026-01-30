@@ -82,7 +82,7 @@ export const TowerModal = () => {
 
   return (
     <div className={`tower-modal ${isClosing ? 'closing' : ''}`}>
-      <button className="modal-close" onClick={handleClose}>
+      <button className="btn modal-close" onClick={handleClose}>
         X
       </button>
 
@@ -137,7 +137,7 @@ export const TowerModal = () => {
             {coins} / {upgradeCost} coins
           </div>
           <button
-            className={`upgrade-button ${!canAffordUpgrade ? 'disabled' : ''}`}
+            className={`btn upgrade-button ${!canAffordUpgrade ? 'disabled' : ''}`}
             onClick={handleUpgrade}
             disabled={!canAffordUpgrade}
           >
@@ -155,7 +155,7 @@ export const TowerModal = () => {
       )}
 
       <div className="modal-sell">
-        <button className="sell-button" onClick={handleSell}>
+        <button className="btn sell-button" onClick={handleSell}>
           Sell Tower (+{refundAmount} coins)
         </button>
       </div>
