@@ -43,7 +43,7 @@ export const GameControls = () => {
       <button className="game-button wave-button" onClick={handleStartWave}>
         {wave === 0 ? 'Start First Wave' : 'Send Next Wave'}
       </button>
-      <button className="game-button end-game-button" onClick={handleEndGame}>
+      <button className="nav-action-btn" onClick={handleEndGame}>
         End Game
       </button>
       <EndGameModal

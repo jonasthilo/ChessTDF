@@ -58,6 +58,14 @@
   line-height: 1.5;
 }
 
+.details-watermark {
+  width: 80px;
+  height: auto;
+  opacity: 0.12;
+  filter: grayscale(100%);
+  margin-bottom: 0.8rem;
+}
+
 .game-canvas-container {
   flex: 1;
   background: var(--color-bg-secondary);

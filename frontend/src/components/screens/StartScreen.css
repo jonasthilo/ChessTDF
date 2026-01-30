@@ -1,162 +1,58 @@
-/* --- Hero section --- */
-.start-hero {
-  flex: 1;
+/* StartScreen-specific overrides (shared patterns in shared.css) */
+
+/* Expandable difficulty selector */
+.difficulty-collapsible {
+  width: 100%;
+  max-width: 540px;
+  margin-bottom: 0.8rem;
+}
+
+.difficulty-toggle {
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  padding: 2rem 1rem;
-  gap: 0.4rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.start-watermark {
-  position: absolute;
-  width: clamp(200px, 30vw, 320px);
-  height: auto;
-  opacity: 0.08;
-  pointer-events: none;
-  user-select: none;
-  filter: grayscale(100%);
-}
-
-.start-watermark-left {
-  left: 10%;
-}
-
-.start-watermark-right {
-  right: 10%;
-}
-
-.start-heading {
-  font-size: clamp(1.5rem, 4vw, 2.4rem);
-  font-weight: 700;
-  margin: 0;
-  color: var(--text-light);
-  letter-spacing: -0.5px;
-}
-
-.start-subtitle {
-  font-size: clamp(0.85rem, 2vw, 1rem);
-  color: var(--text-muted);
-  margin: 0 0 1.2rem 0;
-}
-
-.start-play-btn {
-  background: var(--color-accent-primary);
-  color: var(--color-bg-tertiary);
-  border: none;
-  padding: 0.8rem 2.5rem;
-  font-size: clamp(1rem, 2.5vw, 1.2rem);
-  font-weight: 700;
-  border-radius: var(--border-radius-default);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-.start-play-btn:hover {
-  background: var(--color-accent-secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(244, 197, 66, 0.3);
-}
-
-.start-play-btn:active {
-  transform: translateY(0);
-}
-
-.start-secondary {
-  display: flex;
-  gap: 0.6rem;
-  margin-top: 0.8rem;
-}
-
-.start-sec-btn {
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
   background: var(--color-bg-secondary);
-  color: var(--text-light);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.5rem 1.2rem;
-  font-size: 0.85rem;
-  font-weight: 600;
   border-radius: var(--border-radius-default);
+  color: var(--text-light);
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   transition: all var(--transition-fast);
 }
 
-.start-sec-btn:hover {
+.difficulty-toggle:hover {
   background: var(--color-bg-hover);
   border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
 }
 
-.start-sec-btn:active {
-  transform: translateY(0);
+.difficulty-toggle-arrow {
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
-/* --- Feature cards --- */
-.start-features {
-  display: flex;
-  gap: 0.8rem;
-  padding: 1rem 1.5rem 1.5rem;
-  justify-content: center;
-}
-
-.start-feature-card {
+.difficulty-expanded {
+  margin-top: 0.5rem;
   background: var(--color-bg-secondary);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: var(--border-radius-default);
-  padding: 1rem 1.2rem;
-  flex: 1;
-  max-width: 260px;
+  padding: 0.75rem;
 }
 
-.start-feature-title {
-  margin: 0 0 0.3rem 0;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-accent-primary);
+/* Play button stands out in nav bar */
+.nav-play-btn {
+  background: var(--color-accent-primary);
+  color: var(--color-bg-tertiary);
+  border-color: var(--color-accent-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.start-feature-desc {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-/* --- Responsive --- */
-@media (max-height: 700px) {
-  .start-hero {
-    padding: 1rem;
-  }
-
-  .start-heading {
-    font-size: 1.4rem;
-  }
-
-  .start-play-btn {
-    padding: 0.6rem 2rem;
-  }
-
-  .start-features {
-    padding: 0.6rem 1rem 1rem;
-  }
-
-  .start-feature-card {
-    padding: 0.7rem 0.8rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .start-features {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .start-feature-card {
-    max-width: 100%;
-    width: 100%;
-  }
+.nav-play-btn:hover {
+  background: var(--color-accent-secondary);
+  border-color: var(--color-accent-secondary);
 }

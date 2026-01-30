@@ -51,15 +51,3 @@
   color: var(--text-muted);
 }
 
-.end-game-button {
-  background: transparent;
-  border: 2px solid var(--color-danger);
-  color: var(--color-danger);
-  padding: calc(var(--spacing-sm) - 2px) calc(var(--spacing-lg) - 2px);
-}
-
-.end-game-button:hover:not(:disabled) {
-  background: var(--color-danger);
-  color: var(--text-white);
-  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
-}

@@ -1,49 +1,18 @@
-.statistics-screen {
-  align-items: center;
-}
+/* StatisticsScreen-specific styles (tab-button in shared.css) */
 
-.statistics-content {
+.statistics-panel {
   background: var(--color-bg-secondary);
   padding: 1.5rem;
   border-radius: var(--border-radius-large);
-  max-width: 800px;
+  max-width: 1000px;
   width: 95%;
   border: 1px solid rgba(255, 255, 255, 0.05);
-  margin: 1.5rem auto;
 }
 
-.statistics-title {
-  text-align: center;
-  margin: 0 0 1rem 0;
-  color: var(--color-accent-primary);
-}
-
-.tab-buttons {
+/* Nav-bar tab group (mirrors mode-toggle) */
+.stats-tabs {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 2rem;
-}
-
-.tab-button {
-  flex: 1;
-  padding: 0.8rem;
-  background: var(--color-bg-tertiary);
-  border: none;
-  border-radius: 8px;
-  color: #ffffff;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 600;
-}
-
-.tab-button:hover {
-  background: var(--color-bg-hover);
-}
-
-.tab-button.active {
-  background: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
+  gap: 0.3rem;
 }
 
 .stats-grid {
@@ -175,5 +144,9 @@
 @media (max-width: 600px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stats-tabs {
+    flex-direction: column;
   }
 }

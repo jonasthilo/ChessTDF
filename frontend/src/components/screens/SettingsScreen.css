@@ -1,190 +1,30 @@
-.settings-screen {
-  align-items: center;
-  overflow-y: auto;
-}
+/* SettingsScreen-specific styles */
 
-.settings-content {
+.settings-panel {
   background: var(--color-bg-secondary);
   padding: 1rem 1.25rem;
   border-radius: var(--border-radius-large);
-  max-width: 560px;
-  width: 90%;
+  max-width: 950px;
+  width: 95%;
   border: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   flex-direction: column;
-  margin: 1.5rem auto;
 }
 
-.settings-title {
-  text-align: center;
-  margin: 0 0 0.75rem 0;
-  color: var(--color-accent-primary);
-  font-size: 1.3rem;
+/* Save button in nav */
+.save-nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
-.nav-back-btn {
-  background: var(--color-bg-tertiary);
-  color: var(--text-light);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.35rem 0.8rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border-radius: var(--border-radius-default);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.nav-back-btn:hover {
-  background: var(--color-bg-hover);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.difficulty-section {
-  margin-bottom: 0.75rem;
-}
-
-.difficulty-section h2 {
-  margin-bottom: 0.4rem;
-  font-size: 1rem;
-}
-
-.difficulty-options {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.difficulty-button {
-  flex: 1;
-  padding: 0.5rem 0.75rem;
-  background: var(--color-bg-tertiary);
-  border: 2px solid transparent;
-  border-radius: 6px;
-  color: #ffffff;
-  font-size: 0.85rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.difficulty-button:hover {
-  background: var(--color-bg-hover);
-  border-color: var(--text-light);
-}
-
-.difficulty-button.selected {
-  border-color: var(--color-accent-primary);
-  background: rgba(244, 197, 66, 0.15);
-}
-
-.settings-details {
-  background: var(--color-bg-tertiary);
-  padding: 0.6rem 0.75rem;
-  border-radius: 6px;
-  margin-bottom: 0.75rem;
-}
-
-.settings-details h3 {
-  margin: 0 0 0.4rem 0;
-  color: var(--color-accent-primary);
-  font-size: 0.9rem;
-}
-
-.settings-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0.4rem;
-}
-
-.setting-item {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.3rem 0.4rem;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 4px;
-  font-size: 0.8rem;
-}
-
-.setting-label {
-  color: var(--text-light);
-}
-
-.setting-value {
-  font-weight: bold;
-  color: var(--color-accent-primary);
-}
-
-/* Advanced Mode Styles */
-.settings-content.advanced {
-  max-width: 850px;
-}
-
-.mode-toggle {
-  display: flex;
-  gap: 0.4rem;
-  margin-bottom: 0.75rem;
-  justify-content: center;
-}
-
-.toggle-button {
-  padding: 0.4rem 1.2rem;
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-bg-tertiary);
-  border-radius: 6px;
-  color: #ffffff;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.toggle-button:hover {
-  background: var(--color-bg-hover);
-  border-color: var(--text-light);
-}
-
-.toggle-button.active {
-  background: var(--color-accent-primary);
-  border-color: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-  font-weight: bold;
-}
-
-.advanced-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
+/* Tabs + content */
 .advanced-tabs {
   display: flex;
   gap: 0.4rem;
   margin-bottom: 0.5rem;
 }
 
-.tab-button {
-  flex: 1;
-  padding: 0.5rem;
-  background: var(--color-bg-tertiary);
-  border: none;
-  border-radius: 6px;
-  color: #ffffff;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-weight: 600;
-}
-
-.tab-button:hover {
-  background: var(--color-bg-hover);
-}
-
-.tab-button.active {
-  background: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-}
-
 .advanced-content {
-  max-height: calc(100vh - 260px);
-  min-height: 120px;
   overflow-y: auto;
   padding-right: 0.5rem;
 }
@@ -252,7 +92,7 @@
 
 .definition-fields {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
   gap: 0.35rem;
 }
 
@@ -292,6 +132,7 @@
   border-radius: 4px;
   text-align: center;
   font-size: 0.8rem;
+  margin-top: 0.5rem;
 }
 
 .save-message.success {
@@ -306,35 +147,7 @@
   border: 1px solid var(--color-danger);
 }
 
-.save-button {
-  width: 100%;
-  padding: 0.6rem;
-  background: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-  border: none;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.save-button:hover:not(:disabled) {
-  background: var(--color-accent-secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(244, 197, 66, 0.4);
-}
-
-.save-button:disabled {
-  background: var(--color-disabled);
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-/* Tower Levels Editor Styles */
+/* Tower Levels Editor */
 .tower-levels-section {
   display: grid;
   grid-template-columns: 200px 1fr;

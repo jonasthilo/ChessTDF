@@ -9,8 +9,7 @@ import { GameControls } from '../hud/GameControls';
 import { TowerModal } from '../hud/TowerModal';
 import { EnemyStatsPanel } from '../hud/EnemyStatsPanel';
 import { ViewportWarning } from '../hud/ViewportWarning';
-import { VersionDisplay } from '../common/VersionDisplay';
-import { AppNav } from '../common/AppNav';
+import { ScreenLayout } from '../common/ScreenLayout';
 import { GameEngine } from '../../game/GameEngine';
 import { AssetLoader } from '../../game/managers/AssetLoader';
 import { CanvasState } from '../../config/gameConfig';
@@ -118,18 +117,17 @@ export const GameScreen = () => {
   }, []);
 
   return (
-    <div className="screen game-screen">
-      <AppNav
-        center={
-          <>
-            <PlayerStats />
-            <WaveInfo />
-            <ViewportWarning />
-          </>
-        }
-        right={<GameControls />}
-      />
-
+    <ScreenLayout
+      className="game-screen"
+      navCenter={
+        <>
+          <PlayerStats />
+          <WaveInfo />
+          <ViewportWarning />
+        </>
+      }
+      navRight={<GameControls />}
+    >
       <div className="game-content">
         <div className="game-sidebar game-sidebar-left">
           <TowerPanel />
@@ -143,6 +141,12 @@ export const GameScreen = () => {
           {!selectedTower && !selectedEnemy && (
             <div className="tower-panel-placeholder">
               <div className="placeholder-content">
+                <img
+                  src="/assets/logo/Chess-tdf-logo.png"
+                  alt=""
+                  className="details-watermark"
+                  aria-hidden="true"
+                />
                 <h3>Details</h3>
                 <p>Click on a placed tower or an enemy to view its stats</p>
               </div>
@@ -152,8 +156,6 @@ export const GameScreen = () => {
           <EnemyStatsPanel />
         </div>
       </div>
-
-      <VersionDisplay />
-    </div>
+    </ScreenLayout>
   );
 };
