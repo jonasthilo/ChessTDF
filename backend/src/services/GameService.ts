@@ -3,7 +3,9 @@ import {
   GameSession,
   BuildTowerRequest,
   Tower,
+  TowerDB,
   TowerStats,
+  TowerLevel,
   GameMode,
   SettingsMode,
 } from '../types';
@@ -26,6 +28,14 @@ export class GameService {
     this.gameSessionRepo = new GameSessionRepository();
     this.configService = new ConfigService();
     this.statsService = new StatisticsService();
+  }
+
+  private static levelToStats(level: TowerLevel): TowerStats {
+    return { cost: level.cost, damage: level.damage, range: level.range, fireRate: level.fireRate };
+  }
+
+  private static towerToDb(t: Tower): TowerDB {
+    return { id: t.id, towerId: t.towerId, gridX: t.gridX, gridY: t.gridY, level: t.level, stats: t.stats };
   }
 
   /**
@@ -139,12 +149,7 @@ export class GameService {
     }
 
     // Create stats from level 1 data
-    const stats: TowerStats = {
-      cost: level1.cost,
-      damage: level1.damage,
-      range: level1.range,
-      fireRate: level1.fireRate,
-    };
+    const stats = GameService.levelToStats(level1);
 
     // Create tower
     const tower: Tower = {
@@ -166,24 +171,7 @@ export class GameService {
     await this.gameSessionRepo.updateGameSession(gameId, {
       coins: remainingCoins,
       coinsSpent: (dbSession?.coinsSpent ?? 0) + level1.cost,
-      towers: [
-        ...game.towers.map((t) => ({
-          id: t.id,
-          towerId: t.towerId,
-          gridX: t.gridX,
-          gridY: t.gridY,
-          level: t.level,
-          stats: t.stats,
-        })),
-        {
-          id: tower.id,
-          towerId: tower.towerId,
-          gridX: tower.gridX,
-          gridY: tower.gridY,
-          level: tower.level,
-          stats: tower.stats,
-        },
-      ],
+      towers: [...game.towers.map(GameService.towerToDb), GameService.towerToDb(tower)],
     });
 
     return { success: true, tower, remainingCoins };
@@ -219,12 +207,7 @@ export class GameService {
     }
 
     // Create new stats from next level data
-    const newStats: TowerStats = {
-      cost: nextLevelData.cost,
-      damage: nextLevelData.damage,
-      range: nextLevelData.range,
-      fireRate: nextLevelData.fireRate,
-    };
+    const newStats = GameService.levelToStats(nextLevelData);
 
     // Create upgraded tower
     const upgradedTower: Tower = {
@@ -239,22 +222,8 @@ export class GameService {
 
     const updatedTowers = game.towers.map((t) =>
       t.id === towerId
-        ? {
-            id: t.id,
-            towerId: t.towerId,
-            gridX: t.gridX,
-            gridY: t.gridY,
-            level: nextLevel,
-            stats: newStats,
-          }
-        : {
-            id: t.id,
-            towerId: t.towerId,
-            gridX: t.gridX,
-            gridY: t.gridY,
-            level: t.level,
-            stats: t.stats,
-          }
+        ? GameService.towerToDb({ ...t, level: nextLevel, stats: newStats })
+        : GameService.towerToDb(t)
     );
 
     await this.gameSessionRepo.updateGameSession(gameId, {
@@ -302,16 +271,7 @@ export class GameService {
     const remainingCoins = game.coins + refundAmount;
 
     // Remove tower and add refund
-    const updatedTowers = game.towers
-      .filter((t) => t.id !== towerId)
-      .map((t) => ({
-        id: t.id,
-        towerId: t.towerId,
-        gridX: t.gridX,
-        gridY: t.gridY,
-        level: t.level,
-        stats: t.stats,
-      }));
+    const updatedTowers = game.towers.filter((t) => t.id !== towerId).map(GameService.towerToDb);
 
     await this.gameSessionRepo.updateGameSession(gameId, {
       coins: remainingCoins,
