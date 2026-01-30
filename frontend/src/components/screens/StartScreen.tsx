@@ -24,44 +24,67 @@ export const StartScreen = () => {
 
   return (
     <div className="start-screen">
-      <div className="start-screen-content">
-        <div className="screen-header">
+      <nav className="start-nav">
+        <div className="start-nav-left">
           <img
             src="/assets/logo/Chess-tdf-logo.png"
             alt="Chess Tower Defense"
             className="start-logo"
           />
-          <h1 className="game-title">Chess Tower Defense</h1>
+          <span className="start-nav-title">Chess Tower Defense</span>
         </div>
-        <p className="game-subtitle">Defend against the chess army!</p>
+      </nav>
 
-        <div className="button-group">
-          <button className="start-button" onClick={handleStartGame}>
-            Quick Game
-          </button>
-        </div>
+      <main className="start-hero">
+        <img
+          src="/assets/logo/Chess-tdf-logo.png"
+          alt=""
+          className="start-watermark start-watermark-left"
+          aria-hidden="true"
+        />
+        <img
+          src="/assets/logo/Chess-tdf-logo.png"
+          alt=""
+          className="start-watermark start-watermark-right"
+          aria-hidden="true"
+        />
+        <h1 className="start-heading">Defend Your Kingdom</h1>
+        <p className="start-subtitle">Strategic tower defense with chess pieces</p>
 
-        <div className="secondary-buttons">
-          <button className="settings-button" onClick={handleShowSettings}>
+        <button className="start-play-btn" onClick={handleStartGame}>
+          Play Game
+        </button>
+
+        <div className="start-secondary">
+          <button className="start-sec-btn" onClick={handleShowSettings}>
             Settings
           </button>
-          <button className="statistics-button" onClick={handleShowStatistics}>
+          <button className="start-sec-btn" onClick={handleShowStatistics}>
             Statistics
           </button>
         </div>
+      </main>
 
-        <div className="game-instructions">
-          <h3>Quick Info:</h3>
-          <ul>
-            <li>Place towers to defend against enemy chess pieces</li>
-            <li>Each tower costs coins and has different stats</li>
-            <li>Start waves to spawn enemies</li>
-            <li>Enemies move from left to right</li>
-            <li>Don't let enemies reach the right side!</li>
-            <li>You have 10 lives - lose all and it's game over</li>
-          </ul>
+      <section className="start-features">
+        <div className="start-feature-card">
+          <h3 className="start-feature-title">Command Your Pieces</h3>
+          <p className="start-feature-desc">
+            Deploy rooks, bishops and knights as towers to hold the board against the enemy army
+          </p>
         </div>
-      </div>
+        <div className="start-feature-card">
+          <h3 className="start-feature-title">Promote & Conquer</h3>
+          <p className="start-feature-desc">
+            Capture coins from fallen foes and upgrade your pieces to unleash devastating attacks
+          </p>
+        </div>
+        <div className="start-feature-card">
+          <h3 className="start-feature-title">Endgame Awaits</h3>
+          <p className="start-feature-desc">
+            Each wave brings tougher opponents from pawns to kings. Hold the line or face checkmate!
+          </p>
+        </div>
+      </section>
       <VersionDisplay />
     </div>
   );

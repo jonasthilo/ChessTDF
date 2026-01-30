@@ -18,10 +18,9 @@ export const TowerPanel = () => {
 
   return (
     <div className="tower-panel">
-      <h3 className="tower-panel-title">Build Towers</h3>
+      <h3 className="tower-panel-title">Towers</h3>
       <div className="tower-list">
         {towerDefinitions.map((towerDef) => {
-          // Get level 1 stats for display
           const level1 = towerDef.levels.find((l) => l.level === 1);
           if (!level1) return null;
 
@@ -37,29 +36,31 @@ export const TowerPanel = () => {
               onClick={() => canAfford && handleTowerClick(towerDef.id)}
             >
               <img src={getTowerImage(towerDef.id)} alt={towerDef.name} className="tower-icon" />
-              <div className="tower-info">
-                <div className="tower-name">{towerDef.name}</div>
-                <div className="tower-cost">
-                  <span className="cost-icon"></span>
-                  {level1.cost}
+              <div className="tower-details">
+                <div className="tower-info">
+                  <span className="tower-name">{towerDef.name.replace(' Tower', '')}</span>
+                  <span className="tower-cost">
+                    <span className="cost-icon"></span>
+                    {level1.cost}
+                  </span>
                 </div>
-              </div>
-              <div className="tower-stats">
-                <div className="tower-stat">
-                  <span className="stat-label">DMG:</span> {level1.damage}
-                </div>
-                <div className="tower-stat">
-                  <span className="stat-label">RNG:</span> {level1.range}
-                </div>
-                <div className="tower-stat">
-                  <span className="stat-label">SPD:</span> {level1.fireRate.toFixed(1)}
+                <div className="tower-stats">
+                  <span className="tower-stat">
+                    <span className="stat-label">DMG </span>{level1.damage}
+                  </span>
+                  <span className="tower-stat">
+                    <span className="stat-label">RNG </span>{level1.range}
+                  </span>
+                  <span className="tower-stat">
+                    <span className="stat-label">SPD </span>{level1.fireRate.toFixed(1)}
+                  </span>
                 </div>
               </div>
             </div>
           );
         })}
       </div>
-      {selectedTowerId && <div className="tower-panel-hint">Click on the grid to place tower</div>}
+      {selectedTowerId && <div className="tower-panel-hint">Click grid to place</div>}
     </div>
   );
 };
