@@ -222,26 +222,14 @@ export class PixiRenderer {
   }
 
   renderTowers(towers: Tower[]): void {
-    const currentIds = new Set(towers.map((t) => t.id));
+    this.syncSprites(towers, this.towerSprites, {
+      onAdd: (tower) => this.addTowerSprite(tower),
+      onUpdate: (tower) => this.updateTowerSprite(tower),
+    });
+
+    // Show range circle for selected tower
     const selectedTower = useGameStore.getState().selectedTower;
-
-    // Remove destroyed towers
-    for (const [id, sprite] of this.towerSprites) {
-      if (!currentIds.has(id)) {
-        sprite.destroy({ children: true });
-        this.towerSprites.delete(id);
-      }
-    }
-
-    // Add or update towers
     for (const tower of towers) {
-      if (!this.towerSprites.has(tower.id)) {
-        this.addTowerSprite(tower);
-      } else {
-        this.updateTowerSprite(tower);
-      }
-
-      // Show range circle for selected tower
       const sprite = this.towerSprites.get(tower.id);
       if (sprite) {
         const rangeCircle = sprite.children.find((child) => child.label === 'rangeCircle');
@@ -253,43 +241,43 @@ export class PixiRenderer {
   }
 
   renderEnemies(enemies: Enemy[]): void {
-    const currentIds = new Set(enemies.map((e) => e.id));
-
-    // Remove dead enemies
-    for (const [id, sprite] of this.enemySprites) {
-      if (!currentIds.has(id)) {
-        sprite.destroy({ children: true });
-        this.enemySprites.delete(id);
-      }
-    }
-
-    // Add or update enemies
-    for (const enemy of enemies) {
-      if (!this.enemySprites.has(enemy.id)) {
-        this.addEnemySprite(enemy);
-      } else {
-        this.updateEnemySprite(enemy);
-      }
-    }
+    this.syncSprites(enemies, this.enemySprites, {
+      onAdd: (enemy) => this.addEnemySprite(enemy),
+      onUpdate: (enemy) => this.updateEnemySprite(enemy),
+    });
   }
 
   renderProjectiles(projectiles: Projectile[]): void {
-    const currentIds = new Set(projectiles.map((p) => p.id));
+    this.syncSprites(projectiles, this.projectileSprites, {
+      onAdd: (projectile) => this.addProjectileSprite(projectile),
+      onUpdate: (projectile) => this.updateProjectileSprite(projectile),
+      destroyChildren: false,
+    });
+  }
 
-    // Remove destroyed projectiles
-    for (const [id, sprite] of this.projectileSprites) {
+  private syncSprites<T extends { id: string }>(
+    entities: T[],
+    spriteMap: Map<string, Container | Graphics>,
+    opts: {
+      onAdd: (entity: T) => void;
+      onUpdate: (entity: T) => void;
+      destroyChildren?: boolean;
+    }
+  ): void {
+    const currentIds = new Set(entities.map((e) => e.id));
+
+    for (const [id, sprite] of spriteMap) {
       if (!currentIds.has(id)) {
-        sprite.destroy();
-        this.projectileSprites.delete(id);
+        sprite.destroy(opts.destroyChildren !== false ? { children: true } : undefined);
+        spriteMap.delete(id);
       }
     }
 
-    // Add or update projectiles
-    for (const projectile of projectiles) {
-      if (!this.projectileSprites.has(projectile.id)) {
-        this.addProjectileSprite(projectile);
+    for (const entity of entities) {
+      if (!spriteMap.has(entity.id)) {
+        opts.onAdd(entity);
       } else {
-        this.updateProjectileSprite(projectile);
+        opts.onUpdate(entity);
       }
     }
   }
