@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../../state/gameStore';
+import { getTowerImage } from '../../utils/pieceAssets';
 import './TowerModal.css';
 
 export const TowerModal = () => {
@@ -26,19 +27,6 @@ export const TowerModal = () => {
       return () => clearTimeout(timer);
     }
   }, [selectedTower, renderModal]);
-
-  const getTowerImage = (towerId: number): string => {
-    switch (towerId) {
-      case 1:
-        return '/assets/pieces/white/pawn.svg';
-      case 2:
-        return '/assets/pieces/white/rook.svg';
-      case 3:
-        return '/assets/pieces/white/knight.svg';
-      default:
-        return '/assets/pieces/white/pawn.svg';
-    }
-  };
 
   if (!renderModal || !selectedTower) return null;
 

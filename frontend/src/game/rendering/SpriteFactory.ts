@@ -2,6 +2,7 @@ import { Container, Graphics, Sprite, Texture } from 'pixi.js';
 import type { Tower, Enemy, EnemyDefinition } from '../../types';
 import { useGameStore } from '../../state/gameStore';
 import { AssetLoader } from '../managers/AssetLoader';
+import { TOWER_PIECE_MAP, ENEMY_PIECE_MAP, LEVEL_COLORS } from '../../utils/pieceAssets';
 
 export class SpriteFactory {
   createTowerSprite(tower: Tower): Container {
@@ -19,14 +20,7 @@ export class SpriteFactory {
     const towerDef = useGameStore.getState().getTowerDefinition(tower.towerId);
     const outlineColor = towerDef?.color || '#888888';
 
-    // Map tower ID to chess piece
-    const pieceMap: Record<number, string> = {
-      1: 'pawn', // Basic Tower
-      2: 'rook', // Sniper Tower
-      3: 'knight', // Rapid Tower
-    };
-
-    const pieceName = pieceMap[tower.towerId] || 'pawn';
+    const pieceName = TOWER_PIECE_MAP[tower.towerId] ?? 'pawn';
 
     // Check if assets are loaded
     if (AssetLoader.isLoaded()) {
@@ -39,13 +33,7 @@ export class SpriteFactory {
         // Add level indicator if level > 1
         if (tower.level > 1) {
           const levelIndicator = new Graphics();
-          const levelColorMap: Record<number, number> = {
-            2: 0x4caf50,
-            3: 0x2196f3,
-            4: 0x9c27b0,
-            5: 0xffd700,
-          };
-          const indicatorColor = levelColorMap[tower.level] || 0xffd700;
+          const indicatorColor = LEVEL_COLORS[tower.level] ?? 0xffd700;
           levelIndicator.circle(size / 2 - 6, -size / 2 + 6, 5);
           levelIndicator.fill({ color: indicatorColor });
           container.addChild(levelIndicator);
@@ -68,17 +56,7 @@ export class SpriteFactory {
     const container = new Container();
     const outlineColor = enemy.definition.color;
 
-    // Map enemy ID to chess piece
-    const pieceMap: Record<number, string> = {
-      1: 'pawn',
-      2: 'knight',
-      3: 'bishop',
-      4: 'rook',
-      5: 'queen',
-      6: 'king',
-    };
-
-    const pieceName = pieceMap[enemy.enemyId] || 'pawn';
+    const pieceName = ENEMY_PIECE_MAP[enemy.enemyId] ?? 'pawn';
 
     // Check if assets are loaded
     if (AssetLoader.isLoaded()) {

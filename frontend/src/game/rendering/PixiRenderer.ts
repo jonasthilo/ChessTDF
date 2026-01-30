@@ -4,6 +4,7 @@ import { SpriteFactory } from './SpriteFactory';
 import { HealthBarRenderer } from './HealthBarRenderer';
 import { GAME_CONFIG, CanvasState } from '../../config/gameConfig';
 import { useGameStore } from '../../state/gameStore';
+import { LEVEL_COLORS } from '../../utils/pieceAssets';
 
 export class PixiRenderer {
   private app: Application;
@@ -350,10 +351,7 @@ export class PixiRenderer {
     const graphics = new Graphics();
     graphics.label = 'levelIndicator';
 
-    // Colors for levels: Green(2), Blue(3), Purple(4), Gold(5+)
-    const colors = [0x4caf50, 0x2196f3, 0x9c27b0, 0xffd700];
-    const colorIndex = Math.min(level - 2, colors.length - 1);
-    const color = colors[colorIndex] ?? 0x4caf50;
+    const color = LEVEL_COLORS[level] ?? 0xffd700;
 
     // Draw small dots for each level above 1
     const dotCount = Math.min(level - 1, 4);

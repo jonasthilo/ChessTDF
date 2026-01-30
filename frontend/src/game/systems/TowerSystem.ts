@@ -1,5 +1,6 @@
 import type { Tower, Enemy, Projectile } from '../../types';
 import { useGameStore } from '../../state/gameStore';
+import { distance } from '../../utils/math';
 
 export class TowerSystem {
   private nextProjectileId = 0;
@@ -34,10 +35,10 @@ export class TowerSystem {
     let minDistance = Infinity;
 
     for (const enemy of enemies) {
-      const distance = this.calculateDistance(tower.x, tower.y, enemy.x, enemy.y);
-      if (distance <= tower.stats.range && distance < minDistance) {
+      const dist = distance(tower.x, tower.y, enemy.x, enemy.y);
+      if (dist <= tower.stats.range && dist < minDistance) {
         nearest = enemy;
-        minDistance = distance;
+        minDistance = dist;
       }
     }
 
@@ -61,7 +62,4 @@ export class TowerSystem {
     state.addProjectile(projectile);
   }
 
-  private calculateDistance(x1: number, y1: number, x2: number, y2: number): number {
-    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-  }
 }

@@ -1,4 +1,5 @@
 import { useGameStore } from '../../state/gameStore';
+import { distance } from '../../utils/math';
 
 export class CollisionSystem {
   private readonly HIT_THRESHOLD = 10; // pixels
@@ -13,9 +14,9 @@ export class CollisionSystem {
       if (!target) continue;
 
       // Check collision
-      const distance = this.calculateDistance(projectile.x, projectile.y, target.x, target.y);
+      const dist = distance(projectile.x, projectile.y, target.x, target.y);
 
-      if (distance < this.HIT_THRESHOLD) {
+      if (dist < this.HIT_THRESHOLD) {
         // Apply damage
         const newHealth = target.health - projectile.damage;
         state.updateEnemy(target.id, { health: newHealth });
@@ -38,7 +39,4 @@ export class CollisionSystem {
     }
   }
 
-  private calculateDistance(x1: number, y1: number, x2: number, y2: number): number {
-    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-  }
 }

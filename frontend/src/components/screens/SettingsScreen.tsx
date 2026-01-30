@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { gameApi } from '../../services/gameApi';
 import { VersionDisplay } from '../common/VersionDisplay';
+import { getTowerImage, getEnemyImage } from '../../utils/pieceAssets';
 import type {
   GameSettings,
   TowerDefinitionWithLevels,
@@ -388,19 +389,6 @@ export const SettingsScreen = () => {
                   <div className="tower-levels-selector">
                     <h3>Select Tower Type</h3>
                     {towers.map((tower) => {
-                      const getTowerImage = (towerId: number): string => {
-                        switch (towerId) {
-                          case 1:
-                            return '/assets/pieces/white/pawn.svg';
-                          case 2:
-                            return '/assets/pieces/white/rook.svg';
-                          case 3:
-                            return '/assets/pieces/white/knight.svg';
-                          default:
-                            return '/assets/pieces/white/pawn.svg';
-                        }
-                      };
-
                       return (
                         <button
                           key={tower.id}
@@ -625,19 +613,6 @@ const TowerEditor = ({ tower, edits, onChange }: TowerEditorProps) => {
     return tower[field];
   };
 
-  const getTowerImage = (towerId: number): string => {
-    switch (towerId) {
-      case 1:
-        return '/assets/pieces/white/pawn.svg';
-      case 2:
-        return '/assets/pieces/white/rook.svg';
-      case 3:
-        return '/assets/pieces/white/knight.svg';
-      default:
-        return '/assets/pieces/white/pawn.svg';
-    }
-  };
-
   return (
     <div className="definition-card">
       <div className="definition-header">
@@ -695,25 +670,6 @@ const EnemyEditor = ({ enemy, edits, onChange }: EnemyEditorProps) => {
     const editValue = edits[field];
     if (editValue !== undefined) return editValue as EnemyDefinition[K];
     return enemy[field];
-  };
-
-  const getEnemyImage = (enemyId: number): string => {
-    switch (enemyId) {
-      case 1:
-        return '/assets/pieces/black/pawn.svg';
-      case 2:
-        return '/assets/pieces/black/knight.svg';
-      case 3:
-        return '/assets/pieces/black/bishop.svg';
-      case 4:
-        return '/assets/pieces/black/rook.svg';
-      case 5:
-        return '/assets/pieces/black/queen.svg';
-      case 6:
-        return '/assets/pieces/black/king.svg';
-      default:
-        return '/assets/pieces/black/pawn.svg';
-    }
   };
 
   return (
