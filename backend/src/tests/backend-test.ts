@@ -26,6 +26,7 @@ import { ConfigService } from '../services/ConfigService';
 import { GameService } from '../services/GameService';
 import { StatisticsService } from '../services/StatisticsService';
 import { WaveService } from '../services/WaveService';
+import type { GameSessionDB, GameStatistics } from '../types';
 
 // Test configuration
 const API_BASE = process.env['API_BASE'] || 'http://localhost:3001';
@@ -130,6 +131,80 @@ async function fetchWithStatus<T>(path: string, options?: RequestInit): Promise<
 async function fetchJson<T>(path: string, options?: RequestInit): Promise<T> {
   const { data } = await fetchWithStatus<T>(path, options);
   return data;
+}
+
+// Factory functions for duplicated test payloads
+type SessionPayload = Omit<GameSessionDB, 'id' | 'startedAt' | 'lastUpdated'>;
+type StatsPayload = Omit<GameStatistics, 'id' | 'createdAt' | 'settingsId'>;
+type EndGameStats = Pick<
+  GameStatistics,
+  | 'duration'
+  | 'enemiesKilledTotal'
+  | 'enemiesKilledByType'
+  | 'towersBuiltTotal'
+  | 'towersBuiltByType'
+  | 'coinsEarned'
+  | 'coinsSpent'
+  | 'damageDealt'
+>;
+
+function makeSessionPayload(
+  gameId: string,
+  overrides?: Partial<SessionPayload>
+): SessionPayload {
+  return {
+    gameId,
+    settingsId: 2,
+    gameMode: '10waves',
+    currentWave: 0,
+    wavesCompleted: 0,
+    coins: 200,
+    lives: 10,
+    towers: [],
+    enemiesKilled: 0,
+    coinsEarned: 0,
+    coinsSpent: 0,
+    damageDealt: 0,
+    status: 'active',
+    ...overrides,
+  };
+}
+
+function makeEndGameStats(overrides?: Partial<EndGameStats>): EndGameStats {
+  return {
+    duration: 0,
+    enemiesKilledTotal: 0,
+    enemiesKilledByType: {},
+    towersBuiltTotal: 0,
+    towersBuiltByType: {},
+    coinsEarned: 0,
+    coinsSpent: 0,
+    damageDealt: 0,
+    ...overrides,
+  };
+}
+
+function makeStatsPayload(
+  gameId: string,
+  overrides?: Partial<StatsPayload>
+): StatsPayload {
+  return {
+    gameId,
+    timestamp: new Date(),
+    duration: 60000,
+    outcome: 'win',
+    gameMode: '10waves',
+    finalWave: 10,
+    wavesCompleted: 10,
+    enemiesKilledTotal: 100,
+    enemiesKilledByType: {},
+    towersBuiltTotal: 5,
+    towersBuiltByType: {},
+    coinsEarned: 1000,
+    coinsSpent: 800,
+    damageDealt: 5000,
+    ...overrides,
+  };
 }
 
 // ============================================================
@@ -301,21 +376,7 @@ async function testRepositories(): Promise<void> {
 
   // Game Session Repository
   await test('GameSessionRepository.createGameSession', async () => {
-    const session = await sessionRepo.createGameSession({
-      gameId: 'test-session-1',
-      settingsId: 2,
-      gameMode: '10waves',
-      currentWave: 0,
-      wavesCompleted: 0,
-      coins: 200,
-      lives: 10,
-      towers: [],
-      enemiesKilled: 0,
-      coinsEarned: 0,
-      coinsSpent: 0,
-      damageDealt: 0,
-      status: 'active',
-    });
+    const session = await sessionRepo.createGameSession(makeSessionPayload('test-session-1'));
     assertEqual(session.gameId, 'test-session-1', 'Session ID mismatch');
     assertEqual(session.status, 'active', 'Session status should be active');
     // Cleanup
@@ -323,21 +384,7 @@ async function testRepositories(): Promise<void> {
   });
 
   await test('GameSessionRepository.getGameSession', async () => {
-    await sessionRepo.createGameSession({
-      gameId: 'test-session-2',
-      settingsId: 2,
-      gameMode: '10waves',
-      currentWave: 0,
-      wavesCompleted: 0,
-      coins: 200,
-      lives: 10,
-      towers: [],
-      enemiesKilled: 0,
-      coinsEarned: 0,
-      coinsSpent: 0,
-      damageDealt: 0,
-      status: 'active',
-    });
+    await sessionRepo.createGameSession(makeSessionPayload('test-session-2'));
     const session = await sessionRepo.getGameSession('test-session-2');
     assertDefined(session, 'Session not found');
     assertEqual(session.gameId, 'test-session-2', 'Session ID mismatch');
@@ -351,21 +398,7 @@ async function testRepositories(): Promise<void> {
   });
 
   await test('GameSessionRepository.updateGameSession', async () => {
-    await sessionRepo.createGameSession({
-      gameId: 'test-session-3',
-      settingsId: 2,
-      gameMode: '10waves',
-      currentWave: 0,
-      wavesCompleted: 0,
-      coins: 200,
-      lives: 10,
-      towers: [],
-      enemiesKilled: 0,
-      coinsEarned: 0,
-      coinsSpent: 0,
-      damageDealt: 0,
-      status: 'active',
-    });
+    await sessionRepo.createGameSession(makeSessionPayload('test-session-3'));
     const updated = await sessionRepo.updateGameSession('test-session-3', {
       coins: 500,
       currentWave: 3,
@@ -380,22 +413,12 @@ async function testRepositories(): Promise<void> {
 
   // Statistics Repository
   await test('StatisticsRepository.createStatistics and getStatisticsByGameId', async () => {
-    const stat = await statsRepo.createStatistics({
-      gameId: 'test-stat-1',
-      timestamp: new Date(),
-      duration: 60000,
-      outcome: 'win',
-      gameMode: '10waves',
-      finalWave: 10,
-      wavesCompleted: 10,
-      enemiesKilledTotal: 100,
-      enemiesKilledByType: { pawn: 50, knight: 50 },
-      towersBuiltTotal: 5,
-      towersBuiltByType: { basic: 3, sniper: 2 },
-      coinsEarned: 1000,
-      coinsSpent: 800,
-      damageDealt: 5000,
-    });
+    const stat = await statsRepo.createStatistics(
+      makeStatsPayload('test-stat-1', {
+        enemiesKilledByType: { pawn: 50, knight: 50 },
+        towersBuiltByType: { basic: 3, sniper: 2 },
+      })
+    );
     assert(stat.id !== undefined && stat.id > 0, 'Statistics ID should be positive');
 
     const retrieved = await statsRepo.getStatisticsByGameId('test-stat-1');
@@ -509,16 +532,7 @@ async function testServices(): Promise<void> {
   // Game Service
   async function cleanupGame(gameId: string): Promise<void> {
     await gameService.startWave(gameId);
-    await gameService.endGame(gameId, 'loss', {
-      duration: 0,
-      enemiesKilledTotal: 0,
-      enemiesKilledByType: {},
-      towersBuiltTotal: 0,
-      towersBuiltByType: {},
-      coinsEarned: 0,
-      coinsSpent: 0,
-      damageDealt: 0,
-    });
+    await gameService.endGame(gameId, 'loss', makeEndGameStats());
   }
 
   await test('GameService.createGame', async () => {
@@ -663,16 +677,7 @@ async function testServices(): Promise<void> {
     const updatedGame = await gameService.getGame(game.id);
     assertEqual(updatedGame?.wave, 1, 'Wave should be 1');
     // Cleanup - already at wave 1
-    await gameService.endGame(game.id, 'loss', {
-      duration: 0,
-      enemiesKilledTotal: 0,
-      enemiesKilledByType: {},
-      towersBuiltTotal: 0,
-      towersBuiltByType: {},
-      coinsEarned: 0,
-      coinsSpent: 0,
-      damageDealt: 0,
-    });
+    await gameService.endGame(game.id, 'loss', makeEndGameStats());
   });
 
   await test('GameService.startWave - nonexistent game', async () => {
@@ -685,16 +690,7 @@ async function testServices(): Promise<void> {
     await gameService.startWave(game.id);
     const success = await gameService.completeWave(game.id);
     assert(success, 'Complete wave should succeed');
-    await gameService.endGame(game.id, 'loss', {
-      duration: 0,
-      enemiesKilledTotal: 0,
-      enemiesKilledByType: {},
-      towersBuiltTotal: 0,
-      towersBuiltByType: {},
-      coinsEarned: 0,
-      coinsSpent: 0,
-      damageDealt: 0,
-    });
+    await gameService.endGame(game.id, 'loss', makeEndGameStats());
   });
 
   await test('GameService.addCoins', async () => {
@@ -742,16 +738,20 @@ async function testServices(): Promise<void> {
   await test('GameService.endGame records statistics', async () => {
     const game = await gameService.createGame('10waves', 'normal');
     await gameService.startWave(game.id);
-    const success = await gameService.endGame(game.id, 'win', {
-      duration: 60000,
-      enemiesKilledTotal: 50,
-      enemiesKilledByType: { '1': 30, '2': 20 },
-      towersBuiltTotal: 3,
-      towersBuiltByType: { '1': 2, '2': 1 },
-      coinsEarned: 500,
-      coinsSpent: 300,
-      damageDealt: 2000,
-    });
+    const success = await gameService.endGame(
+      game.id,
+      'win',
+      makeEndGameStats({
+        duration: 60000,
+        enemiesKilledTotal: 50,
+        enemiesKilledByType: { '1': 30, '2': 20 },
+        towersBuiltTotal: 3,
+        towersBuiltByType: { '1': 2, '2': 1 },
+        coinsEarned: 500,
+        coinsSpent: 300,
+        damageDealt: 2000,
+      })
+    );
     assert(success, 'End game should succeed');
     // Verify game session is deleted
     const deleted = await gameService.getGame(game.id);
@@ -785,44 +785,29 @@ async function testServices(): Promise<void> {
 
   // Statistics Service
   await test('StatisticsService.recordGameStatistics', async () => {
-    const stat = await statsService.recordGameStatistics({
-      gameId: 'test-svc-stat-1',
-      timestamp: new Date(),
-      duration: 120000,
-      outcome: 'loss',
-      gameMode: '20waves',
-      finalWave: 15,
-      wavesCompleted: 14,
-      enemiesKilledTotal: 200,
-      enemiesKilledByType: { pawn: 100, rook: 100 },
-      towersBuiltTotal: 8,
-      towersBuiltByType: { basic: 5, rapid: 3 },
-      coinsEarned: 2000,
-      coinsSpent: 1500,
-      damageDealt: 10000,
-    });
+    const stat = await statsService.recordGameStatistics(
+      makeStatsPayload('test-svc-stat-1', {
+        duration: 120000,
+        outcome: 'loss',
+        gameMode: '20waves',
+        finalWave: 15,
+        wavesCompleted: 14,
+        enemiesKilledTotal: 200,
+        enemiesKilledByType: { pawn: 100, rook: 100 },
+        towersBuiltTotal: 8,
+        towersBuiltByType: { basic: 5, rapid: 3 },
+        coinsEarned: 2000,
+        coinsSpent: 1500,
+        damageDealt: 10000,
+      })
+    );
     assert(stat.id !== undefined && stat.id > 0, 'Statistics should be created');
     await query('DELETE FROM game_statistics WHERE game_id = $1', ['test-svc-stat-1']);
   });
 
   await test('StatisticsService.getStatisticsSummary', async () => {
     // Create test data
-    await statsService.recordGameStatistics({
-      gameId: 'test-summary-1',
-      timestamp: new Date(),
-      duration: 60000,
-      outcome: 'win',
-      gameMode: '10waves',
-      finalWave: 10,
-      wavesCompleted: 10,
-      enemiesKilledTotal: 100,
-      enemiesKilledByType: {},
-      towersBuiltTotal: 5,
-      towersBuiltByType: {},
-      coinsEarned: 1000,
-      coinsSpent: 800,
-      damageDealt: 5000,
-    });
+    await statsService.recordGameStatistics(makeStatsPayload('test-summary-1'));
 
     const summary = await statsService.getStatisticsSummary();
     assert(summary.totalGames >= 1, 'Should have at least 1 game');
@@ -832,22 +817,15 @@ async function testServices(): Promise<void> {
   });
 
   await test('StatisticsService.getStatisticsByOutcome', async () => {
-    await statsService.recordGameStatistics({
-      gameId: 'test-outcome-1',
-      timestamp: new Date(),
-      duration: 60000,
-      outcome: 'win',
-      gameMode: '10waves',
-      finalWave: 10,
-      wavesCompleted: 10,
-      enemiesKilledTotal: 50,
-      enemiesKilledByType: {},
-      towersBuiltTotal: 3,
-      towersBuiltByType: {},
-      coinsEarned: 500,
-      coinsSpent: 300,
-      damageDealt: 2000,
-    });
+    await statsService.recordGameStatistics(
+      makeStatsPayload('test-outcome-1', {
+        enemiesKilledTotal: 50,
+        towersBuiltTotal: 3,
+        coinsEarned: 500,
+        coinsSpent: 300,
+        damageDealt: 2000,
+      })
+    );
 
     const wins = await statsService.getStatisticsByOutcome('win', 10);
     assert(wins.length >= 1, 'Should have at least 1 win');
@@ -859,22 +837,19 @@ async function testServices(): Promise<void> {
   });
 
   await test('StatisticsService.getStatisticsByGameMode', async () => {
-    await statsService.recordGameStatistics({
-      gameId: 'test-mode-1',
-      timestamp: new Date(),
-      duration: 60000,
-      outcome: 'loss',
-      gameMode: '20waves',
-      finalWave: 5,
-      wavesCompleted: 4,
-      enemiesKilledTotal: 30,
-      enemiesKilledByType: {},
-      towersBuiltTotal: 2,
-      towersBuiltByType: {},
-      coinsEarned: 200,
-      coinsSpent: 150,
-      damageDealt: 1000,
-    });
+    await statsService.recordGameStatistics(
+      makeStatsPayload('test-mode-1', {
+        outcome: 'loss',
+        gameMode: '20waves',
+        finalWave: 5,
+        wavesCompleted: 4,
+        enemiesKilledTotal: 30,
+        towersBuiltTotal: 2,
+        coinsEarned: 200,
+        coinsSpent: 150,
+        damageDealt: 1000,
+      })
+    );
 
     const results = await statsService.getStatisticsByGameMode('20waves', 10);
     assert(results.length >= 1, 'Should have at least 1 game in 20waves mode');
@@ -1265,22 +1240,12 @@ async function testApiEndpoints(): Promise<void> {
   const testStatGameId = 'api-test-stat-' + Date.now();
   await fetchJson('/api/statistics', {
     method: 'POST',
-    body: JSON.stringify({
-      gameId: testStatGameId,
-      timestamp: new Date().toISOString(),
-      duration: 60000,
-      outcome: 'win',
-      gameMode: '10waves',
-      finalWave: 10,
-      wavesCompleted: 10,
-      enemiesKilledTotal: 100,
-      enemiesKilledByType: { '1': 50, '2': 50 },
-      towersBuiltTotal: 5,
-      towersBuiltByType: { '1': 3, '2': 2 },
-      coinsEarned: 1000,
-      coinsSpent: 800,
-      damageDealt: 5000,
-    }),
+    body: JSON.stringify(
+      makeStatsPayload(testStatGameId, {
+        enemiesKilledByType: { '1': 50, '2': 50 },
+        towersBuiltByType: { '1': 3, '2': 2 },
+      })
+    ),
   });
 
   await test('GET /api/statistics/summary', async () => {
@@ -1366,22 +1331,19 @@ async function testApiEndpoints(): Promise<void> {
       '/api/statistics',
       {
         method: 'POST',
-        body: JSON.stringify({
-          gameId: recordId,
-          timestamp: new Date().toISOString(),
-          duration: 30000,
-          outcome: 'loss',
-          gameMode: '10waves',
-          finalWave: 3,
-          wavesCompleted: 2,
-          enemiesKilledTotal: 20,
-          enemiesKilledByType: {},
-          towersBuiltTotal: 2,
-          towersBuiltByType: {},
-          coinsEarned: 200,
-          coinsSpent: 100,
-          damageDealt: 500,
-        }),
+        body: JSON.stringify(
+          makeStatsPayload(recordId, {
+            duration: 30000,
+            outcome: 'loss',
+            finalWave: 3,
+            wavesCompleted: 2,
+            enemiesKilledTotal: 20,
+            towersBuiltTotal: 2,
+            coinsEarned: 200,
+            coinsSpent: 100,
+            damageDealt: 500,
+          })
+        ),
       }
     );
     assertEqual(status, 201, 'Should return 201');
