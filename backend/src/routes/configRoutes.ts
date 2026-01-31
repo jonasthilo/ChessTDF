@@ -24,6 +24,9 @@ router.get('/enemies', (req, res) => configController.getAllEnemyDefinitions(req
 router.get('/enemies/:id', (req, res) => configController.getEnemyDefinition(req, res));
 router.patch('/enemies/:id', (req, res) => configController.updateEnemyDefinition(req, res));
 
+// Wave Definitions
+router.get('/waves', (req, res) => configController.getWaves(req, res));
+
 // Game Settings
 router.get('/settings', (req, res) => configController.getAllSettings(req, res));
 router.post('/settings', (req, res) => configController.createSettings(req, res));

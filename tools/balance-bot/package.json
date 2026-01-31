@@ -1,0 +1,22 @@
+{
+  "name": "balance-bot",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "analyze": "tsx src/index.ts analyze",
+    "suggest": "tsx src/index.ts suggest",
+    "simulate": "tsx src/index.ts simulate",
+    "play": "tsx src/index.ts play",
+    "report": "tsx src/index.ts report"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
