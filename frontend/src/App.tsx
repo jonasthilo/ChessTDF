@@ -4,7 +4,6 @@ import { useGameStore } from './state/gameStore';
 import { MainScreen } from './components/screens/MainScreen';
 import { GameScreen } from './components/screens/GameScreen';
 import { SettingsScreen } from './components/screens/SettingsScreen';
-import { StatisticsScreen } from './components/screens/StatisticsScreen';
 import './App.css';
 
 function App() {
@@ -20,7 +19,6 @@ function App() {
         <Routes>
           <Route path="/" element={<MainScreen />} />
           <Route path="/settings" element={<SettingsScreen />} />
-          <Route path="/statistics" element={<StatisticsScreen />} />
           <Route path="/game/:gameId" element={<GameScreen />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
