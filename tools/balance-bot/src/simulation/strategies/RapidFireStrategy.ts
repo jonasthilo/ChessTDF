@@ -1,38 +1,17 @@
-import { GAME_CONSTANTS } from '../../types';
 import type { TowerDefinition, GameSettings } from '../../types';
 import type { SimState, Strategy, StrategyAction } from '../SimulationTypes';
-
-/** Rows adjacent to the enemy path (rows 4-5). */
-const ADJACENT_ROWS = [3, 6] as const;
-
-/** Column priority: center columns first, spreading outward (maximize range coverage). */
-function getCenterPriorityColumns(): number[] {
-  const cols: number[] = [];
-  const mid = Math.floor(GAME_CONSTANTS.GRID_COLS / 2);
-
-  for (let offset = 0; offset < GAME_CONSTANTS.GRID_COLS; offset++) {
-    const left = mid - offset;
-    const right = mid + offset;
-    if (left >= 0 && left < GAME_CONSTANTS.GRID_COLS && !cols.includes(left)) {
-      cols.push(left);
-    }
-    if (
-      right >= 0 &&
-      right < GAME_CONSTANTS.GRID_COLS &&
-      !cols.includes(right)
-    ) {
-      cols.push(right);
-    }
-  }
-
-  return cols;
-}
+import {
+  spendOnUpgrades,
+  spendOnBuilds,
+  pickLeastUsed,
+} from './PlacementUtils';
 
 /**
- * Rapid-fire strategy: prioritizes the tower with the highest base fireRate.
- * Places on rows 3 and 6, as close to center as possible.
- * Upgrades existing rapid towers before building new ones.
- * Fills remaining budget with other tower types.
+ * Rapid-fire strategy: prioritizes the highest-fireRate tower type.
+ * 1. Build rapid towers for coverage (50% budget)
+ * 2. Upgrade rapid towers first, then others
+ * 3. Fill remaining with other tower types
+ * Rapid towers benefit from fire rate upgrades but need coverage first.
  */
 export class RapidFireStrategy implements Strategy {
   readonly name = 'rapid-fire';
@@ -42,96 +21,56 @@ export class RapidFireStrategy implements Strategy {
     towers: TowerDefinition[],
     settings: GameSettings,
   ): StrategyAction[] {
-    const actions: StrategyAction[] = [];
-    if (towers.length === 0) return actions;
+    if (towers.length === 0) return [];
 
     const rapidDef = this.findHighestFireRateTower(towers);
-    if (!rapidDef) return actions;
+    if (!rapidDef) return [];
 
-    let availableCoins = state.coins;
+    const buildBudget = Math.floor(state.coins * 0.5);
+    const upgradeBudget = state.coins - buildBudget;
 
-    // Phase 1: Upgrade existing rapid towers to max before building new ones
-    const rapidTowers = state.towers
-      .filter((t) => t.towerId === rapidDef.id)
-      .sort((a, b) => a.level - b.level);
+    // Phase 1: Build rapid towers for coverage
+    const rapidBuilds = spendOnBuilds(
+      state,
+      settings,
+      buildBudget,
+      [],
+      () => rapidDef,
+    );
 
-    for (const tower of rapidTowers) {
-      if (availableCoins <= 0) break;
+    // Phase 2: Upgrade rapid towers first
+    const upgradeTotal = upgradeBudget + rapidBuilds.remaining;
+    const rapidUpgrades = spendOnUpgrades(
+      state,
+      towers,
+      settings,
+      upgradeTotal,
+      rapidDef.id,
+    );
 
-      const nextLevel = tower.level + 1;
-      const nextLevelDef = rapidDef.levels.find((l) => l.level === nextLevel);
-      if (!nextLevelDef) continue; // already max
+    // Phase 3: Upgrade other towers
+    const otherUpgrades = spendOnUpgrades(
+      state,
+      towers,
+      settings,
+      rapidUpgrades.remaining,
+    );
 
-      const cost = Math.round(
-        nextLevelDef.cost * settings.towerCostMultiplier,
-      );
-      if (availableCoins >= cost) {
-        actions.push({
-          type: 'upgrade',
-          targetTowerInstanceId: tower.id,
-        });
-        availableCoins -= cost;
-      }
-    }
+    // Phase 4: Fill remaining with other tower types
+    const allActions = [
+      ...rapidBuilds.actions,
+      ...rapidUpgrades.actions,
+      ...otherUpgrades.actions,
+    ];
+    const fillBuilds = spendOnBuilds(
+      state,
+      settings,
+      otherUpgrades.remaining,
+      allActions,
+      (usage) => pickLeastUsed(towers, usage, rapidDef.id),
+    );
 
-    // Phase 2: Build rapid towers on adjacent rows, center first
-    const priorityCols = getCenterPriorityColumns();
-
-    for (const row of ADJACENT_ROWS) {
-      for (const col of priorityCols) {
-        if (availableCoins <= 0) break;
-
-        const occupied = state.towers.some(
-          (t) => t.gridX === col && t.gridY === row,
-        );
-        if (occupied) continue;
-
-        const level1 = rapidDef.levels.find((l) => l.level === 1);
-        if (!level1) continue;
-
-        const cost = Math.round(level1.cost * settings.towerCostMultiplier);
-        if (availableCoins < cost) continue;
-
-        actions.push({
-          type: 'build',
-          towerId: rapidDef.id,
-          gridX: col,
-          gridY: row,
-        });
-        availableCoins -= cost;
-      }
-    }
-
-    // Phase 3: Fill remaining budget with other tower types (least used)
-    for (const row of ADJACENT_ROWS) {
-      for (const col of priorityCols) {
-        if (availableCoins <= 0) break;
-
-        const occupied = state.towers.some(
-          (t) => t.gridX === col && t.gridY === row,
-        );
-        if (occupied) continue;
-
-        const fillDef = this.pickLeastUsedNonRapid(state, towers, rapidDef.id);
-        if (!fillDef) break;
-
-        const level1 = fillDef.levels.find((l) => l.level === 1);
-        if (!level1) continue;
-
-        const cost = Math.round(level1.cost * settings.towerCostMultiplier);
-        if (availableCoins < cost) continue;
-
-        actions.push({
-          type: 'build',
-          towerId: fillDef.id,
-          gridX: col,
-          gridY: row,
-        });
-        availableCoins -= cost;
-      }
-    }
-
-    return actions;
+    return [...allActions, ...fillBuilds.actions];
   }
 
   private findHighestFireRateTower(
@@ -151,25 +90,5 @@ export class RapidFireStrategy implements Strategy {
     }
 
     return best;
-  }
-
-  private pickLeastUsedNonRapid(
-    state: SimState,
-    towers: TowerDefinition[],
-    rapidTowerId: number,
-  ): TowerDefinition | undefined {
-    let minCount = Infinity;
-    let selected: TowerDefinition | undefined;
-
-    for (const towerDef of towers) {
-      if (towerDef.id === rapidTowerId) continue;
-      const count = state.towerUsage[towerDef.id] ?? 0;
-      if (count < minCount) {
-        minCount = count;
-        selected = towerDef;
-      }
-    }
-
-    return selected;
   }
 }
