@@ -4,6 +4,8 @@ import { gameApi } from '../../services/gameApi';
 import { ScreenLayout } from '../common/ScreenLayout';
 import { ConfirmModal } from '../common/ConfirmModal';
 import { getTowerImage, getEnemyImage } from '../../utils/pieceAssets';
+import { capitalize } from '../../utils/string';
+import { SelectorDetailLayout } from './settings/SelectorDetailLayout';
 import { SettingsEditor } from './settings/SettingsEditor';
 import { TowerEditor } from './settings/TowerEditor';
 import { EnemyEditor } from './settings/EnemyEditor';
@@ -17,6 +19,26 @@ import type {
 import './SettingsScreen.css';
 
 type AdvancedTab = 'gameModes' | 'towers' | 'towerLevels' | 'enemies';
+
+const tabs: Array<{ key: AdvancedTab; label: string }> = [
+  { key: 'gameModes', label: 'Game Modes' },
+  { key: 'towers', label: 'Towers' },
+  { key: 'towerLevels', label: 'Tower Levels' },
+  { key: 'enemies', label: 'Enemies' },
+];
+
+function updateEditMap<K, V>(
+  setter: React.Dispatch<React.SetStateAction<Map<K, Partial<V>>>>,
+  key: K,
+  field: string,
+  value: unknown
+) {
+  setter((prev) => {
+    const next = new Map(prev);
+    next.set(key, { ...(next.get(key) ?? {}), [field]: value } as Partial<V>);
+    return next;
+  });
+}
 
 export const SettingsScreen = () => {
   const navigate = useNavigate();
@@ -114,43 +136,24 @@ export const SettingsScreen = () => {
     }
   };
 
-  const handleSettingsChange = (id: number, field: keyof GameSettings, value: number) => {
-    const newEdited = new Map(editedSettings);
-    const current = newEdited.get(id) ?? {};
-    newEdited.set(id, { ...current, [field]: value });
-    setEditedSettings(newEdited);
-  };
+  const handleSettingsChange = (id: number, field: keyof GameSettings, value: number) =>
+    updateEditMap(setEditedSettings, id, field, value);
 
   const handleTowerChange = (
     id: number,
     field: keyof Omit<TowerDefinitionWithLevels, 'levels'>,
     value: number | string
-  ) => {
-    const newEdited = new Map(editedTowers);
-    const current = newEdited.get(id) ?? {};
-    newEdited.set(id, { ...current, [field]: value });
-    setEditedTowers(newEdited);
-  };
+  ) => updateEditMap(setEditedTowers, id, field, value);
 
   const handleTowerLevelChange = (
     towerId: number,
     level: number,
     field: keyof Omit<TowerLevel, 'id' | 'towerId' | 'level'>,
     value: number
-  ) => {
-    const key = `${towerId}-${level}`;
-    const newEdited = new Map(editedTowerLevels);
-    const current = newEdited.get(key) ?? {};
-    newEdited.set(key, { ...current, [field]: value });
-    setEditedTowerLevels(newEdited);
-  };
+  ) => updateEditMap(setEditedTowerLevels, `${towerId}-${level}`, field, value);
 
-  const handleEnemyChange = (id: number, field: keyof EnemyDefinition, value: number | string) => {
-    const newEdited = new Map(editedEnemies);
-    const current = newEdited.get(id) ?? {};
-    newEdited.set(id, { ...current, [field]: value });
-    setEditedEnemies(newEdited);
-  };
+  const handleEnemyChange = (id: number, field: keyof EnemyDefinition, value: number | string) =>
+    updateEditMap(setEditedEnemies, id, field, value);
 
   const handleSaveAll = async () => {
     setSaving(true);
@@ -235,10 +238,7 @@ export const SettingsScreen = () => {
     editedEnemies.size > 0;
 
   const navCenter = (
-    <div className="nav-title-group">
-      <h1 className="nav-page-title">Game Settings</h1>
-      <p className="nav-page-subtitle">Advanced configuration</p>
-    </div>
+    <h1 className="nav-page-title">CONFIGURATION</h1>
   );
 
   const navRight = (
@@ -271,54 +271,44 @@ export const SettingsScreen = () => {
   const selectedTowerLevels = towers.find((t) => t.id === selectedTowerForLevels);
   const selectedEnemy = enemies.find((e) => e.id === selectedEnemyId);
 
+  const towerSelectorItems = towers.map((tower) => ({
+    id: tower.id,
+    label: (
+      <>
+        <img src={getTowerImage(tower.id)} alt={tower.name} className="piece-icon-small" />
+        {tower.name}
+      </>
+    ),
+  }));
+
   return (
     <ScreenLayout className="settings-screen" navCenter={navCenter} navRight={navRight}>
       <div className="screen-body">
         <div className="settings-panel">
           <div className="advanced-tabs">
-            <button
-              className={`btn btn-dark btn-sm tab-button ${activeTab === 'gameModes' ? 'active' : ''}`}
-              onClick={() => setActiveTab('gameModes')}
-            >
-              Game Modes
-            </button>
-            <button
-              className={`btn btn-dark btn-sm tab-button ${activeTab === 'towers' ? 'active' : ''}`}
-              onClick={() => setActiveTab('towers')}
-            >
-              Towers
-            </button>
-            <button
-              className={`btn btn-dark btn-sm tab-button ${activeTab === 'towerLevels' ? 'active' : ''}`}
-              onClick={() => setActiveTab('towerLevels')}
-            >
-              Tower Levels
-            </button>
-            <button
-              className={`btn btn-dark btn-sm tab-button ${activeTab === 'enemies' ? 'active' : ''}`}
-              onClick={() => setActiveTab('enemies')}
-            >
-              Enemies
-            </button>
+            {tabs.map((tab) => (
+              <button
+                key={tab.key}
+                className={`btn btn-dark btn-sm tab-button ${activeTab === tab.key ? 'active' : ''}`}
+                onClick={() => setActiveTab(tab.key)}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           <div className="advanced-content">
             {activeTab === 'gameModes' && (
-              <div className="selector-detail-layout">
-                <div className="item-selector">
-                  {settings.map((setting) => (
-                    <button
-                      key={setting.id}
-                      className={`btn btn-dark btn-sm selector-button ${selectedSettingId === setting.id ? 'active' : ''}`}
-                      onClick={() => setSelectedSettingId(setting.id ?? null)}
-                    >
-                      {setting.mode.charAt(0).toUpperCase() + setting.mode.slice(1)}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="detail-panel">
-                  {selectedSetting ? (
+              <SelectorDetailLayout
+                items={settings.map((s) => ({
+                  id: s.id ?? 0,
+                  label: capitalize(s.mode),
+                }))}
+                selectedId={selectedSettingId}
+                onSelect={setSelectedSettingId}
+                emptyMessage="Select a game mode"
+                detail={
+                  selectedSetting ? (
                     <SettingsEditor
                       setting={selectedSetting}
                       edits={editedSettings.get(selectedSetting.id ?? 0) ?? {}}
@@ -326,34 +316,19 @@ export const SettingsScreen = () => {
                         handleSettingsChange(selectedSetting.id ?? 0, field, value)
                       }
                     />
-                  ) : (
-                    <div className="detail-empty">Select a game mode</div>
-                  )}
-                </div>
-              </div>
+                  ) : null
+                }
+              />
             )}
 
             {activeTab === 'towers' && (
-              <div className="selector-detail-layout">
-                <div className="item-selector">
-                  {towers.map((tower) => (
-                    <button
-                      key={tower.id}
-                      className={`btn btn-dark btn-sm selector-button ${selectedTowerId === tower.id ? 'active' : ''}`}
-                      onClick={() => setSelectedTowerId(tower.id)}
-                    >
-                      <img
-                        src={getTowerImage(tower.id)}
-                        alt={tower.name}
-                        className="piece-icon-small"
-                      />
-                      {tower.name}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="detail-panel">
-                  {selectedTower ? (
+              <SelectorDetailLayout
+                items={towerSelectorItems}
+                selectedId={selectedTowerId}
+                onSelect={setSelectedTowerId}
+                emptyMessage="Select a tower"
+                detail={
+                  selectedTower ? (
                     <TowerEditor
                       tower={selectedTower}
                       edits={editedTowers.get(selectedTower.id) ?? {}}
@@ -361,34 +336,20 @@ export const SettingsScreen = () => {
                         handleTowerChange(selectedTower.id, field, value)
                       }
                     />
-                  ) : (
-                    <div className="detail-empty">Select a tower</div>
-                  )}
-                </div>
-              </div>
+                  ) : null
+                }
+              />
             )}
 
             {activeTab === 'towerLevels' && (
-              <div className="selector-detail-layout">
-                <div className="item-selector">
-                  {towers.map((tower) => (
-                    <button
-                      key={tower.id}
-                      className={`btn btn-dark btn-sm selector-button ${selectedTowerForLevels === tower.id ? 'active' : ''}`}
-                      onClick={() => setSelectedTowerForLevels(tower.id)}
-                    >
-                      <img
-                        src={getTowerImage(tower.id)}
-                        alt={tower.name}
-                        className="piece-icon-small"
-                      />
-                      {tower.name}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="detail-panel-scroll">
-                  {selectedTowerLevels ? (
+              <SelectorDetailLayout
+                items={towerSelectorItems}
+                selectedId={selectedTowerForLevels}
+                onSelect={setSelectedTowerForLevels}
+                emptyMessage="Select a tower type"
+                scrollable
+                detail={
+                  selectedTowerLevels ? (
                     <>
                       <h3>
                         {selectedTowerLevels.name} Levels (Max: {selectedTowerLevels.maxLevel})
@@ -418,34 +379,31 @@ export const SettingsScreen = () => {
                           ))}
                       </div>
                     </>
-                  ) : (
-                    <div className="detail-empty">Select a tower type</div>
-                  )}
-                </div>
-              </div>
+                  ) : null
+                }
+              />
             )}
 
             {activeTab === 'enemies' && (
-              <div className="selector-detail-layout">
-                <div className="item-selector">
-                  {enemies.map((enemy) => (
-                    <button
-                      key={enemy.id}
-                      className={`btn btn-dark btn-sm selector-button ${selectedEnemyId === enemy.id ? 'active' : ''}`}
-                      onClick={() => setSelectedEnemyId(enemy.id)}
-                    >
+              <SelectorDetailLayout
+                items={enemies.map((enemy) => ({
+                  id: enemy.id,
+                  label: (
+                    <>
                       <img
                         src={getEnemyImage(enemy.id)}
                         alt={enemy.name}
                         className="piece-icon-small"
                       />
                       {enemy.name}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="detail-panel">
-                  {selectedEnemy ? (
+                    </>
+                  ),
+                }))}
+                selectedId={selectedEnemyId}
+                onSelect={setSelectedEnemyId}
+                emptyMessage="Select an enemy"
+                detail={
+                  selectedEnemy ? (
                     <EnemyEditor
                       enemy={selectedEnemy}
                       edits={editedEnemies.get(selectedEnemy.id) ?? {}}
@@ -453,11 +411,9 @@ export const SettingsScreen = () => {
                         handleEnemyChange(selectedEnemy.id, field, value)
                       }
                     />
-                  ) : (
-                    <div className="detail-empty">Select an enemy</div>
-                  )}
-                </div>
-              </div>
+                  ) : null
+                }
+              />
             )}
           </div>
 
