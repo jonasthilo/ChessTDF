@@ -8,7 +8,7 @@ interface DifficultySelectorProps {
 
 const DIFFICULTY_MODES = ['easy', 'normal', 'hard'] as const;
 
-export const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
+const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
 export const DifficultySelector = ({
   settings,

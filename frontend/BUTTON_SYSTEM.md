@@ -77,7 +77,7 @@ Some buttons need extra layout properties beyond color/size. These classes only 
 | `.tower-type-button` | `display: flex; width: 100%; gap` | Settings tower list |
 | `.modal-close` | `position: absolute; top; right` | Tower modal close |
 | `.panel-close` | `position: absolute; top; right` | Enemy panel close |
-| `.nav-difficulty-btn` | `width: 170px; text-align: left` | Start screen nav |
+| `.nav-difficulty-btn` | `width: 170px; text-align: left` | Main screen nav |
 
 These classes contain **no color, font, or animation rules** - those come from the `btn-{color}` classes.
 
@@ -87,14 +87,11 @@ These classes contain **no color, font, or animation rules** - those come from t
 
 | Screen | Button | Classes |
 |--------|--------|---------|
-| **StartScreen** | Configuration | `btn btn-dark` |
+| **MainScreen** | Configuration | `btn btn-dark` |
 | | Statistics | `btn btn-dark` |
 | | Game Mode: Normal | `btn btn-dark nav-difficulty-btn` |
 | | Play Game | `btn btn-gold` |
 | **DifficultySelector** | Easy/Normal/Hard | `btn btn-dark btn-sm difficulty-button` |
-| **GameEndScreen** | Play Again | `btn btn-gold btn-lg` |
-| | Return Home | `btn btn-dark` |
-| | Statistics | `btn btn-dark` |
 | **StatisticsScreen** | Overview/Recent/Top | `btn btn-dark btn-sm` |
 | | Back | `btn btn-dark` |
 | **SettingsScreen** | Save | `btn btn-dark` |

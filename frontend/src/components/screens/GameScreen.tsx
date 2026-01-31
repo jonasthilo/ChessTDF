@@ -33,10 +33,10 @@ export const GameScreen = () => {
     }
   }, [gameId, storeGameId, navigate]);
 
-  // Navigate to end screen when game ends
+  // Navigate to main screen when game ends
   useEffect(() => {
     if (gameResult && gameId) {
-      navigate(`/game/${gameId}/end`);
+      navigate('/');
     }
   }, [gameResult, gameId, navigate]);
 
