@@ -309,6 +309,52 @@
 
 /**
  * @swagger
+ * /api/config/waves:
+ *   get:
+ *     summary: Get all wave definitions
+ *     description: Returns all wave definitions grouped by wave number, with enemy composition for each wave.
+ *     tags: [Config]
+ *     responses:
+ *       200:
+ *         description: Array of wave compositions grouped by wave number
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   waveNumber:
+ *                     type: integer
+ *                     description: The wave number
+ *                     example: 1
+ *                   enemies:
+ *                     type: array
+ *                     items:
+ *                       type: object
+ *                       properties:
+ *                         enemyId:
+ *                           type: integer
+ *                           description: Enemy definition ID
+ *                           example: 1
+ *                         count:
+ *                           type: integer
+ *                           description: Number of enemies to spawn
+ *                           example: 7
+ *                         spawnDelayMs:
+ *                           type: integer
+ *                           description: Delay between spawns in milliseconds
+ *                           example: 800
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+
+/**
+ * @swagger
  * /api/config/settings:
  *   get:
  *     summary: Get all settings presets

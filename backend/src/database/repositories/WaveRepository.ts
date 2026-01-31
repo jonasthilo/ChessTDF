@@ -34,6 +34,13 @@ export class WaveRepository {
     return result.rows.map(this.mapRow);
   }
 
+  async getAll(): Promise<WaveDefinitionRow[]> {
+    const result = await query<WaveDbRow>(
+      'SELECT * FROM wave_definitions ORDER BY wave_number, enemy_id'
+    );
+    return result.rows.map(this.mapRow);
+  }
+
   async getMaxDefinedWave(): Promise<number> {
     const result = await query<MaxWaveRow>(
       'SELECT MAX(wave_number) as max_wave FROM wave_definitions'

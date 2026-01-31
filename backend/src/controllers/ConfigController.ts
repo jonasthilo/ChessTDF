@@ -1,9 +1,11 @@
 import { Request, Response } from 'express';
 import { ConfigService } from '../services/ConfigService';
+import { WaveService } from '../services/WaveService';
 import { TowerLevel, EnemyDefinition, GameSettings } from '../types';
 import { parseIntParam } from './helpers';
 
 const configService = new ConfigService();
+const waveService = new WaveService();
 
 /**
  * ConfigController
@@ -457,6 +459,22 @@ export class ConfigController {
     } catch (error) {
       console.error('Error fetching default settings:', error);
       res.status(500).json({ error: 'Failed to fetch default settings' });
+    }
+  }
+
+  // ==================== Wave Definitions ====================
+
+  /**
+   * GET /api/config/waves
+   * Get all wave definitions grouped by wave number
+   */
+  async getWaves(req: Request, res: Response): Promise<void> {
+    try {
+      const waves = await waveService.getAllWaves();
+      res.json(waves);
+    } catch (error) {
+      console.error('Error fetching wave definitions:', error);
+      res.status(500).json({ error: 'Failed to fetch wave definitions' });
     }
   }
 }

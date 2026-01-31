@@ -3,7 +3,44 @@ import { waveRepository } from '../database/repositories/WaveRepository';
 
 // Wave generation service (database-driven)
 
+interface WaveEnemyEntry {
+  enemyId: number;
+  count: number;
+  spawnDelayMs: number;
+}
+
+interface WaveComposition {
+  waveNumber: number;
+  enemies: WaveEnemyEntry[];
+}
+
 export class WaveService {
+  // Get all wave definitions grouped by wave number
+  async getAllWaves(): Promise<WaveComposition[]> {
+    const rows = await waveRepository.getAll();
+    const waveMap = new Map<number, WaveEnemyEntry[]>();
+
+    for (const row of rows) {
+      let enemies = waveMap.get(row.waveNumber);
+      if (!enemies) {
+        enemies = [];
+        waveMap.set(row.waveNumber, enemies);
+      }
+      enemies.push({
+        enemyId: row.enemyId,
+        count: row.count,
+        spawnDelayMs: row.spawnDelayMs,
+      });
+    }
+
+    const waves: WaveComposition[] = [];
+    for (const [waveNumber, enemies] of waveMap) {
+      waves.push({ waveNumber, enemies });
+    }
+
+    return waves;
+  }
+
   // Generate enemies for a specific wave
   async getWaveEnemies(waveNumber: number): Promise<EnemySpawnData[]> {
     const definitions = await waveRepository.getWaveDefinitions(waveNumber);
