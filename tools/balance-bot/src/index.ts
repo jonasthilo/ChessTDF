@@ -4,16 +4,23 @@ import { ApiClient } from './api/client';
 import { classifyTowers, classifyEnemies } from './analysis/Classifier';
 import { analyzeTier1 } from './analysis/Tier1CostEfficiency';
 import { analyzeTier2 } from './analysis/Tier2WaveScaling';
+import { analyzeTier3 } from './analysis/Tier3IterativeHITB';
 import { SimulationEngine } from './simulation/SimulationEngine';
 import {
   getStrategy,
   getAllStrategyNames,
 } from './simulation/strategies/index';
 import { ConsoleReporter } from './output/ConsoleReporter';
+import { JsonReporter } from './output/JsonReporter';
+import { generateSuggestions } from './suggestions/SuggestionEngine';
+import { applySuggestions, printDryRun } from './suggestions/PatchGenerator';
 import type { SettingsMode } from './types';
 
 const program = new Command();
-const reporter = new ConsoleReporter();
+
+function createReporter(format: string): ConsoleReporter | JsonReporter {
+  return format === 'json' ? new JsonReporter() : new ConsoleReporter();
+}
 
 program
   .name('balance-bot')
@@ -27,6 +34,8 @@ program
   .option('--url <url>', 'Backend URL', 'http://localhost:3001')
   .option('--difficulty <d>', 'Difficulty to analyze', 'normal')
   .option('--waves <n>', 'Number of waves to analyze', '10')
+  .option('--sim-runs <n>', 'Number of simulation runs per strategy (Tier 3)', '3')
+  .option('--format <f>', 'Output format (console, json)', 'console')
   .option('--verbose', 'Show detailed output')
   .action(
     async (opts: {
@@ -34,11 +43,15 @@ program
       url: string;
       difficulty: string;
       waves: string;
+      simRuns: string;
+      format: string;
       verbose?: boolean;
     }) => {
       const tier = opts.tier === 'all' ? null : Number(opts.tier);
       const difficulty = opts.difficulty as SettingsMode;
       const numWaves = Number(opts.waves);
+      const simRuns = Number(opts.simRuns);
+      const reporter = createReporter(opts.format);
       const client = new ApiClient(opts.url);
 
       // Health check
@@ -104,11 +117,22 @@ program
         reporter.reportTier2(tier2Results);
       }
 
-      // Tier 3 (placeholder for future phases)
+      // Tier 3
       if (tier === null || tier === 3) {
         console.log(
-          chalk.gray('\nTier 3 analysis not yet implemented.'),
+          chalk.gray(
+            `\nRunning Tier 3 analysis (${simRuns} runs per strategy)...`,
+          ),
         );
+        const tier3Results = await analyzeTier3(
+          towers,
+          enemies,
+          settings,
+          waves,
+          numWaves,
+          simRuns,
+        );
+        reporter.reportTier3(tier3Results);
       }
 
       console.log('');
@@ -127,6 +151,7 @@ program
   .option('--waves <n>', 'Number of waves to simulate', '10')
   .option('--difficulty <d>', 'Difficulty setting', 'normal')
   .option('--url <url>', 'Backend URL', 'http://localhost:3001')
+  .option('--format <f>', 'Output format (console, json)', 'console')
   .option('--verbose', 'Show per-wave details')
   .action(
     async (opts: {
@@ -134,10 +159,12 @@ program
       waves: string;
       difficulty: string;
       url: string;
+      format: string;
       verbose?: boolean;
     }) => {
       const difficulty = opts.difficulty as SettingsMode;
       const numWaves = Number(opts.waves);
+      const isJson = opts.format === 'json';
       const client = new ApiClient(opts.url);
 
       // Health check
@@ -197,82 +224,295 @@ program
       );
       const result = engine.run();
 
-      // Print per-wave details if verbose
-      if (opts.verbose) {
-        console.log('');
-        console.log(chalk.bold('--- Per-Wave Results ---'));
-        console.log(
-          `  ${'Wave'.padStart(4)}  ${'Spawned'.padStart(7)}  ${'Killed'.padStart(6)}  ${'Escaped'.padStart(7)}  ${'Damage'.padStart(8)}  ${'Earned'.padStart(8)}  ${'Spent'.padStart(8)}  ${'Built'.padStart(5)}  ${'Upgr'.padStart(4)}`,
-        );
-        console.log(`  ${'-'.repeat(70)}`);
-
-        for (const wm of result.perWaveMetrics) {
+      if (isJson) {
+        const jsonReporter = new JsonReporter();
+        jsonReporter.reportSimulation(result);
+      } else {
+        // Print per-wave details if verbose
+        if (opts.verbose) {
+          console.log('');
+          console.log(chalk.bold('--- Per-Wave Results ---'));
           console.log(
-            `  ${String(wm.wave).padStart(4)}  ${String(wm.enemiesSpawned).padStart(7)}  ${String(wm.enemiesKilled).padStart(6)}  ${String(wm.enemiesEscaped).padStart(7)}  ${String(Math.round(wm.damageDealt)).padStart(8)}  ${String(wm.coinsEarned).padStart(8)}  ${String(wm.coinsSpent).padStart(8)}  ${String(wm.towersBuilt).padStart(5)}  ${String(wm.towersUpgraded).padStart(4)}`,
+            `  ${'Wave'.padStart(4)}  ${'Spawned'.padStart(7)}  ${'Killed'.padStart(6)}  ${'Escaped'.padStart(7)}  ${'Damage'.padStart(8)}  ${'Earned'.padStart(8)}  ${'Spent'.padStart(8)}  ${'Built'.padStart(5)}  ${'Upgr'.padStart(4)}`,
           );
+          console.log(`  ${'-'.repeat(70)}`);
+
+          for (const wm of result.perWaveMetrics) {
+            console.log(
+              `  ${String(wm.wave).padStart(4)}  ${String(wm.enemiesSpawned).padStart(7)}  ${String(wm.enemiesKilled).padStart(6)}  ${String(wm.enemiesEscaped).padStart(7)}  ${String(Math.round(wm.damageDealt)).padStart(8)}  ${String(wm.coinsEarned).padStart(8)}  ${String(wm.coinsSpent).padStart(8)}  ${String(wm.towersBuilt).padStart(5)}  ${String(wm.towersUpgraded).padStart(4)}`,
+            );
+          }
         }
+
+        // Print summary
+        console.log('');
+        console.log(chalk.bold('='.repeat(50)));
+        console.log(chalk.bold('  Simulation Summary'));
+        console.log(chalk.bold('='.repeat(50)));
+        console.log(`  Strategy:        ${result.strategy}`);
+        console.log(`  Difficulty:      ${result.difficulty}`);
+        console.log(
+          `  Waves completed: ${result.wavesCompleted} / ${result.totalWaves}`,
+        );
+        console.log(`  Enemies killed:  ${result.enemiesKilled}`);
+        console.log(`  Enemies escaped: ${result.enemiesEscaped}`);
+        console.log(`  Lives remaining: ${result.livesRemaining}`);
+        console.log(`  Final coins:     ${result.finalCoins}`);
+
+        const won = result.livesRemaining > 0;
+        console.log(
+          `  Outcome:         ${won ? chalk.green('WIN') : chalk.red('LOSS')}`,
+        );
+
+        // Tower usage
+        if (Object.keys(result.towerUsage).length > 0) {
+          console.log('');
+          console.log(chalk.bold('  Tower Usage:'));
+          for (const [towerId, count] of Object.entries(result.towerUsage)) {
+            const towerDef = towers.find((t) => t.id === Number(towerId));
+            const name = towerDef?.name ?? `Tower ${towerId}`;
+            console.log(`    ${name}: ${count} placed`);
+          }
+        }
+
+        // Tower damage share
+        if (Object.keys(result.towerDamageShare).length > 0) {
+          console.log('');
+          console.log(chalk.bold('  Tower Damage Share:'));
+          for (const [towerId, share] of Object.entries(
+            result.towerDamageShare,
+          )) {
+            const towerDef = towers.find((t) => t.id === Number(towerId));
+            const name = towerDef?.name ?? `Tower ${towerId}`;
+            console.log(`    ${name}: ${(share * 100).toFixed(1)}%`);
+          }
+        }
+
+        // Enemy leak rate
+        if (Object.keys(result.enemyLeakRate).length > 0) {
+          console.log('');
+          console.log(chalk.bold('  Enemy Leak Rate:'));
+          for (const [enemyId, rate] of Object.entries(
+            result.enemyLeakRate,
+          )) {
+            const enemyDef = enemies.find((e) => e.id === Number(enemyId));
+            const name = enemyDef?.name ?? `Enemy ${enemyId}`;
+            const rateStr = (rate * 100).toFixed(1) + '%';
+            const colored =
+              rate > 0.3 ? chalk.red(rateStr) : chalk.green(rateStr);
+            console.log(`    ${name}: ${colored}`);
+          }
+        }
+
+        console.log('');
+        console.log(chalk.bold('Simulation complete.'));
+      }
+    },
+  );
+
+program
+  .command('suggest')
+  .description('Generate balance suggestions from analysis')
+  .option('--url <url>', 'Backend URL', 'http://localhost:3001')
+  .option('--difficulty <d>', 'Difficulty to analyze', 'normal')
+  .option('--waves <n>', 'Number of waves to analyze', '10')
+  .option('--sim-runs <n>', 'Number of simulation runs per strategy (Tier 3)', '3')
+  .option('--apply', 'Apply suggestions via API')
+  .option('--dry-run', 'Show API calls without executing')
+  .option('--format <f>', 'Output format (console, json)', 'console')
+  .action(
+    async (opts: {
+      url: string;
+      difficulty: string;
+      waves: string;
+      simRuns: string;
+      apply?: boolean;
+      dryRun?: boolean;
+      format: string;
+    }) => {
+      const difficulty = opts.difficulty as SettingsMode;
+      const numWaves = Number(opts.waves);
+      const simRuns = Number(opts.simRuns);
+      const reporter = createReporter(opts.format);
+      const client = new ApiClient(opts.url);
+
+      // Health check
+      console.log(chalk.gray(`Connecting to ${opts.url}...`));
+      const healthy = await client.healthCheck();
+      if (!healthy) {
+        console.error(
+          chalk.red(
+            `Backend unreachable at ${opts.url}. Is the server running?`,
+          ),
+        );
+        process.exit(1);
+      }
+      console.log(chalk.green('Backend is healthy.'));
+
+      // Fetch data
+      console.log(chalk.gray('Fetching game configuration...'));
+      const [towers, enemies, settingsArr, waves] = await Promise.all([
+        client.getTowers(),
+        client.getEnemies(),
+        client.getSettings(difficulty),
+        client.getWaves(),
+      ]);
+
+      const settings = settingsArr[0];
+      if (!settings) {
+        console.error(
+          chalk.red(`No settings found for difficulty "${difficulty}".`),
+        );
+        process.exit(1);
       }
 
-      // Print summary
-      console.log('');
-      console.log(chalk.bold('='.repeat(50)));
-      console.log(chalk.bold('  Simulation Summary'));
-      console.log(chalk.bold('='.repeat(50)));
-      console.log(`  Strategy:        ${result.strategy}`);
-      console.log(`  Difficulty:      ${result.difficulty}`);
-      console.log(
-        `  Waves completed: ${result.wavesCompleted} / ${result.totalWaves}`,
+      // Run Tier 1 analysis
+      console.log(chalk.gray('\nRunning Tier 1 analysis...'));
+      const tier1Results = analyzeTier1(towers, enemies, settings);
+      reporter.reportTier1(tier1Results);
+
+      // Run Tier 2 analysis
+      console.log(chalk.gray('\nRunning Tier 2 analysis...'));
+      const tier2Results = analyzeTier2(
+        towers,
+        enemies,
+        settings,
+        waves,
+        numWaves,
       );
-      console.log(`  Enemies killed:  ${result.enemiesKilled}`);
-      console.log(`  Enemies escaped: ${result.enemiesEscaped}`);
-      console.log(`  Lives remaining: ${result.livesRemaining}`);
-      console.log(`  Final coins:     ${result.finalCoins}`);
+      reporter.reportTier2(tier2Results);
 
-      const won = result.livesRemaining > 0;
+      // Run Tier 3 analysis
       console.log(
-        `  Outcome:         ${won ? chalk.green('WIN') : chalk.red('LOSS')}`,
+        chalk.gray(
+          `\nRunning Tier 3 analysis (${simRuns} runs per strategy)...`,
+        ),
       );
+      const tier3Results = await analyzeTier3(
+        towers,
+        enemies,
+        settings,
+        waves,
+        numWaves,
+        simRuns,
+      );
+      reporter.reportTier3(tier3Results);
 
-      // Tower usage
-      if (Object.keys(result.towerUsage).length > 0) {
-        console.log('');
-        console.log(chalk.bold('  Tower Usage:'));
-        for (const [towerId, count] of Object.entries(result.towerUsage)) {
-          const towerDef = towers.find((t) => t.id === Number(towerId));
-          const name = towerDef?.name ?? `Tower ${towerId}`;
-          console.log(`    ${name}: ${count} placed`);
-        }
-      }
+      // Generate suggestions
+      console.log(chalk.gray('\nGenerating suggestions...'));
+      const suggestions = generateSuggestions(
+        tier1Results,
+        tier2Results,
+        tier3Results,
+        towers,
+        enemies,
+        settings,
+      );
+      reporter.reportSuggestions(suggestions);
 
-      // Tower damage share
-      if (Object.keys(result.towerDamageShare).length > 0) {
-        console.log('');
-        console.log(chalk.bold('  Tower Damage Share:'));
-        for (const [towerId, share] of Object.entries(
-          result.towerDamageShare,
-        )) {
-          const towerDef = towers.find((t) => t.id === Number(towerId));
-          const name = towerDef?.name ?? `Tower ${towerId}`;
-          console.log(`    ${name}: ${(share * 100).toFixed(1)}%`);
-        }
-      }
-
-      // Enemy leak rate
-      if (Object.keys(result.enemyLeakRate).length > 0) {
-        console.log('');
-        console.log(chalk.bold('  Enemy Leak Rate:'));
-        for (const [enemyId, rate] of Object.entries(result.enemyLeakRate)) {
-          const enemyDef = enemies.find((e) => e.id === Number(enemyId));
-          const name = enemyDef?.name ?? `Enemy ${enemyId}`;
-          const rateStr = (rate * 100).toFixed(1) + '%';
-          const colored =
-            rate > 0.3 ? chalk.red(rateStr) : chalk.green(rateStr);
-          console.log(`    ${name}: ${colored}`);
-        }
+      // Apply or dry-run
+      if (opts.dryRun) {
+        printDryRun(suggestions);
+      } else if (opts.apply) {
+        await applySuggestions(client, suggestions);
       }
 
       console.log('');
-      console.log(chalk.bold('Simulation complete.'));
+      console.log(chalk.bold('Suggest complete.'));
+    },
+  );
+
+program
+  .command('report')
+  .description('Run analysis and output report')
+  .option('--format <f>', 'Output format (console, json)', 'console')
+  .option('--url <url>', 'Backend URL', 'http://localhost:3001')
+  .option('--difficulty <d>', 'Difficulty', 'normal')
+  .option('--waves <n>', 'Number of waves', '10')
+  .option('--sim-runs <n>', 'Number of simulation runs per strategy (Tier 3)', '3')
+  .action(
+    async (opts: {
+      format: string;
+      url: string;
+      difficulty: string;
+      waves: string;
+      simRuns: string;
+    }) => {
+      const difficulty = opts.difficulty as SettingsMode;
+      const numWaves = Number(opts.waves);
+      const simRuns = Number(opts.simRuns);
+      const reporter = createReporter(opts.format);
+      const client = new ApiClient(opts.url);
+
+      // Health check
+      console.log(chalk.gray(`Connecting to ${opts.url}...`));
+      const healthy = await client.healthCheck();
+      if (!healthy) {
+        console.error(
+          chalk.red(
+            `Backend unreachable at ${opts.url}. Is the server running?`,
+          ),
+        );
+        process.exit(1);
+      }
+      console.log(chalk.green('Backend is healthy.'));
+
+      // Fetch data
+      console.log(chalk.gray('Fetching game configuration...'));
+      const [towers, enemies, settingsArr, waves] = await Promise.all([
+        client.getTowers(),
+        client.getEnemies(),
+        client.getSettings(difficulty),
+        client.getWaves(),
+      ]);
+
+      const settings = settingsArr[0];
+      if (!settings) {
+        console.error(
+          chalk.red(`No settings found for difficulty "${difficulty}".`),
+        );
+        process.exit(1);
+      }
+
+      // Classification
+      const classifiedTowers = classifyTowers(towers);
+      const classifiedEnemies = classifyEnemies(enemies);
+      reporter.reportClassification(classifiedTowers, classifiedEnemies);
+
+      // Tier 1
+      console.log(chalk.gray('\nRunning Tier 1 analysis...'));
+      const tier1Results = analyzeTier1(towers, enemies, settings);
+      reporter.reportTier1(tier1Results);
+
+      // Tier 2
+      console.log(chalk.gray('\nRunning Tier 2 analysis...'));
+      const tier2Results = analyzeTier2(
+        towers,
+        enemies,
+        settings,
+        waves,
+        numWaves,
+      );
+      reporter.reportTier2(tier2Results);
+
+      // Tier 3
+      console.log(
+        chalk.gray(
+          `\nRunning Tier 3 analysis (${simRuns} runs per strategy)...`,
+        ),
+      );
+      const tier3Results = await analyzeTier3(
+        towers,
+        enemies,
+        settings,
+        waves,
+        numWaves,
+        simRuns,
+      );
+      reporter.reportTier3(tier3Results);
+
+      console.log('');
+      console.log(chalk.bold('Report complete.'));
     },
   );
 
