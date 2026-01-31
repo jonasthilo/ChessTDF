@@ -2,13 +2,23 @@ import type { Strategy } from '../SimulationTypes';
 import { RandomStrategy } from './RandomStrategy';
 import { PathAdjacentStrategy } from './PathAdjacentStrategy';
 import { BalancedStrategy } from './BalancedStrategy';
+import { SniperHeavyStrategy } from './SniperHeavyStrategy';
+import { RapidFireStrategy } from './RapidFireStrategy';
 
-export { RandomStrategy, PathAdjacentStrategy, BalancedStrategy };
+export {
+  RandomStrategy,
+  PathAdjacentStrategy,
+  BalancedStrategy,
+  SniperHeavyStrategy,
+  RapidFireStrategy,
+};
 
 const STRATEGIES: Record<string, () => Strategy> = {
   random: () => new RandomStrategy(),
   'path-adjacent': () => new PathAdjacentStrategy(),
   balanced: () => new BalancedStrategy(),
+  'sniper-heavy': () => new SniperHeavyStrategy(),
+  'rapid-fire': () => new RapidFireStrategy(),
 };
 
 export function getStrategy(name: string): Strategy {
@@ -21,5 +31,5 @@ export function getStrategy(name: string): Strategy {
 }
 
 export function getAllStrategyNames(): string[] {
-  return ['random', 'path-adjacent', 'balanced'];
+  return ['random', 'path-adjacent', 'balanced', 'sniper-heavy', 'rapid-fire'];
 }
