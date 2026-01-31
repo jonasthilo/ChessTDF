@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { gameApi } from '../../services/gameApi';
 import { ScreenLayout } from '../common/ScreenLayout';
-import { getTowerImage } from '../../utils/pieceAssets';
+import { ConfirmModal } from '../common/ConfirmModal';
+import { getTowerImage, getEnemyImage } from '../../utils/pieceAssets';
 import { SettingsEditor } from './settings/SettingsEditor';
 import { TowerEditor } from './settings/TowerEditor';
 import { EnemyEditor } from './settings/EnemyEditor';
@@ -15,21 +16,29 @@ import type {
 } from '../../types';
 import './SettingsScreen.css';
 
-type AdvancedTab = 'gameSettings' | 'towers' | 'towerLevels' | 'enemies';
+type AdvancedTab = 'gameModes' | 'towers' | 'towerLevels' | 'enemies';
 
 export const SettingsScreen = () => {
   const navigate = useNavigate();
 
   const [settings, setSettings] = useState<GameSettings[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<AdvancedTab>('gameSettings');
+  const [activeTab, setActiveTab] = useState<AdvancedTab>('gameModes');
   const [towers, setTowers] = useState<TowerDefinitionWithLevels[]>([]);
   const [enemies, setEnemies] = useState<EnemyDefinition[]>([]);
   const [saving, setSaving] = useState(false);
-  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [saveMessage, setSaveMessage] = useState<{
+    text: string;
+    type: 'success' | 'error';
+  } | null>(null);
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showBackConfirm, setShowBackConfirm] = useState(false);
 
-  // Tower levels editor state
+  // Selector state per tab
+  const [selectedSettingId, setSelectedSettingId] = useState<number | null>(null);
+  const [selectedTowerId, setSelectedTowerId] = useState<number | null>(null);
   const [selectedTowerForLevels, setSelectedTowerForLevels] = useState<number | null>(null);
+  const [selectedEnemyId, setSelectedEnemyId] = useState<number | null>(null);
 
   // Edit state for each category
   const [editedSettings, setEditedSettings] = useState<Map<number, Partial<GameSettings>>>(
@@ -49,6 +58,33 @@ export const SettingsScreen = () => {
     loadAllData();
   }, []);
 
+  // Auto-dismiss save message after 3 seconds
+  useEffect(() => {
+    if (saveMessage?.type === 'success') {
+      saveTimerRef.current = setTimeout(() => setSaveMessage(null), 3000);
+      return () => {
+        if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+      };
+    }
+  }, [saveMessage]);
+
+  const getDirtyCategories = useCallback((): string[] => {
+    const categories: string[] = [];
+    if (editedSettings.size > 0) categories.push('Game Modes');
+    if (editedTowers.size > 0) categories.push('Towers');
+    if (editedTowerLevels.size > 0) categories.push('Tower Levels');
+    if (editedEnemies.size > 0) categories.push('Enemies');
+    return categories;
+  }, [editedSettings, editedTowers, editedTowerLevels, editedEnemies]);
+
+  const handleBack = () => {
+    if (getDirtyCategories().length > 0) {
+      setShowBackConfirm(true);
+    } else {
+      navigate('/');
+    }
+  };
+
   const loadAllData = async () => {
     try {
       const [allSettings, towersData, enemiesData] = await Promise.all([
@@ -59,6 +95,18 @@ export const SettingsScreen = () => {
       setSettings(allSettings);
       setTowers(towersData);
       setEnemies(enemiesData);
+
+      // Auto-select first item in each category
+      if (allSettings.length > 0 && allSettings[0]?.id != null) {
+        setSelectedSettingId(allSettings[0].id);
+      }
+      if (towersData.length > 0) {
+        setSelectedTowerId(towersData[0]?.id ?? null);
+        setSelectedTowerForLevels(towersData[0]?.id ?? null);
+      }
+      if (enemiesData.length > 0) {
+        setSelectedEnemyId(enemiesData[0]?.id ?? null);
+      }
     } catch (error) {
       console.error('Failed to load data:', error);
     } finally {
@@ -107,6 +155,8 @@ export const SettingsScreen = () => {
   const handleSaveAll = async () => {
     setSaving(true);
     setSaveMessage(null);
+
+    const savedCategories = getDirtyCategories();
 
     try {
       const promises: Promise<unknown>[] = [];
@@ -157,7 +207,10 @@ export const SettingsScreen = () => {
       setEditedEnemies(new Map());
 
       await loadAllData();
-      setSaveMessage('Changes saved successfully');
+      setSaveMessage({
+        text: `${savedCategories.join(', ')} saved successfully`,
+        type: 'success',
+      });
     } catch (error: unknown) {
       console.error('Failed to save changes:', error);
       let errorMessage = 'Failed to save changes';
@@ -169,7 +222,7 @@ export const SettingsScreen = () => {
       } else if (error instanceof Error) {
         errorMessage = error.message;
       }
-      setSaveMessage(errorMessage);
+      setSaveMessage({ text: errorMessage, type: 'error' });
     } finally {
       setSaving(false);
     }
@@ -197,7 +250,7 @@ export const SettingsScreen = () => {
       >
         {saving ? 'Saving...' : 'Save'}
       </button>
-      <button className="btn btn-dark" onClick={() => navigate('/')}>
+      <button className="btn btn-dark" onClick={handleBack}>
         Back
       </button>
     </>
@@ -213,16 +266,21 @@ export const SettingsScreen = () => {
     );
   }
 
+  const selectedSetting = settings.find((s) => s.id === selectedSettingId);
+  const selectedTower = towers.find((t) => t.id === selectedTowerId);
+  const selectedTowerLevels = towers.find((t) => t.id === selectedTowerForLevels);
+  const selectedEnemy = enemies.find((e) => e.id === selectedEnemyId);
+
   return (
     <ScreenLayout className="settings-screen" navCenter={navCenter} navRight={navRight}>
       <div className="screen-body">
         <div className="settings-panel">
           <div className="advanced-tabs">
             <button
-              className={`btn btn-dark btn-sm tab-button ${activeTab === 'gameSettings' ? 'active' : ''}`}
-              onClick={() => setActiveTab('gameSettings')}
+              className={`btn btn-dark btn-sm tab-button ${activeTab === 'gameModes' ? 'active' : ''}`}
+              onClick={() => setActiveTab('gameModes')}
             >
-              Game Settings
+              Game Modes
             </button>
             <button
               className={`btn btn-dark btn-sm tab-button ${activeTab === 'towers' ? 'active' : ''}`}
@@ -245,42 +303,78 @@ export const SettingsScreen = () => {
           </div>
 
           <div className="advanced-content">
-            {activeTab === 'gameSettings' && (
-              <div className="definitions-list">
-                {settings.map((setting) => (
-                  <SettingsEditor
-                    key={setting.id}
-                    setting={setting}
-                    edits={editedSettings.get(setting.id ?? 0) ?? {}}
-                    onChange={(field, value) =>
-                      handleSettingsChange(setting.id ?? 0, field, value)
-                    }
-                  />
-                ))}
+            {activeTab === 'gameModes' && (
+              <div className="selector-detail-layout">
+                <div className="item-selector">
+                  {settings.map((setting) => (
+                    <button
+                      key={setting.id}
+                      className={`btn btn-dark btn-sm selector-button ${selectedSettingId === setting.id ? 'active' : ''}`}
+                      onClick={() => setSelectedSettingId(setting.id ?? null)}
+                    >
+                      {setting.mode.charAt(0).toUpperCase() + setting.mode.slice(1)}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="detail-panel">
+                  {selectedSetting ? (
+                    <SettingsEditor
+                      setting={selectedSetting}
+                      edits={editedSettings.get(selectedSetting.id ?? 0) ?? {}}
+                      onChange={(field, value) =>
+                        handleSettingsChange(selectedSetting.id ?? 0, field, value)
+                      }
+                    />
+                  ) : (
+                    <div className="detail-empty">Select a game mode</div>
+                  )}
+                </div>
               </div>
             )}
 
             {activeTab === 'towers' && (
-              <div className="definitions-list">
-                {towers.map((tower) => (
-                  <TowerEditor
-                    key={tower.id}
-                    tower={tower}
-                    edits={editedTowers.get(tower.id) ?? {}}
-                    onChange={(field, value) => handleTowerChange(tower.id, field, value)}
-                  />
-                ))}
+              <div className="selector-detail-layout">
+                <div className="item-selector">
+                  {towers.map((tower) => (
+                    <button
+                      key={tower.id}
+                      className={`btn btn-dark btn-sm selector-button ${selectedTowerId === tower.id ? 'active' : ''}`}
+                      onClick={() => setSelectedTowerId(tower.id)}
+                    >
+                      <img
+                        src={getTowerImage(tower.id)}
+                        alt={tower.name}
+                        className="piece-icon-small"
+                      />
+                      {tower.name}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="detail-panel">
+                  {selectedTower ? (
+                    <TowerEditor
+                      tower={selectedTower}
+                      edits={editedTowers.get(selectedTower.id) ?? {}}
+                      onChange={(field, value) =>
+                        handleTowerChange(selectedTower.id, field, value)
+                      }
+                    />
+                  ) : (
+                    <div className="detail-empty">Select a tower</div>
+                  )}
+                </div>
               </div>
             )}
 
             {activeTab === 'towerLevels' && (
-              <div className="tower-levels-section">
-                <div className="tower-levels-selector">
-                  <h3>Select Tower Type</h3>
+              <div className="selector-detail-layout">
+                <div className="item-selector">
                   {towers.map((tower) => (
                     <button
                       key={tower.id}
-                      className={`btn btn-dark btn-sm tower-type-button ${selectedTowerForLevels === tower.id ? 'active' : ''}`}
+                      className={`btn btn-dark btn-sm selector-button ${selectedTowerForLevels === tower.id ? 'active' : ''}`}
                       onClick={() => setSelectedTowerForLevels(tower.id)}
                     >
                       <img
@@ -293,65 +387,101 @@ export const SettingsScreen = () => {
                   ))}
                 </div>
 
-                {selectedTowerForLevels && (
-                  <div className="tower-levels-editor">
-                    {(() => {
-                      const tower = towers.find((t) => t.id === selectedTowerForLevels);
-                      if (!tower) return null;
-
-                      return (
-                        <>
-                          <h3>
-                            {tower.name} Levels (Max: {tower.maxLevel})
-                          </h3>
-                          <div className="levels-list">
-                            {tower.levels
-                              .filter((level) => level.level <= tower.maxLevel)
-                              .sort((a, b) => a.level - b.level)
-                              .map((level) => (
-                                <TowerLevelEditor
-                                  key={`${tower.id}-${level.level}`}
-                                  level={level}
-                                  edits={
-                                    editedTowerLevels.get(`${tower.id}-${level.level}`) ?? {}
-                                  }
-                                  onChange={(field, value) =>
-                                    handleTowerLevelChange(tower.id, level.level, field, value)
-                                  }
-                                />
-                              ))}
-                          </div>
-                        </>
-                      );
-                    })()}
-                  </div>
-                )}
+                <div className="detail-panel-scroll">
+                  {selectedTowerLevels ? (
+                    <>
+                      <h3>
+                        {selectedTowerLevels.name} Levels (Max: {selectedTowerLevels.maxLevel})
+                      </h3>
+                      <div className="levels-list">
+                        {selectedTowerLevels.levels
+                          .filter((level) => level.level <= selectedTowerLevels.maxLevel)
+                          .sort((a, b) => a.level - b.level)
+                          .map((level) => (
+                            <TowerLevelEditor
+                              key={`${selectedTowerLevels.id}-${level.level}`}
+                              level={level}
+                              edits={
+                                editedTowerLevels.get(
+                                  `${selectedTowerLevels.id}-${level.level}`
+                                ) ?? {}
+                              }
+                              onChange={(field, value) =>
+                                handleTowerLevelChange(
+                                  selectedTowerLevels.id,
+                                  level.level,
+                                  field,
+                                  value
+                                )
+                              }
+                            />
+                          ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="detail-empty">Select a tower type</div>
+                  )}
+                </div>
               </div>
             )}
 
             {activeTab === 'enemies' && (
-              <div className="definitions-list">
-                {enemies.map((enemy) => (
-                  <EnemyEditor
-                    key={enemy.id}
-                    enemy={enemy}
-                    edits={editedEnemies.get(enemy.id) ?? {}}
-                    onChange={(field, value) => handleEnemyChange(enemy.id, field, value)}
-                  />
-                ))}
+              <div className="selector-detail-layout">
+                <div className="item-selector">
+                  {enemies.map((enemy) => (
+                    <button
+                      key={enemy.id}
+                      className={`btn btn-dark btn-sm selector-button ${selectedEnemyId === enemy.id ? 'active' : ''}`}
+                      onClick={() => setSelectedEnemyId(enemy.id)}
+                    >
+                      <img
+                        src={getEnemyImage(enemy.id)}
+                        alt={enemy.name}
+                        className="piece-icon-small"
+                      />
+                      {enemy.name}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="detail-panel">
+                  {selectedEnemy ? (
+                    <EnemyEditor
+                      enemy={selectedEnemy}
+                      edits={editedEnemies.get(selectedEnemy.id) ?? {}}
+                      onChange={(field, value) =>
+                        handleEnemyChange(selectedEnemy.id, field, value)
+                      }
+                    />
+                  ) : (
+                    <div className="detail-empty">Select an enemy</div>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
-          {saveMessage && (
-            <div
-              className={`save-message ${saveMessage.includes('success') ? 'success' : 'error'}`}
-            >
-              {saveMessage}
-            </div>
-          )}
         </div>
+
+        {saveMessage && (
+          <div className={`save-message ${saveMessage.type}`}>
+            {saveMessage.text}
+          </div>
+        )}
       </div>
+
+      <ConfirmModal
+        isOpen={showBackConfirm}
+        title="Unsaved Changes"
+        message={`You have unsaved changes in: ${getDirtyCategories().join(', ')}. Discard changes and go back?`}
+        cancelLabel="Stay"
+        confirmLabel="Discard"
+        onCancel={() => setShowBackConfirm(false)}
+        onConfirm={() => {
+          setShowBackConfirm(false);
+          navigate('/');
+        }}
+      />
     </ScreenLayout>
   );
 };
