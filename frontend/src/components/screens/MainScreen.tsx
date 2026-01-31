@@ -4,6 +4,7 @@ import { useGameStore } from '../../state/gameStore';
 import { gameApi } from '../../services/gameApi';
 import { ScreenLayout } from '../common/ScreenLayout';
 import { DifficultySelector } from '../common/DifficultySelector';
+import { StatisticsPanel } from '../common/StatisticsPanel';
 import { capitalize } from '../../utils/string';
 import type { GameSettings } from '../../types';
 import './MainScreen.css';
@@ -58,24 +59,33 @@ export const MainScreen = () => {
     return () => clearTimeout(resetTimer);
   }, [resultFading, resetGame]);
 
-  const [visible, setVisible] = useState(false);
-  const [closing, setClosing] = useState(false);
-  const [panelPos, setPanelPos] = useState<{ top: number; right: number } | null>(null);
+  // Difficulty panel state
+  const [diffVisible, setDiffVisible] = useState(false);
+  const [diffClosing, setDiffClosing] = useState(false);
+  const [diffPos, setDiffPos] = useState<{ top: number; right: number } | null>(null);
   const [settings, setSettings] = useState<GameSettings[]>([]);
-  const panelRef = useRef<HTMLDivElement>(null);
-  const btnRef = useRef<HTMLButtonElement>(null);
+  const diffPanelRef = useRef<HTMLDivElement>(null);
+  const diffBtnRef = useRef<HTMLButtonElement>(null);
+
+  // Statistics panel state
+  const [statsVisible, setStatsVisible] = useState(false);
+  const [statsClosing, setStatsClosing] = useState(false);
+  const [statsPos, setStatsPos] = useState<{ top: number; right: number } | null>(null);
+  const statsPanelRef = useRef<HTMLDivElement>(null);
+  const statsBtnRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     gameApi.getAllSettings().then(setSettings).catch(console.error);
   }, []);
 
-  const closePanel = useCallback(() => {
-    setClosing(true);
+  // Difficulty panel controls
+  const closeDiffPanel = useCallback(() => {
+    setDiffClosing(true);
     const onEnd = () => {
-      setVisible(false);
-      setClosing(false);
+      setDiffVisible(false);
+      setDiffClosing(false);
     };
-    const el = panelRef.current;
+    const el = diffPanelRef.current;
     if (el) {
       el.addEventListener('animationend', onEnd, { once: true });
     } else {
@@ -83,36 +93,86 @@ export const MainScreen = () => {
     }
   }, []);
 
-  const togglePanel = useCallback(() => {
-    if (visible) {
-      closePanel();
+  // Statistics panel controls
+  const closeStatsPanel = useCallback(() => {
+    setStatsClosing(true);
+    const onEnd = () => {
+      setStatsVisible(false);
+      setStatsClosing(false);
+    };
+    const el = statsPanelRef.current;
+    if (el) {
+      el.addEventListener('animationend', onEnd, { once: true });
     } else {
-      if (btnRef.current) {
-        const rect = btnRef.current.getBoundingClientRect();
-        setPanelPos({
+      onEnd();
+    }
+  }, []);
+
+  const toggleDiffPanel = useCallback(() => {
+    if (statsVisible && !statsClosing) closeStatsPanel();
+    if (diffVisible) {
+      closeDiffPanel();
+    } else {
+      if (diffBtnRef.current) {
+        const rect = diffBtnRef.current.getBoundingClientRect();
+        setDiffPos({
           top: rect.bottom + 8,
           right: window.innerWidth - rect.right,
         });
       }
-      setVisible(true);
+      setDiffVisible(true);
     }
-  }, [visible, closePanel]);
+  }, [diffVisible, closeDiffPanel, statsVisible, statsClosing, closeStatsPanel]);
 
+  const toggleStatsPanel = useCallback(() => {
+    if (diffVisible && !diffClosing) closeDiffPanel();
+    if (statsVisible) {
+      closeStatsPanel();
+    } else {
+      if (statsBtnRef.current) {
+        const rect = statsBtnRef.current.getBoundingClientRect();
+        setStatsPos({
+          top: rect.bottom + 8,
+          right: window.innerWidth - rect.right,
+        });
+      }
+      setStatsVisible(true);
+    }
+  }, [statsVisible, closeStatsPanel, diffVisible, diffClosing, closeDiffPanel]);
+
+  // Click-outside for difficulty panel
   useEffect(() => {
-    if (!visible || closing) return;
+    if (!diffVisible || diffClosing) return;
     const handleClick = (e: MouseEvent) => {
       if (
-        panelRef.current &&
-        !panelRef.current.contains(e.target as Node) &&
-        btnRef.current &&
-        !btnRef.current.contains(e.target as Node)
+        diffPanelRef.current &&
+        !diffPanelRef.current.contains(e.target as Node) &&
+        diffBtnRef.current &&
+        !diffBtnRef.current.contains(e.target as Node)
       ) {
-        closePanel();
+        closeDiffPanel();
       }
     };
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [visible, closing, closePanel]);
+  }, [diffVisible, diffClosing, closeDiffPanel]);
+
+  // Click-outside for statistics panel
+  useEffect(() => {
+    if (!statsVisible || statsClosing) return;
+    const handleClick = (e: MouseEvent) => {
+      if (
+        statsPanelRef.current &&
+        !statsPanelRef.current.contains(e.target as Node) &&
+        statsBtnRef.current &&
+        !statsBtnRef.current.contains(e.target as Node)
+      ) {
+        closeStatsPanel();
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [statsVisible, statsClosing, closeStatsPanel]);
 
   const handleStartGame = async () => {
     const gameId = await startGame();
@@ -142,13 +202,17 @@ export const MainScreen = () => {
       <button className="btn btn-dark" onClick={() => navigate('/settings')}>
         Configuration
       </button>
-      <button className="btn btn-dark" onClick={() => navigate('/statistics')}>
+      <button
+        ref={statsBtnRef}
+        className={`btn btn-dark ${statsVisible ? 'active' : ''}`}
+        onClick={toggleStatsPanel}
+      >
         Statistics
       </button>
       <button
-        ref={btnRef}
-        className={`btn btn-dark nav-difficulty-btn ${visible ? 'active' : ''}`}
-        onClick={togglePanel}
+        ref={diffBtnRef}
+        className={`btn btn-dark nav-difficulty-btn ${diffVisible ? 'active' : ''}`}
+        onClick={toggleDiffPanel}
       >
         Game Mode: {capitalize(selectedDifficulty)}
       </button>
@@ -174,17 +238,27 @@ export const MainScreen = () => {
       }
       cards={hasResult ? resultCards : featureCards}
     >
-      {visible && settings.length > 0 && panelPos && (
+      {diffVisible && settings.length > 0 && diffPos && (
         <div
-          ref={panelRef}
-          className={`difficulty-panel ${closing ? 'closing' : ''}`}
-          style={{ top: panelPos.top, right: panelPos.right }}
+          ref={diffPanelRef}
+          className={`difficulty-panel ${diffClosing ? 'closing' : ''}`}
+          style={{ top: diffPos.top, right: diffPos.right }}
         >
           <DifficultySelector
             settings={settings}
             selectedMode={selectedDifficulty}
             onSelectMode={setDifficulty}
           />
+        </div>
+      )}
+
+      {statsVisible && statsPos && (
+        <div
+          ref={statsPanelRef}
+          className={`statistics-panel ${statsClosing ? 'closing' : ''}`}
+          style={{ top: statsPos.top, right: statsPos.right }}
+        >
+          <StatisticsPanel />
         </div>
       )}
     </ScreenLayout>

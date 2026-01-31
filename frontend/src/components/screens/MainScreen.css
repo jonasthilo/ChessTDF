@@ -80,8 +80,202 @@
   opacity: 0;
 }
 
+/* Statistics dropdown panel */
+.statistics-panel {
+  position: fixed;
+  width: 380px;
+  z-index: 50;
+  background: var(--color-bg-tertiary);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--border-radius-default);
+  padding: 0.75rem;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+  transform-origin: top right;
+  animation: panel-open 0.2s ease-out forwards;
+}
+
+.statistics-panel.closing {
+  animation: panel-close 0.2s ease-in forwards;
+}
+
+/* Statistics panel tabs */
+.stats-panel-tabs {
+  display: flex;
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.stats-panel-tab {
+  flex: 1;
+}
+
+.stats-panel-content {
+  min-height: 80px;
+}
+
+.stats-panel-loading,
+.stats-panel-empty {
+  text-align: center;
+  color: var(--text-muted);
+  padding: 1.5rem 0;
+  font-size: 0.85rem;
+}
+
+/* Recent game card */
+.stats-recent-card {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--border-radius-small);
+  padding: 0.6rem 0.8rem;
+  border-left: 4px solid transparent;
+}
+
+.stats-recent-card.win {
+  border-left-color: var(--color-success);
+}
+
+.stats-recent-card.loss {
+  border-left-color: var(--color-danger);
+}
+
+.stats-recent-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+}
+
+.stats-outcome-badge {
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-outcome-badge.win {
+  background: rgba(77, 184, 160, 0.25);
+  color: var(--color-success);
+}
+
+.stats-outcome-badge.loss {
+  background: rgba(232, 93, 117, 0.25);
+  color: var(--color-danger);
+}
+
+.stats-recent-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.3rem;
+}
+
+.stats-recent-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.3rem 0.4rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--border-radius-small);
+  gap: 0.1rem;
+}
+
+.stats-recent-label {
+  color: var(--text-muted);
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-recent-value {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--text-light);
+}
+
+.stats-recent-date {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* Highscores grid */
+.stats-scores {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stats-score-row {
+  display: grid;
+  grid-template-columns: 32px 1fr 1fr 1fr 1.4fr;
+  align-items: center;
+  padding: 0.4rem 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--border-radius-small);
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.stats-score-row > span:first-child {
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.stats-score-header {
+  background: none;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-muted);
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+}
+
+.stats-score-medal {
+  color: var(--color-accent-primary);
+}
+
+/* Overall grid */
+.stats-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.35rem;
+}
+
+.stats-overview-item {
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0.6rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: var(--border-radius-small);
+  gap: 0.15rem;
+}
+
+.stats-overview-item.highlight {
+  background: rgba(244, 197, 66, 0.1);
+  border: 1px solid rgba(244, 197, 66, 0.25);
+}
+
+.stats-overview-label {
+  color: var(--text-muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-overview-value {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-light);
+}
+
+.stats-overview-item.highlight .stats-overview-value {
+  color: var(--color-accent-primary);
+}
+
 @media (max-width: 640px) {
-  .difficulty-panel {
+  .difficulty-panel,
+  .statistics-panel {
     right: 0.5rem !important;
     left: 0.5rem;
     width: auto;
