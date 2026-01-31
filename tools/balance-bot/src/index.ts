@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import { ApiClient } from './api/client';
+import { GamePlayClient } from './api/GamePlayClient';
 import { classifyTowers, classifyEnemies } from './analysis/Classifier';
 import { analyzeTier1 } from './analysis/Tier1CostEfficiency';
 import { analyzeTier2 } from './analysis/Tier2WaveScaling';
@@ -14,7 +15,9 @@ import { ConsoleReporter } from './output/ConsoleReporter';
 import { JsonReporter } from './output/JsonReporter';
 import { generateSuggestions } from './suggestions/SuggestionEngine';
 import { applySuggestions, printDryRun } from './suggestions/PatchGenerator';
-import type { SettingsMode } from './types';
+import { GameBot } from './bot/GameBot';
+import type { BotRunResult } from './bot/BotTypes';
+import type { SettingsMode, GameMode } from './types';
 
 const program = new Command();
 
@@ -516,4 +519,194 @@ program
     },
   );
 
+program
+  .command('play')
+  .description('Play games via API (creates real game sessions)')
+  .option(
+    '--strategy <name>',
+    `Strategy to use (${getAllStrategyNames().join(', ')})`,
+    'balanced',
+  )
+  .option('--difficulty <d>', 'Difficulty', 'normal')
+  .option('--waves <n>', 'Number of waves', '10')
+  .option('--game-mode <m>', 'Game mode (10waves, 20waves, endless)', '10waves')
+  .option('--url <url>', 'Backend URL', 'http://localhost:3001')
+  .option('-n <count>', 'Number of games to play', '1')
+  .option('--compare', 'Play with all strategies and compare')
+  .option('--all-strategies', 'Play N games with each strategy')
+  .option('--verbose', 'Show per-wave details')
+  .action(
+    async (opts: {
+      strategy: string;
+      difficulty: string;
+      waves: string;
+      gameMode: string;
+      url: string;
+      n: string;
+      compare?: boolean;
+      allStrategies?: boolean;
+      verbose?: boolean;
+    }) => {
+      const difficulty = opts.difficulty as SettingsMode;
+      const gameMode = opts.gameMode as GameMode;
+      const numWaves = Number(opts.waves);
+      const numGames = Number(opts.n);
+      const configClient = new ApiClient(opts.url);
+      const gamePlayClient = new GamePlayClient(opts.url);
+
+      // Health check
+      console.log(chalk.gray(`Connecting to ${opts.url}...`));
+      const healthy = await configClient.healthCheck();
+      if (!healthy) {
+        console.error(
+          chalk.red(
+            `Backend unreachable at ${opts.url}. Is the server running?`,
+          ),
+        );
+        process.exit(1);
+      }
+      console.log(chalk.green('Backend is healthy.'));
+
+      // Determine which strategies to run
+      const strategyNames =
+        opts.compare || opts.allStrategies
+          ? getAllStrategyNames()
+          : [opts.strategy];
+
+      const allResults: BotRunResult[] = [];
+
+      for (const stratName of strategyNames) {
+        let strategy;
+        try {
+          strategy = getStrategy(stratName);
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          console.error(chalk.red(msg));
+          continue;
+        }
+
+        const gamesForStrategy = opts.compare ? 1 : numGames;
+
+        console.log('');
+        console.log(
+          chalk.bold(
+            `Playing ${gamesForStrategy} game(s) with strategy "${strategy.name}" (${difficulty}, ${gameMode}, ${numWaves} waves)`,
+          ),
+        );
+
+        for (let g = 1; g <= gamesForStrategy; g++) {
+          if (gamesForStrategy > 1) {
+            console.log(chalk.gray(`\n--- Game ${g}/${gamesForStrategy} ---`));
+          }
+
+          const bot = new GameBot(
+            gamePlayClient,
+            configClient,
+            strategy,
+            difficulty,
+            gameMode,
+            numWaves,
+            opts.verbose,
+          );
+
+          try {
+            const result = await bot.play();
+            allResults.push(result);
+            printBotResult(result);
+          } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : String(err);
+            console.error(chalk.red(`  Game failed: ${msg}`));
+          }
+        }
+      }
+
+      // Print comparison table if multiple results
+      if (allResults.length > 1) {
+        printComparisonTable(allResults);
+      }
+
+      console.log('');
+      console.log(chalk.bold('Play complete.'));
+    },
+  );
+
 program.parse();
+
+function printBotResult(result: BotRunResult): void {
+  const outcomeStr =
+    result.outcome === 'win' ? chalk.green('WIN') : chalk.red('LOSS');
+
+  console.log('');
+  console.log(chalk.bold('  Game Result'));
+  console.log(`  Game ID:         ${result.gameId}`);
+  console.log(`  Strategy:        ${result.strategy}`);
+  console.log(`  Difficulty:      ${result.difficulty}`);
+  console.log(`  Game mode:       ${result.gameMode}`);
+  console.log(
+    `  Waves completed: ${result.wavesCompleted} / ${result.totalWaves}`,
+  );
+  console.log(`  Enemies killed:  ${result.enemiesKilled}`);
+  console.log(`  Enemies escaped: ${result.enemiesEscaped}`);
+  console.log(`  Lives remaining: ${result.livesRemaining}`);
+  console.log(`  Final coins:     ${result.finalCoins}`);
+  console.log(`  Outcome:         ${outcomeStr}`);
+}
+
+function printComparisonTable(results: BotRunResult[]): void {
+  console.log('');
+  console.log(chalk.bold('='.repeat(90)));
+  console.log(chalk.bold('  Comparison Table'));
+  console.log(chalk.bold('='.repeat(90)));
+
+  const header = [
+    'Strategy'.padEnd(16),
+    'Outcome'.padEnd(8),
+    'Waves'.padStart(7),
+    'Killed'.padStart(8),
+    'Escaped'.padStart(9),
+    'Lives'.padStart(7),
+    'Coins'.padStart(8),
+  ].join('  ');
+  console.log(`  ${header}`);
+  console.log(`  ${'-'.repeat(86)}`);
+
+  for (const r of results) {
+    const outcomeRaw = r.outcome === 'win' ? 'WIN' : 'LOSS';
+    const outcomeColored =
+      r.outcome === 'win'
+        ? chalk.green(outcomeRaw.padEnd(8))
+        : chalk.red(outcomeRaw.padEnd(8));
+    const row = [
+      r.strategy.padEnd(16),
+      outcomeColored,
+      `${r.wavesCompleted}/${r.totalWaves}`.padStart(7),
+      String(r.enemiesKilled).padStart(8),
+      String(r.enemiesEscaped).padStart(9),
+      String(r.livesRemaining).padStart(7),
+      String(r.finalCoins).padStart(8),
+    ].join('  ');
+    console.log(`  ${row}`);
+  }
+
+  // Summary by strategy
+  const strategyGroups = new Map<string, BotRunResult[]>();
+  for (const r of results) {
+    const existing = strategyGroups.get(r.strategy);
+    if (existing) {
+      existing.push(r);
+    } else {
+      strategyGroups.set(r.strategy, [r]);
+    }
+  }
+
+  if (strategyGroups.size > 1 || results.length > strategyGroups.size) {
+    console.log('');
+    console.log(chalk.bold('  Win Rate by Strategy:'));
+    for (const [name, group] of strategyGroups) {
+      const wins = group.filter((r) => r.outcome === 'win').length;
+      const total = group.length;
+      const pct = ((wins / total) * 100).toFixed(0);
+      console.log(`    ${name}: ${wins}/${total} (${pct}%)`);
+    }
+  }
+}
