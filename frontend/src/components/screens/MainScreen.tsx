@@ -41,29 +41,21 @@ export const MainScreen = () => {
   const enemiesKilled = useGameStore((state) => state.enemiesKilled);
   const resetGame = useGameStore((state) => state.resetGame);
 
-  const [showResult, setShowResult] = useState(false);
   const [resultFading, setResultFading] = useState(false);
-  const [resultSnap, setResultSnap] = useState<{ result: 'win' | 'loss'; waves: number; kills: number } | null>(null);
 
   useEffect(() => {
-    if (gameResult) {
-      setResultSnap({ result: gameResult, waves: wavesSurvived, kills: enemiesKilled });
-      setShowResult(true);
-      setResultFading(false);
-      const timer = setTimeout(() => setResultFading(true), 3_000);
-      return () => clearTimeout(timer);
-    }
-  }, [gameResult, wavesSurvived, enemiesKilled]);
+    if (!gameResult) return;
+    const fadeTimer = setTimeout(() => setResultFading(true), 3_000);
+    return () => clearTimeout(fadeTimer);
+  }, [gameResult]);
 
   useEffect(() => {
     if (!resultFading) return;
-    const timer = setTimeout(() => {
-      setShowResult(false);
+    const resetTimer = setTimeout(() => {
       setResultFading(false);
-      setResultSnap(null);
       resetGame();
     }, 600);
-    return () => clearTimeout(timer);
+    return () => clearTimeout(resetTimer);
   }, [resultFading, resetGame]);
 
   const [visible, setVisible] = useState(false);
@@ -129,20 +121,21 @@ export const MainScreen = () => {
     }
   };
 
-  const isVictory = resultSnap?.result === 'win';
+  const hasResult = gameResult !== null;
+  const isVictory = gameResult === 'win';
 
-  const resultCards = resultSnap ? (
+  const resultCards = (
     <>
       <div className="screen-card-item end-stat-card">
-        <span className="end-stat-value">{resultSnap.waves}</span>
+        <span className="end-stat-value">{wavesSurvived}</span>
         <h3 className="screen-card-title">Waves Survived</h3>
       </div>
       <div className="screen-card-item end-stat-card">
-        <span className="end-stat-value">{resultSnap.kills}</span>
+        <span className="end-stat-value">{enemiesKilled}</span>
         <h3 className="screen-card-title">Enemies Defeated</h3>
       </div>
     </>
-  ) : null;
+  );
 
   const navRight = (
     <>
@@ -170,16 +163,16 @@ export const MainScreen = () => {
       className={`main-screen ${resultFading ? 'result-fading' : ''}`}
       navRight={navRight}
       watermarks
-      heading={showResult ? (isVictory ? 'Victory!' : 'Checkmate!') : 'Defend Your Kingdom'}
-      headingClassName={showResult ? `end-title ${isVictory ? 'victory' : 'defeat'}` : undefined}
+      heading={hasResult ? (isVictory ? 'Victory!' : 'Checkmate!') : 'Defend Your Kingdom'}
+      headingClassName={hasResult ? `end-title ${isVictory ? 'victory' : 'defeat'}` : undefined}
       subtitle={
-        showResult
+        hasResult
           ? isVictory
             ? 'You held the line against every wave'
             : 'The enemy army has broken through'
           : 'Strategic tower defense with chess pieces'
       }
-      cards={showResult ? resultCards : featureCards}
+      cards={hasResult ? resultCards : featureCards}
     >
       {visible && settings.length > 0 && panelPos && (
         <div
