@@ -48,6 +48,14 @@ export class ApiClient {
     await this.patch(`/api/config/settings/${id}`, body);
   }
 
+  async putTowerLevel(
+    towerId: number,
+    level: number,
+    body: Record<string, unknown>,
+  ): Promise<void> {
+    await this.put(`/api/config/towers/${towerId}/levels/${level}`, body);
+  }
+
   async healthCheck(): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/health`);
@@ -86,6 +94,25 @@ export class ApiClient {
       const text = await response.text().catch(() => '');
       throw new Error(
         `PATCH ${path} failed (${response.status}): ${text || response.statusText}`,
+      );
+    }
+  }
+
+  private async put(
+    path: string,
+    body: Record<string, unknown>,
+  ): Promise<void> {
+    const url = `${this.baseUrl}${path}`;
+    const response = await fetch(url, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => '');
+      throw new Error(
+        `PUT ${path} failed (${response.status}): ${text || response.statusText}`,
       );
     }
   }
