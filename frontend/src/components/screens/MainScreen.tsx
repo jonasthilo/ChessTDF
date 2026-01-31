@@ -1,13 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { gameApi } from '../../services/gameApi';
 import { ScreenLayout } from '../common/ScreenLayout';
 import { DifficultySelector } from '../common/DifficultySelector';
+import { capitalize } from '../../utils/string';
 import type { GameSettings } from '../../types';
 import './MainScreen.css';
-
-const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1);
 
 const featureCards = (
   <>
@@ -44,11 +43,11 @@ export const MainScreen = () => {
 
   const [showResult, setShowResult] = useState(false);
   const [resultFading, setResultFading] = useState(false);
-  const resultRef = useRef<{ result: 'win' | 'loss'; waves: number; kills: number } | null>(null);
+  const [resultSnap, setResultSnap] = useState<{ result: 'win' | 'loss'; waves: number; kills: number } | null>(null);
 
   useEffect(() => {
     if (gameResult) {
-      resultRef.current = { result: gameResult, waves: wavesSurvived, kills: enemiesKilled };
+      setResultSnap({ result: gameResult, waves: wavesSurvived, kills: enemiesKilled });
       setShowResult(true);
       setResultFading(false);
       const timer = setTimeout(() => setResultFading(true), 5_000);
@@ -61,7 +60,7 @@ export const MainScreen = () => {
     const timer = setTimeout(() => {
       setShowResult(false);
       setResultFading(false);
-      resultRef.current = null;
+      setResultSnap(null);
       resetGame();
     }, 600);
     return () => clearTimeout(timer);
@@ -130,17 +129,16 @@ export const MainScreen = () => {
     }
   };
 
-  const snap = resultRef.current;
-  const isVictory = snap?.result === 'win';
+  const isVictory = resultSnap?.result === 'win';
 
-  const resultCards = snap ? (
+  const resultCards = resultSnap ? (
     <>
       <div className="screen-card-item end-stat-card">
-        <span className="end-stat-value">{snap.waves}</span>
+        <span className="end-stat-value">{resultSnap.waves}</span>
         <h3 className="screen-card-title">Waves Survived</h3>
       </div>
       <div className="screen-card-item end-stat-card">
-        <span className="end-stat-value">{snap.kills}</span>
+        <span className="end-stat-value">{resultSnap.kills}</span>
         <h3 className="screen-card-title">Enemies Defeated</h3>
       </div>
     </>
