@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
 import { gameApi } from '../../services/gameApi';
 import { ScreenLayout } from '../common/ScreenLayout';
-import { DifficultySelector, capitalize } from '../common/DifficultySelector';
+import { DifficultySelector } from '../common/DifficultySelector';
+import { capitalize } from '../../utils/string';
 import type { GameSettings } from '../../types';
-import './StartScreen.css';
+import './MainScreen.css';
 
 const featureCards = (
   <>
@@ -30,11 +31,32 @@ const featureCards = (
   </>
 );
 
-export const StartScreen = () => {
+export const MainScreen = () => {
   const navigate = useNavigate();
   const startGame = useGameStore((state) => state.startGame);
   const selectedDifficulty = useGameStore((state) => state.selectedDifficulty);
   const setDifficulty = useGameStore((state) => state.setDifficulty);
+  const gameResult = useGameStore((state) => state.gameResult);
+  const wavesSurvived = useGameStore((state) => state.wavesSurvived);
+  const enemiesKilled = useGameStore((state) => state.enemiesKilled);
+  const resetGame = useGameStore((state) => state.resetGame);
+
+  const [resultFading, setResultFading] = useState(false);
+
+  useEffect(() => {
+    if (!gameResult) return;
+    const fadeTimer = setTimeout(() => setResultFading(true), 3_000);
+    return () => clearTimeout(fadeTimer);
+  }, [gameResult]);
+
+  useEffect(() => {
+    if (!resultFading) return;
+    const resetTimer = setTimeout(() => {
+      setResultFading(false);
+      resetGame();
+    }, 600);
+    return () => clearTimeout(resetTimer);
+  }, [resultFading, resetGame]);
 
   const [visible, setVisible] = useState(false);
   const [closing, setClosing] = useState(false);
@@ -99,6 +121,22 @@ export const StartScreen = () => {
     }
   };
 
+  const hasResult = gameResult !== null;
+  const isVictory = gameResult === 'win';
+
+  const resultCards = (
+    <>
+      <div className="screen-card-item end-stat-card">
+        <span className="end-stat-value">{wavesSurvived}</span>
+        <h3 className="screen-card-title">Waves Survived</h3>
+      </div>
+      <div className="screen-card-item end-stat-card">
+        <span className="end-stat-value">{enemiesKilled}</span>
+        <h3 className="screen-card-title">Enemies Defeated</h3>
+      </div>
+    </>
+  );
+
   const navRight = (
     <>
       <button className="btn btn-dark" onClick={() => navigate('/settings')}>
@@ -122,12 +160,19 @@ export const StartScreen = () => {
 
   return (
     <ScreenLayout
-      className="start-screen"
+      className={`main-screen ${resultFading ? 'result-fading' : ''}`}
       navRight={navRight}
       watermarks
-      heading="Defend Your Kingdom"
-      subtitle="Strategic tower defense with chess pieces"
-      cards={featureCards}
+      heading={hasResult ? (isVictory ? 'Victory!' : 'Checkmate!') : 'Defend Your Kingdom'}
+      headingClassName={hasResult ? `end-title ${isVictory ? 'victory' : 'defeat'}` : undefined}
+      subtitle={
+        hasResult
+          ? isVictory
+            ? 'You held the line against every wave'
+            : 'The enemy army has broken through'
+          : 'Strategic tower defense with chess pieces'
+      }
+      cards={hasResult ? resultCards : featureCards}
     >
       {visible && settings.length > 0 && panelPos && (
         <div

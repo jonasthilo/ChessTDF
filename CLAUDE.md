@@ -64,14 +64,13 @@ game/GameEngine.ts = loop timing + system execution
 
 ### Navigation (React Router)
 Routes defined in `App.tsx` using `react-router-dom`:
-- `/` → StartScreen
+- `/` → MainScreen (also displays game results after a completed game)
 - `/settings` → SettingsScreen
 - `/statistics` → StatisticsScreen
 - `/game/:gameId` → GameScreen (active game, gameId in URL)
-- `/game/:gameId/end` → GameEndScreen (completed game)
 - `*` → redirects to `/`
 
-Screen components use `useNavigate()` for navigation. `startGame()` returns the gameId for URL construction. GameScreen validates URL gameId against store and auto-navigates to end screen when `gameResult` is set. Invalid/stale game URLs redirect home.
+Screen components use `useNavigate()` for navigation. `startGame()` returns the gameId for URL construction. GameScreen validates URL gameId against store and auto-navigates to main screen when `gameResult` is set. Invalid/stale game URLs redirect home.
 
 ---
 
@@ -213,7 +212,7 @@ Status: Integer ID migration complete, wave DB migration complete, fully functio
 - `components/screens/settings/` - Settings sub-components (TowerEditor, EnemyEditor, SettingsEditor, TowerLevelEditor)
 - `components/common/ScreenLayout.tsx` - Shared screen layout with AppNav, watermarks, hero section
 - `components/common/AppNav.tsx` - Shared navigation bar component
-- `components/common/DifficultySelector.tsx` - Difficulty mode selector (used in StartScreen dropdown)
+- `components/common/DifficultySelector.tsx` - Difficulty mode selector (used in MainScreen dropdown)
 - `COORDINATE_SYSTEM.md` - Coordinate system architecture documentation
 - `BUTTON_SYSTEM.md` - Button style guide (composable base + size + color system)
 
