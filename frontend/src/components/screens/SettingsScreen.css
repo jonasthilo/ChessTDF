@@ -19,30 +19,78 @@
 }
 
 .advanced-content {
-  overflow-y: auto;
   padding-right: 0.5rem;
 }
 
-.advanced-content::-webkit-scrollbar {
+/* Unified selector + detail layout */
+.selector-detail-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 1rem;
+  min-height: 0;
+}
+
+.item-selector {
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  padding-right: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  overflow-y: auto;
+}
+
+.item-selector h3 {
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.selector-button {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+}
+
+.detail-panel {
+  min-width: 0;
+}
+
+.detail-panel h3 {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-accent-primary);
+}
+
+/* Scrollable detail panel (for Tower Levels with dynamic overflow) */
+.detail-panel-scroll {
+  min-width: 0;
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.detail-panel-scroll::-webkit-scrollbar {
   width: 6px;
 }
 
-.advanced-content::-webkit-scrollbar-track {
+.detail-panel-scroll::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 3px;
 }
 
-.advanced-content::-webkit-scrollbar-thumb {
+.detail-panel-scroll::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.3);
   border-radius: 3px;
 }
 
-.definitions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
+.detail-panel-scroll h3 {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-accent-primary);
 }
 
+/* Card styles */
 .definition-card {
   background: var(--color-bg-tertiary);
   padding: 0.6rem 0.75rem;
@@ -122,11 +170,13 @@
 }
 
 .save-message {
-  padding: 0.5rem;
+  padding: 0.5rem 1rem;
   border-radius: 4px;
   text-align: center;
   font-size: 0.8rem;
   margin-top: 0.5rem;
+  max-width: 950px;
+  width: 95%;
 }
 
 .save-message.success {
@@ -141,40 +191,7 @@
   border: 1px solid var(--color-danger);
 }
 
-/* Tower Levels Editor */
-.tower-levels-section {
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.tower-levels-selector {
-  border-right: 1px solid rgba(255, 255, 255, 0.2);
-  padding-right: 0.75rem;
-}
-
-.tower-levels-selector h3 {
-  font-size: 0.85rem;
-  margin-bottom: 0.5rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* Layout only (color from btn-dark btn-sm) */
-.tower-type-button {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  width: 100%;
-  margin-bottom: 0.3rem;
-}
-
-.tower-levels-editor h3 {
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
-  color: var(--color-accent-primary);
-}
-
+/* Levels list inside detail panel */
 .levels-list {
   display: grid;
   gap: 0.6rem;
@@ -191,6 +208,16 @@
   font-weight: 600;
 }
 
+/* Empty state for detail panel */
+.detail-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+  height: 100%;
+}
+
 @media (max-width: 600px) {
   .definition-fields {
     grid-template-columns: 1fr;
@@ -200,11 +227,11 @@
     flex-direction: column;
   }
 
-  .tower-levels-section {
+  .selector-detail-layout {
     grid-template-columns: 1fr;
   }
 
-  .tower-levels-selector {
+  .item-selector {
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     padding-right: 0;
