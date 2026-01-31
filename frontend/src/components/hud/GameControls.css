@@ -7,42 +7,9 @@
   align-items: center;
 }
 
+/* Layout only (color from btn-gold) */
 .game-button {
-  border: none;
-  padding: 0.6rem 1.2rem;
-  font-size: 0.8rem;
-  font-weight: 700;
+  min-width: 140px;
   box-shadow: var(--shadow-default);
   white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  min-width: 140px;
 }
-
-.game-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-}
-
-.game-button:active:not(:disabled) {
-  transform: scale(0.97);
-  box-shadow: var(--shadow-active);
-}
-
-.wave-button,
-.speed-button {
-  background: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-}
-
-.wave-button:hover:not(:disabled),
-.speed-button:hover:not(:disabled) {
-  background: var(--color-accent-secondary);
-  box-shadow: 0 6px 20px rgba(244, 197, 66, 0.4);
-}
-
-.wave-button:disabled {
-  background: var(--color-disabled);
-  color: var(--text-muted);
-}
-

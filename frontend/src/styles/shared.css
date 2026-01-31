@@ -80,8 +80,12 @@
   border-radius: var(--border-radius-default);
   cursor: pointer;
   transition: all var(--transition-fast);
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.55rem 1.2rem;
+  font-size: 0.85rem;
 }
 
 .btn:active:not(:disabled) {
@@ -93,45 +97,69 @@
   opacity: 0.5;
 }
 
-/* --- Button variants --- */
-.btn-primary {
+/* --- Button sizes --- */
+.btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.75rem;
+}
+
+.btn-lg {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+}
+
+/* --- Button colors --- */
+.btn-gold {
   background: var(--color-accent-primary);
   color: var(--color-bg-tertiary);
   border: none;
-  padding: 0.7rem 2rem;
-  font-size: clamp(1rem, 2.5vw, 1.15rem);
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 1px;
 }
 
-.btn-primary:hover {
+.btn-gold:hover:not(:disabled) {
   background: var(--color-accent-secondary);
   transform: translateY(-2px);
   box-shadow: 0 4px 16px rgba(244, 197, 66, 0.3);
 }
 
-.btn-primary:active {
-  transform: scale(0.97);
-  box-shadow: none;
-}
-
-.btn-secondary {
-  background: var(--color-bg-secondary);
+.btn-dark {
+  background: var(--color-bg-tertiary);
   color: var(--text-light);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.55rem 1.2rem;
-  font-size: 0.85rem;
 }
 
-.btn-secondary:hover {
+.btn-dark:hover:not(:disabled) {
   background: var(--color-bg-hover);
   border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
-.btn-secondary:active {
-  transform: scale(0.97);
+.btn-dark.active,
+.btn-dark.selected {
+  background: var(--color-accent-primary);
+  color: var(--color-bg-secondary);
+  font-weight: 700;
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--color-danger);
+  border: 2px solid var(--color-danger);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: var(--color-danger);
+  color: var(--text-white);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  color: var(--text-white);
 }
 
 .btn-group {
@@ -157,26 +185,6 @@
   margin: 0;
   font-size: 0.7rem;
   color: var(--text-muted);
-}
-
-/* --- Nav action button (Back, End Game, etc.) --- */
-.nav-action-btn {
-  background: var(--color-bg-tertiary);
-  color: var(--text-light);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.45rem 1rem;
-  font-size: 0.8rem;
-  white-space: nowrap;
-}
-
-.nav-action-btn:hover {
-  background: var(--color-bg-hover);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-}
-
-.nav-action-btn:active {
-  transform: scale(0.97);
 }
 
 /* --- Scrollable body (fills remaining space below nav) --- */
@@ -221,55 +229,9 @@
   line-height: 1.4;
 }
 
-/* --- Tab buttons --- */
+/* --- Tab buttons (layout only, color from btn-dark) --- */
 .tab-button {
   flex: 1;
-  padding: 0.5rem 0.8rem;
-  background: var(--color-bg-tertiary);
-  border: 1px solid transparent;
-  color: var(--text-light);
-  font-size: 0.8rem;
-}
-
-.tab-button:hover {
-  background: var(--color-bg-hover);
-  transform: translateY(-1px);
-}
-
-.tab-button:active {
-  transform: scale(0.97);
-}
-
-.tab-button.active {
-  background: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-  font-weight: 700;
-}
-
-/* --- Toggle buttons (compact nav bar toggles) --- */
-.toggle-button {
-  padding: 0.4rem 0.9rem;
-  background: var(--color-bg-tertiary);
-  border: 1px solid var(--color-bg-tertiary);
-  color: var(--text-light);
-  font-size: 0.75rem;
-}
-
-.toggle-button:hover {
-  background: var(--color-bg-hover);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-}
-
-.toggle-button:active {
-  transform: scale(0.97);
-}
-
-.toggle-button.active {
-  background: var(--color-accent-primary);
-  border-color: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-  font-weight: 700;
 }
 
 /* --- Difficulty selector --- */
@@ -288,29 +250,9 @@
   margin-bottom: 0.5rem;
 }
 
+/* --- Difficulty button (layout only, color from btn-dark) --- */
 .difficulty-button {
   flex: 1;
-  padding: 0.5rem 0.75rem;
-  background: var(--color-bg-secondary);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-light);
-  font-size: 0.8rem;
-}
-
-.difficulty-button:hover {
-  background: var(--color-bg-hover);
-  border-color: rgba(255, 255, 255, 0.2);
-  transform: translateY(-1px);
-}
-
-.difficulty-button:active {
-  transform: scale(0.97);
-}
-
-.difficulty-button.selected {
-  border-color: var(--color-accent-primary);
-  color: var(--color-accent-primary);
-  background: rgba(244, 197, 66, 0.1);
 }
 
 .settings-details {
@@ -359,10 +301,6 @@
 
   .screen-heading {
     font-size: 1.4rem;
-  }
-
-  .btn-primary {
-    padding: 0.6rem 2rem;
   }
 
   .screen-cards {

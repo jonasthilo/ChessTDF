@@ -191,13 +191,13 @@ export const SettingsScreen = () => {
   const navRight = (
     <>
       <button
-        className="btn nav-action-btn save-nav-btn"
+        className="btn btn-dark"
         onClick={handleSaveAll}
         disabled={saving || !hasUnsavedChanges}
       >
         {saving ? 'Saving...' : 'Save'}
       </button>
-      <button className="btn nav-action-btn" onClick={() => navigate('/')}>
+      <button className="btn btn-dark" onClick={() => navigate('/')}>
         Back
       </button>
     </>
@@ -219,25 +219,25 @@ export const SettingsScreen = () => {
         <div className="settings-panel">
           <div className="advanced-tabs">
             <button
-              className={`btn tab-button ${activeTab === 'gameSettings' ? 'active' : ''}`}
+              className={`btn btn-dark btn-sm tab-button ${activeTab === 'gameSettings' ? 'active' : ''}`}
               onClick={() => setActiveTab('gameSettings')}
             >
               Game Settings
             </button>
             <button
-              className={`btn tab-button ${activeTab === 'towers' ? 'active' : ''}`}
+              className={`btn btn-dark btn-sm tab-button ${activeTab === 'towers' ? 'active' : ''}`}
               onClick={() => setActiveTab('towers')}
             >
               Towers
             </button>
             <button
-              className={`btn tab-button ${activeTab === 'towerLevels' ? 'active' : ''}`}
+              className={`btn btn-dark btn-sm tab-button ${activeTab === 'towerLevels' ? 'active' : ''}`}
               onClick={() => setActiveTab('towerLevels')}
             >
               Tower Levels
             </button>
             <button
-              className={`btn tab-button ${activeTab === 'enemies' ? 'active' : ''}`}
+              className={`btn btn-dark btn-sm tab-button ${activeTab === 'enemies' ? 'active' : ''}`}
               onClick={() => setActiveTab('enemies')}
             >
               Enemies
@@ -280,7 +280,7 @@ export const SettingsScreen = () => {
                   {towers.map((tower) => (
                     <button
                       key={tower.id}
-                      className={`btn tower-type-button ${selectedTowerForLevels === tower.id ? 'active' : ''}`}
+                      className={`btn btn-dark btn-sm tower-type-button ${selectedTowerForLevels === tower.id ? 'active' : ''}`}
                       onClick={() => setSelectedTowerForLevels(tower.id)}
                     >
                       <img

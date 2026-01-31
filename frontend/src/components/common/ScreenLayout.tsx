@@ -36,7 +36,7 @@ export const ScreenLayout = ({
   const resolvedRight =
     navRight ??
     (showBackButton ? (
-      <button className="btn nav-action-btn" onClick={() => navigate('/')}>
+      <button className="btn btn-dark" onClick={() => navigate('/')}>
         Back
       </button>
     ) : undefined);

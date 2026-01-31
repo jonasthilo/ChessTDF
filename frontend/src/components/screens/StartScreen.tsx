@@ -101,20 +101,20 @@ export const StartScreen = () => {
 
   const navRight = (
     <>
-      <button className="btn nav-action-btn" onClick={() => navigate('/settings')}>
+      <button className="btn btn-dark" onClick={() => navigate('/settings')}>
         Configuration
       </button>
-      <button className="btn nav-action-btn" onClick={() => navigate('/statistics')}>
+      <button className="btn btn-dark" onClick={() => navigate('/statistics')}>
         Statistics
       </button>
       <button
         ref={btnRef}
-        className={`btn nav-action-btn nav-difficulty-btn ${visible ? 'active' : ''}`}
+        className={`btn btn-dark nav-difficulty-btn ${visible ? 'active' : ''}`}
         onClick={togglePanel}
       >
         Game Mode: {capitalize(selectedDifficulty)}
       </button>
-      <button className="btn nav-action-btn nav-play-btn" onClick={handleStartGame}>
+      <button className="btn btn-gold" onClick={handleStartGame}>
         Play Game
       </button>
     </>

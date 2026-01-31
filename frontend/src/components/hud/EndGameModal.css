@@ -47,49 +47,8 @@
   gap: 0.8rem;
 }
 
-.keep-playing-btn {
+.end-game-actions > .btn {
   flex: 1;
-  padding: 0.85rem;
-  background: var(--color-accent-primary);
-  color: var(--color-bg-tertiary);
-  border: none;
-  font-size: 1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.keep-playing-btn:hover {
-  background: var(--color-accent-secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(244, 197, 66, 0.3);
-}
-
-.keep-playing-btn:active {
-  transform: scale(0.97);
-  box-shadow: none;
-}
-
-.confirm-end-btn {
-  flex: 1;
-  padding: 0.85rem;
-  background: transparent;
-  color: var(--color-danger);
-  border: 2px solid var(--color-danger);
-  font-size: 1rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.confirm-end-btn:hover {
-  background: var(--color-danger);
-  color: var(--text-white);
-  transform: translateY(-2px);
-}
-
-.confirm-end-btn:active {
-  transform: scale(0.97);
 }
 
 @keyframes scaleIn {

@@ -116,6 +116,4 @@ These classes contain **no color, font, or animation rules** - those come from t
 
 ## Current Status
 
-The `.btn` base class and opt-in system is implemented. The composable `btn-gold`, `btn-dark`, `btn-danger`, `btn-ghost`, `btn-sm`, `btn-lg` modifiers are the **next step** to replace the current per-component button variants.
-
-Currently buttons use the `.btn` base plus legacy variant classes (`.nav-action-btn`, `.btn-primary`, `.btn-secondary`, etc.). The migration to the composable system above will unify all buttons with consistent sizing, colors, and animations.
+Migration complete. All buttons use the composable `btn` + `btn-gold/dark/danger/ghost` + `btn-sm/lg` system. Legacy per-component button variants (`.btn-primary`, `.btn-secondary`, `.nav-action-btn`, `.toggle-button`) have been removed. Component CSS files retain layout-only classes (positioning, width, flex) with no color, font, or animation rules.

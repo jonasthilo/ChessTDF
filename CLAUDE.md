@@ -170,7 +170,6 @@ Status: Integer ID migration complete, wave DB migration complete, fully functio
 ---
 
 ## Open Tasks
-- Migrate buttons to composable system (see `frontend/BUTTON_SYSTEM.md`): replace legacy per-component button classes with `btn btn-gold/dark/danger/ghost btn-sm/lg`
 - Test 50+ enemies, add object pooling
 - Tune tower costs + enemy stats
 - Post-MVP: area effects, curved paths, maps, achievements, graphics, audio, auto waves

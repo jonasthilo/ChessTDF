@@ -22,22 +22,11 @@
   animation: slideOutToRight 0.3s ease forwards;
 }
 
+/* Positioning only (color from btn-ghost) */
 .panel-close {
   position: absolute;
   top: 0.3rem;
   right: 0.3rem;
-  background: transparent;
-  border: none;
-  color: #ffffff;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0.3rem;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.panel-close:hover {
-  opacity: 1;
 }
 
 .panel-header {

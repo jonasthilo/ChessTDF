@@ -11,12 +11,6 @@
   flex-direction: column;
 }
 
-/* Save button in nav */
-.save-nav-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 /* Tabs + content */
 .advanced-tabs {
   display: flex;
@@ -166,32 +160,13 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+/* Layout only (color from btn-dark btn-sm) */
 .tower-type-button {
   display: flex;
   align-items: center;
   gap: 0.4rem;
   width: 100%;
-  padding: 0.55rem;
   margin-bottom: 0.3rem;
-  background: var(--color-bg-tertiary);
-  border: 2px solid transparent;
-  color: var(--text-light);
-  font-size: 0.8rem;
-}
-
-.tower-type-button:hover {
-  background: var(--color-bg-hover);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
-}
-
-.tower-type-button:active {
-  transform: scale(0.97);
-}
-
-.tower-type-button.active {
-  background: rgba(244, 197, 66, 0.15);
-  border-color: var(--color-accent-primary);
 }
 
 .tower-levels-editor h3 {

@@ -23,7 +23,7 @@ export const DifficultySelector = ({
         {DIFFICULTY_MODES.map((mode) => (
           <button
             key={mode}
-            className={`btn difficulty-button ${selectedMode === mode ? 'selected' : ''}`}
+            className={`btn btn-dark btn-sm difficulty-button ${selectedMode === mode ? 'selected' : ''}`}
             onClick={() => onSelectMode(mode)}
           >
             {capitalize(mode)}
