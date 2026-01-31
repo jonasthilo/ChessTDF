@@ -113,7 +113,9 @@ Flow: DB → repository → service → API → system → UI
 ## Design Choices
 Placement: click to select, click to place  
 Path: left→right straight line  
-Graphics: geometric shapes, color‑coded by piece  
+Graphics: geometric shapes, color-coded by piece
+Buttons: opt-in `.btn` base class + composable modifiers (see `frontend/BUTTON_SYSTEM.md`)
+UI Layout: shared `ScreenLayout` + `AppNav` components for all screens
 
 ---
 
@@ -170,7 +172,7 @@ Status: Integer ID migration complete, wave DB migration complete, fully functio
 ## Open Tasks
 - Test 50+ enemies, add object pooling
 - Tune tower costs + enemy stats
-- Post‑MVP: area effects, curved paths, maps, achievements, graphics, audio, auto waves
+- Post-MVP: area effects, curved paths, maps, achievements, graphics, audio, auto waves
 
 ---
 
@@ -196,7 +198,7 @@ Status: Integer ID migration complete, wave DB migration complete, fully functio
 - `state/gameStore.ts` - Zustand state management (game data, no screen navigation)
 - `utils/pieceAssets.ts` - Shared tower/enemy image helpers and piece name maps
 - `utils/math.ts` - Shared math utilities (distance)
-- `styles/shared.css` - Shared screen styles (screen-header, screen-logo)
+- `styles/shared.css` - Shared screen + button styles (`.btn` base, `.btn-primary`, `.btn-secondary`, `.nav-action-btn`, etc.)
 - `styles/variables.css` - CSS custom properties
 - `game/GameEngine.ts` - 60 FPS game loop + input handling
 - `game/rendering/PixiRenderer.ts` - PixiJS rendering with Container hierarchy (syncSprites generic method)
@@ -209,7 +211,11 @@ Status: Integer ID migration complete, wave DB migration complete, fully functio
 - `components/hud/TowerPanel.tsx` - Tower selection UI
 - `components/screens/SettingsScreen.tsx` - Settings orchestrator (imports sub-components)
 - `components/screens/settings/` - Settings sub-components (TowerEditor, EnemyEditor, SettingsEditor, TowerLevelEditor)
+- `components/common/ScreenLayout.tsx` - Shared screen layout with AppNav, watermarks, hero section
+- `components/common/AppNav.tsx` - Shared navigation bar component
+- `components/common/DifficultySelector.tsx` - Difficulty mode selector (used in StartScreen dropdown)
 - `COORDINATE_SYSTEM.md` - Coordinate system architecture documentation
+- `BUTTON_SYSTEM.md` - Button style guide (composable base + size + color system)
 
 ---
 

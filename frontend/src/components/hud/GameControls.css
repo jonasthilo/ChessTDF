@@ -7,59 +7,9 @@
   align-items: center;
 }
 
+/* Layout only (color from btn-gold) */
 .game-button {
-  border: none;
-  padding: var(--spacing-sm) var(--spacing-lg);
-  font-size: 0.8rem;
-  font-weight: 700;
-  border-radius: var(--border-radius-default);
-  cursor: pointer;
-  transition: all var(--transition-default);
+  min-width: 140px;
   box-shadow: var(--shadow-default);
   white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  min-width: 140px;
-}
-
-.game-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-hover);
-}
-
-.game-button:active:not(:disabled) {
-  transform: translateY(0);
-  box-shadow: var(--shadow-active);
-}
-
-.wave-button,
-.speed-button {
-  background: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-}
-
-.wave-button:hover:not(:disabled),
-.speed-button:hover:not(:disabled) {
-  background: var(--color-accent-secondary);
-  box-shadow: 0 6px 20px rgba(244, 197, 66, 0.4);
-}
-
-.wave-button:disabled {
-  background: var(--color-disabled);
-  cursor: not-allowed;
-  opacity: 0.5;
-  color: var(--text-muted);
-}
-
-.end-game-button {
-  background: transparent;
-  border: 2px solid var(--color-danger);
-  color: var(--color-danger);
-  padding: calc(var(--spacing-sm) - 2px) calc(var(--spacing-lg) - 2px);
-}
-
-.end-game-button:hover:not(:disabled) {
-  background: var(--color-danger);
-  color: var(--text-white);
-  box-shadow: 0 6px 20px rgba(244, 67, 54, 0.4);
 }

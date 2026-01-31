@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useGameStore } from '../../state/gameStore';
-import { VersionDisplay } from '../common/VersionDisplay';
+import { ScreenLayout } from '../common/ScreenLayout';
 import './GameEndScreen.css';
 
 export const GameEndScreen = () => {
@@ -25,38 +25,40 @@ export const GameEndScreen = () => {
     navigate('/');
   };
 
-  return (
-    <div className={`game-end-screen ${isVictory ? 'victory' : 'defeat'}`}>
-      <div className="game-end-content">
-        <div className="screen-header">
-          <img src="/assets/logo/Chess-tdf-logo.png" alt="Chess TDF" className="screen-logo" />
-          <h1 className={`game-end-title ${isVictory ? 'victory' : 'defeat'}`}>
-            {isVictory ? 'Victory!' : 'Game Over'}
-          </h1>
-        </div>
-
-        <div className="game-end-stats">
-          <h2>Final Stats</h2>
-          <div className="stat-row">
-            <span className="stat-label">Waves Survived:</span>
-            <span className="stat-value">{wavesSurvived}</span>
-          </div>
-          <div className="stat-row">
-            <span className="stat-label">Enemies Killed:</span>
-            <span className="stat-value">{enemiesKilled}</span>
-          </div>
-        </div>
-
-        <div className="game-end-buttons">
-          <button className="play-again-button" onClick={handlePlayAgain}>
-            Play Again
-          </button>
-          <button className="home-button" onClick={handleReturnHome}>
-            Return to Home
-          </button>
-        </div>
+  const statCards = (
+    <>
+      <div className="screen-card-item end-stat-card">
+        <span className="end-stat-value">{wavesSurvived}</span>
+        <h3 className="screen-card-title">Waves Survived</h3>
       </div>
-      <VersionDisplay />
-    </div>
+      <div className="screen-card-item end-stat-card">
+        <span className="end-stat-value">{enemiesKilled}</span>
+        <h3 className="screen-card-title">Enemies Defeated</h3>
+      </div>
+    </>
+  );
+
+  return (
+    <ScreenLayout
+      className="game-end-screen"
+      watermarks
+      heading={isVictory ? 'Victory!' : 'Checkmate!'}
+      headingClassName={`end-title ${isVictory ? 'victory' : 'defeat'}`}
+      subtitle={isVictory ? 'You held the line against every wave' : 'The enemy army has broken through'}
+      cards={statCards}
+    >
+      <button className="btn btn-gold btn-lg" onClick={handlePlayAgain}>
+        Play Again
+      </button>
+
+      <div className="btn-group">
+        <button className="btn btn-dark" onClick={handleReturnHome}>
+          Return Home
+        </button>
+        <button className="btn btn-dark" onClick={() => navigate('/statistics')}>
+          Statistics
+        </button>
+      </div>
+    </ScreenLayout>
   );
 };

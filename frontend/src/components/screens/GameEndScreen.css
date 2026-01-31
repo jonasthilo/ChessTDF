@@ -1,126 +1,23 @@
-.game-end-screen {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  color: white;
-  background: var(--color-bg-primary);
+/* GameEndScreen-specific overrides */
+
+.end-title.victory {
+  color: var(--color-accent-primary);
+  text-shadow: 0 2px 8px rgba(244, 197, 66, 0.3);
 }
 
-.game-end-screen.defeat {
-  background: var(--color-bg-primary);
-}
-
-.game-end-screen.victory {
-  background: var(--color-bg-primary);
-}
-
-.game-end-content {
-  text-align: center;
-  max-width: 500px;
-  padding: 2rem;
-  background: var(--color-bg-secondary);
-  border-radius: 12px;
-  border: 2px solid var(--color-bg-tertiary);
-  box-shadow: var(--shadow-default);
-}
-
-.game-end-title {
-  font-size: 3rem;
-  margin-bottom: 0;
-  font-weight: bold;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.game-end-title.defeat {
+.end-title.defeat {
   color: var(--color-danger);
+  text-shadow: 0 2px 8px rgba(232, 93, 117, 0.3);
 }
 
-.game-end-title.victory {
+.end-stat-card {
+  text-align: center;
+}
+
+.end-stat-value {
+  display: block;
+  font-size: 2rem;
+  font-weight: 700;
   color: var(--color-accent-primary);
-}
-
-.game-end-stats {
-  background: var(--color-bg-tertiary);
-  padding: 2rem;
-  border-radius: 12px;
-  margin-bottom: 2rem;
-}
-
-.game-end-stats h2 {
-  margin-top: 0;
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
-  color: var(--color-accent-primary);
-}
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 0.8rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 1.2rem;
-}
-
-.stat-row:last-child {
-  border-bottom: none;
-}
-
-.stat-label {
-  color: #ccc;
-}
-
-.stat-value {
-  font-weight: bold;
-  color: var(--color-accent-primary);
-}
-
-.game-end-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.play-again-button,
-.home-button {
-  color: white;
-  border: none;
-  padding: 1.2rem 2.5rem;
-  font-size: 1.3rem;
-  font-weight: bold;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.play-again-button {
-  background: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-}
-
-.play-again-button:hover {
-  background: var(--color-accent-secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(244, 197, 66, 0.4);
-}
-
-.home-button {
-  background: var(--color-bg-tertiary);
-  border: 2px solid var(--text-light);
-}
-
-.home-button:hover {
-  background: var(--color-bg-secondary);
-  border-color: var(--color-accent-primary);
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
-}
-
-.play-again-button:active,
-.home-button:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-bottom: 0.2rem;
 }

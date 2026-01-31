@@ -18,22 +18,11 @@
   flex-direction: column;
 }
 
+/* Positioning only (color from btn-ghost) */
 .modal-close {
   position: absolute;
   top: 0.3rem;
   right: 0.3rem;
-  background: transparent;
-  border: none;
-  color: #ffffff;
-  font-size: 1rem;
-  cursor: pointer;
-  padding: 0.3rem;
-  opacity: 0.7;
-  transition: opacity 0.2s;
-}
-
-.modal-close:hover {
-  opacity: 1;
 }
 
 .modal-header {
@@ -110,31 +99,9 @@
   margin-bottom: 0.1rem;
 }
 
+/* Layout only (color from btn-gold) */
 .upgrade-button {
   width: 100%;
-  padding: 0.5rem;
-  background: var(--color-accent-primary);
-  color: var(--color-bg-secondary);
-  border: none;
-  border-radius: 6px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.2s;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-}
-
-.upgrade-button:hover:not(.disabled) {
-  background: var(--color-accent-secondary);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(244, 197, 66, 0.4);
-}
-
-.upgrade-button.disabled {
-  background: var(--color-disabled);
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 
 .max-level-badge {
@@ -156,21 +123,9 @@
   margin-top: auto;
 }
 
+/* Layout only (color from btn-danger) */
 .sell-button {
   width: 100%;
-  padding: 0.5rem;
-  background: transparent;
-  color: #f44336;
-  border: 2px solid #f44336;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.sell-button:hover {
-  background: #f44336;
-  color: white;
 }
 
 @keyframes slideInFromRight {
@@ -227,11 +182,5 @@
   .modal-stats,
   .modal-upgrade {
     padding: 0.6rem;
-  }
-
-  .upgrade-button,
-  .sell-button {
-    padding: 0.6rem;
-    font-size: 0.85rem;
   }
 }

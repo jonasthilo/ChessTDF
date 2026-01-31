@@ -16,7 +16,7 @@ export const EndGameModal = ({ isOpen, onKeepPlaying, onEndGame }: EndGameModalP
     setTimeout(() => {
       setIsClosing(false);
       onKeepPlaying();
-    }, 300);
+    }, 250);
   }, [onKeepPlaying]);
 
   const handleEndGame = useCallback(() => {
@@ -24,7 +24,7 @@ export const EndGameModal = ({ isOpen, onKeepPlaying, onEndGame }: EndGameModalP
     setTimeout(() => {
       setIsClosing(false);
       onEndGame();
-    }, 300);
+    }, 250);
   }, [onEndGame]);
 
   useEffect(() => {
@@ -47,14 +47,16 @@ export const EndGameModal = ({ isOpen, onKeepPlaying, onEndGame }: EndGameModalP
         className={`end-game-modal ${isClosing ? 'closing' : ''}`}
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="end-game-title">End Game?</h2>
-        <p className="end-game-message">Are you sure you want to end the current game?</p>
+        <h2 className="end-game-title">Resign Game?</h2>
+        <p className="end-game-message">
+          Your pieces will fall and the board will be lost. Are you sure?
+        </p>
         <div className="end-game-actions">
-          <button className="keep-playing-btn" onClick={handleClose}>
+          <button className="btn btn-gold btn-lg" onClick={handleClose}>
             Keep Playing
           </button>
-          <button className="confirm-end-btn" onClick={handleEndGame}>
-            End Game
+          <button className="btn btn-danger btn-lg" onClick={handleEndGame}>
+            Resign
           </button>
         </div>
       </div>
