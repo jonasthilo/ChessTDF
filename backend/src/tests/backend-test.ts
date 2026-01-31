@@ -430,8 +430,8 @@ async function testRepositories(): Promise<void> {
   });
 
   // Wave Repository
-  await test('WaveRepository.getWaveDefinitions', async () => {
-    const definitions = await waveRepo.getWaveDefinitions(1);
+  await test('WaveRepository.getWave', async () => {
+    const definitions = await waveRepo.getWave(1);
     assert(definitions.length >= 1, 'Wave 1 should have at least 1 enemy type');
     const firstDef = definitions[0];
     assertDefined(firstDef, 'First wave definition should exist');
@@ -445,10 +445,10 @@ async function testRepositories(): Promise<void> {
     assertGreaterOrEqual(maxWave, 1, 'Should have at least 1 defined wave');
   });
 
-  await test('WaveRepository.getWaveDefinitions - beyond max uses highest', async () => {
+  await test('WaveRepository.getWave - beyond max uses highest', async () => {
     const maxWave = await waveRepo.getMaxDefinedWave();
-    const beyondMax = await waveRepo.getWaveDefinitions(maxWave + 100);
-    const atMax = await waveRepo.getWaveDefinitions(maxWave);
+    const beyondMax = await waveRepo.getWave(maxWave + 100);
+    const atMax = await waveRepo.getWave(maxWave);
     assertEqual(beyondMax.length, atMax.length, 'Beyond-max wave should match max wave definition count');
   });
 }
@@ -777,10 +777,11 @@ async function testServices(): Promise<void> {
     }
   });
 
-  await test('WaveService.getWaveInfo', async () => {
-    const info = await waveService.getWaveInfo(1);
-    assertGreater(info.enemyCount, 0, 'Enemy count should be positive');
-    assert(info.difficulty.length > 0, 'Difficulty label should not be empty');
+  await test('WaveService.getWave', async () => {
+    const wave = await waveService.getWave(1);
+    assert(wave !== null, 'Wave 1 should exist');
+    assertGreater(wave!.enemies.length, 0, 'Wave should have enemies');
+    assertGreater(wave!.enemies[0]!.count, 0, 'Enemy count should be positive');
   });
 
   // Statistics Service
