@@ -50,7 +50,7 @@ export const MainScreen = () => {
       setResultSnap({ result: gameResult, waves: wavesSurvived, kills: enemiesKilled });
       setShowResult(true);
       setResultFading(false);
-      const timer = setTimeout(() => setResultFading(true), 5_000);
+      const timer = setTimeout(() => setResultFading(true), 3_000);
       return () => clearTimeout(timer);
     }
   }, [gameResult, wavesSurvived, enemiesKilled]);
