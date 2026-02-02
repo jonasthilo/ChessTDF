@@ -42,27 +42,15 @@ export const DifficultySelector = ({
               <span className="setting-value">{currentSettings.initialLives}</span>
             </div>
             <div className="setting-item">
-              <span className="setting-label">Tower Cost</span>
+              <span className="setting-label">HP Scaling</span>
               <span className="setting-value">
-                {(currentSettings.towerCostMultiplier * 100).toFixed(0)}%
+                +{(currentSettings.enemyHealthWaveMultiplier * 100).toFixed(0)}%/wave
               </span>
             </div>
             <div className="setting-item">
-              <span className="setting-label">Enemy HP</span>
+              <span className="setting-label">Reward Scaling</span>
               <span className="setting-value">
-                {(currentSettings.enemyHealthMultiplier * 100).toFixed(0)}%
-              </span>
-            </div>
-            <div className="setting-item">
-              <span className="setting-label">Enemy Speed</span>
-              <span className="setting-value">
-                {(currentSettings.enemySpeedMultiplier * 100).toFixed(0)}%
-              </span>
-            </div>
-            <div className="setting-item">
-              <span className="setting-label">Rewards</span>
-              <span className="setting-value">
-                {(currentSettings.enemyRewardMultiplier * 100).toFixed(0)}%
+                +{(currentSettings.enemyRewardWaveMultiplier * 100).toFixed(0)}%/wave
               </span>
             </div>
           </div>

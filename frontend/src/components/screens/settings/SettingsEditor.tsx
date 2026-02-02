@@ -35,38 +35,6 @@ export const SettingsEditor = ({ setting, edits, onChange }: SettingsEditorProps
           onChange={(v) => onChange('initialLives', v)}
         />
         <NumberField
-          label="Tower Cost Multiplier (0.5-3.0):"
-          min={0.5}
-          max={3.0}
-          step={0.1}
-          value={getValue('towerCostMultiplier')}
-          onChange={(v) => onChange('towerCostMultiplier', v)}
-        />
-        <NumberField
-          label="Enemy Health Multiplier (0.5-3.0):"
-          min={0.5}
-          max={3.0}
-          step={0.1}
-          value={getValue('enemyHealthMultiplier')}
-          onChange={(v) => onChange('enemyHealthMultiplier', v)}
-        />
-        <NumberField
-          label="Enemy Speed Multiplier (0.5-3.0):"
-          min={0.5}
-          max={3.0}
-          step={0.1}
-          value={getValue('enemySpeedMultiplier')}
-          onChange={(v) => onChange('enemySpeedMultiplier', v)}
-        />
-        <NumberField
-          label="Enemy Reward Multiplier (0.5-3.0):"
-          min={0.5}
-          max={3.0}
-          step={0.1}
-          value={getValue('enemyRewardMultiplier')}
-          onChange={(v) => onChange('enemyRewardMultiplier', v)}
-        />
-        <NumberField
           label="Enemy Health Wave Scaling (0-1):"
           min={0}
           max={1}

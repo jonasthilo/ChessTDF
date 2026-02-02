@@ -54,10 +54,6 @@ CREATE TABLE IF NOT EXISTS game_settings (
     mode VARCHAR(20) NOT NULL UNIQUE, -- 'easy', 'normal', 'hard', 'custom'
     initial_coins INTEGER NOT NULL DEFAULT 200,
     initial_lives INTEGER NOT NULL DEFAULT 10,
-    tower_cost_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
-    enemy_health_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
-    enemy_speed_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
-    enemy_reward_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
     enemy_health_wave_multiplier DECIMAL(4,3) NOT NULL DEFAULT 0.100,
     enemy_reward_wave_multiplier DECIMAL(4,3) NOT NULL DEFAULT 0.050,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -134,7 +130,7 @@ CREATE INDEX IF NOT EXISTS idx_wave_definitions_wave ON wave_definitions(wave_nu
 -- Insert default tower definitions (metadata only)
 INSERT INTO tower_definitions (name, color, description, max_level)
 VALUES
-    ('Basic Tower1', '#607D8B', 'Balanced tower for general defense', 5),
+    ('Basic Tower', '#607D8B', 'Balanced tower for general defense', 5),
     ('Sniper Tower', '#1565C0', 'Long range, high damage, slow firing', 3),
     ('Rapid Tower', '#7CB342', 'Fast firing, low damage, short range', 4)
 ON CONFLICT (name) DO NOTHING;
@@ -147,7 +143,6 @@ VALUES
     (1, 3, 56, 40, 150, 1.20),
     (1, 4, 84, 50, 165, 1.30),
     (1, 5, 126, 60, 180, 1.40),
-    (1, 6, 225, 144, 170, 1.50),
     (2, 1, 75, 80, 250, 0.50),
     (2, 2, 150, 110, 275, 0.55),
     (2, 3, 300, 140, 300, 0.60),
@@ -163,9 +158,9 @@ VALUES
     ('Pawn', 'Weak but numerous foot soldier', 49, 60, 8, '#4CAF50', 20),
     ('Bishop', 'Agile diagonal attacker', 80, 90, 15, '#9C27B0', 28),
     ('Knight', 'Fast moving cavalry unit', 100, 120, 18, '#2196F3', 25),
-    ('Rook', 'Slow but heavily armored1', 200, 50, 35, '#FF9800', 30),
+    ('Rook', 'Slow but heavily armored', 200, 50, 35, '#FF9800', 30),
     ('Queen', 'Powerful versatile unit', 300, 80, 60, '#F44336', 35),
-    ('King', 'Ultimate boss unit1', 800, 30, 200, '#FFC107', 40)
+    ('King', 'Ultimate boss unit', 800, 30, 200, '#FFC107', 40)
 ON CONFLICT (name) DO NOTHING;
 
 -- Insert default wave definitions
@@ -204,11 +199,11 @@ INSERT INTO wave_definitions (wave_number, enemy_id, count, spawn_delay_ms, diff
 ON CONFLICT (wave_number, enemy_id) DO NOTHING;
 
 -- Insert default game settings presets
-INSERT INTO game_settings (mode, initial_coins, initial_lives, tower_cost_multiplier, enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier, enemy_health_wave_multiplier, enemy_reward_wave_multiplier)
+INSERT INTO game_settings (mode, initial_coins, initial_lives, enemy_health_wave_multiplier, enemy_reward_wave_multiplier)
 VALUES
-    ('easy', 250, 15, 0.80, 0.70, 0.80, 1.20, 0.080, 0.040),
-    ('normal', 301, 10, 1.00, 1.00, 1.00, 1.00, 0.100, 0.050),
-    ('hard', 200, 7, 1.20, 1.50, 1.20, 0.75, 0.150, 0.090)
+    ('easy', 250, 15, 0.080, 0.040),
+    ('normal', 200, 10, 0.100, 0.050),
+    ('hard', 150, 5, 0.150, 0.060)
 ON CONFLICT (mode) DO NOTHING;
 
 -- Function to update updated_at timestamp

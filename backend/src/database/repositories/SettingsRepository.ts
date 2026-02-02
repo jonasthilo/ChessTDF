@@ -7,10 +7,6 @@ interface SettingsRow {
   mode: string;
   initial_coins: number;
   initial_lives: number;
-  tower_cost_multiplier: string;
-  enemy_health_multiplier: string;
-  enemy_speed_multiplier: string;
-  enemy_reward_multiplier: string;
   enemy_health_wave_multiplier: string;
   enemy_reward_wave_multiplier: string;
   created_at: Date;
@@ -44,18 +40,13 @@ export class SettingsRepository {
   async createSettings(settings: Omit<GameSettings, 'id'>): Promise<GameSettings> {
     const result = await query<SettingsRow>(
       `INSERT INTO game_settings (
-        mode, initial_coins, initial_lives, tower_cost_multiplier,
-        enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier,
+        mode, initial_coins, initial_lives,
         enemy_health_wave_multiplier, enemy_reward_wave_multiplier
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
+      ) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
       [
         settings.mode,
         settings.initialCoins,
         settings.initialLives,
-        settings.towerCostMultiplier,
-        settings.enemyHealthMultiplier,
-        settings.enemySpeedMultiplier,
-        settings.enemyRewardMultiplier,
         settings.enemyHealthWaveMultiplier,
         settings.enemyRewardWaveMultiplier,
       ]
@@ -69,10 +60,6 @@ export class SettingsRepository {
       mode: 'mode',
       initialCoins: 'initial_coins',
       initialLives: 'initial_lives',
-      towerCostMultiplier: 'tower_cost_multiplier',
-      enemyHealthMultiplier: 'enemy_health_multiplier',
-      enemySpeedMultiplier: 'enemy_speed_multiplier',
-      enemyRewardMultiplier: 'enemy_reward_multiplier',
       enemyHealthWaveMultiplier: 'enemy_health_wave_multiplier',
       enemyRewardWaveMultiplier: 'enemy_reward_wave_multiplier',
     });
@@ -91,10 +78,6 @@ export class SettingsRepository {
       mode: row.mode as SettingsMode,
       initialCoins: row.initial_coins,
       initialLives: row.initial_lives,
-      towerCostMultiplier: parseFloat(row.tower_cost_multiplier),
-      enemyHealthMultiplier: parseFloat(row.enemy_health_multiplier),
-      enemySpeedMultiplier: parseFloat(row.enemy_speed_multiplier),
-      enemyRewardMultiplier: parseFloat(row.enemy_reward_multiplier),
       enemyHealthWaveMultiplier: parseFloat(row.enemy_health_wave_multiplier),
       enemyRewardWaveMultiplier: parseFloat(row.enemy_reward_wave_multiplier),
       createdAt: row.created_at,

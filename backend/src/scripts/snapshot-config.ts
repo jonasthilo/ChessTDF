@@ -58,10 +58,6 @@ interface GameSettings {
   mode: string;
   initialCoins: number;
   initialLives: number;
-  towerCostMultiplier: number;
-  enemyHealthMultiplier: number;
-  enemySpeedMultiplier: number;
-  enemyRewardMultiplier: number;
   enemyHealthWaveMultiplier: number;
   enemyRewardWaveMultiplier: number;
 }
@@ -152,13 +148,13 @@ function generateSettingsInserts(settings: GameSettings[]): string {
   const rows = settings
     .map(
       (s) =>
-        `    ('${s.mode}', ${s.initialCoins}, ${s.initialLives}, ${s.towerCostMultiplier.toFixed(2)}, ${s.enemyHealthMultiplier.toFixed(2)}, ${s.enemySpeedMultiplier.toFixed(2)}, ${s.enemyRewardMultiplier.toFixed(2)}, ${s.enemyHealthWaveMultiplier.toFixed(3)}, ${s.enemyRewardWaveMultiplier.toFixed(3)})`
+        `    ('${s.mode}', ${s.initialCoins}, ${s.initialLives}, ${s.enemyHealthWaveMultiplier.toFixed(3)}, ${s.enemyRewardWaveMultiplier.toFixed(3)})`
     )
     .join(',\n');
 
   return [
     '-- Insert default game settings presets',
-    'INSERT INTO game_settings (mode, initial_coins, initial_lives, tower_cost_multiplier, enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier, enemy_health_wave_multiplier, enemy_reward_wave_multiplier)',
+    'INSERT INTO game_settings (mode, initial_coins, initial_lives, enemy_health_wave_multiplier, enemy_reward_wave_multiplier)',
     'VALUES',
     rows,
     "ON CONFLICT (mode) DO NOTHING;",

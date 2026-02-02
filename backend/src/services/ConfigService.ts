@@ -179,19 +179,6 @@ export class ConfigService {
   }
 
   private validateSettings(settings: Partial<GameSettings>): void {
-    const multipliers = [
-      { name: 'towerCostMultiplier', value: settings.towerCostMultiplier },
-      { name: 'enemyHealthMultiplier', value: settings.enemyHealthMultiplier },
-      { name: 'enemySpeedMultiplier', value: settings.enemySpeedMultiplier },
-      { name: 'enemyRewardMultiplier', value: settings.enemyRewardMultiplier },
-    ];
-
-    for (const { name, value } of multipliers) {
-      if (value !== undefined && (value < 0.5 || value > 3.0)) {
-        throw new Error(`${name} must be between 0.5 and 3.0, got ${value}`);
-      }
-    }
-
     const waveMultipliers = [
       { name: 'enemyHealthWaveMultiplier', value: settings.enemyHealthWaveMultiplier },
       { name: 'enemyRewardWaveMultiplier', value: settings.enemyRewardWaveMultiplier },
