@@ -477,6 +477,122 @@ export class ConfigController {
       res.status(500).json({ error: 'Failed to fetch wave definitions' });
     }
   }
+
+  /**
+   * GET /api/config/waves/:waveNumber
+   * Get a single wave composition
+   */
+  async getWave(req: Request, res: Response): Promise<void> {
+    try {
+      const waveNumberParam = req.params['waveNumber'];
+      const waveNumber = parseIntParam(waveNumberParam);
+
+      if (isNaN(waveNumber) || waveNumber < 1) {
+        res.status(400).json({ error: 'Invalid wave number. Must be a positive integer.' });
+        return;
+      }
+
+      const wave = await waveService.getWave(waveNumber);
+
+      if (!wave) {
+        res.status(404).json({ error: `Wave ${waveNumber} not found` });
+        return;
+      }
+
+      res.json(wave);
+    } catch (error) {
+      console.error('Error fetching wave:', error);
+      res.status(500).json({ error: 'Failed to fetch wave' });
+    }
+  }
+
+  /**
+   * POST /api/config/waves
+   * Create a new wave definition
+   * Body: { waveNumber, enemies: [{ enemyId, count, spawnDelayMs, difficultyLabel }] }
+   */
+  async createWave(req: Request, res: Response): Promise<void> {
+    try {
+      const { waveNumber, enemies } = req.body;
+
+      if (!waveNumber || !Array.isArray(enemies) || enemies.length === 0) {
+        res.status(400).json({ error: 'Required: waveNumber and enemies array' });
+        return;
+      }
+
+      const wave = await waveService.createWave(waveNumber, enemies);
+      res.status(201).json(wave);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+      } else {
+        console.error('Error creating wave:', error);
+        res.status(500).json({ error: 'Failed to create wave' });
+      }
+    }
+  }
+
+  /**
+   * PUT /api/config/waves/:waveNumber
+   * Replace entire wave composition (upsert)
+   * Body: { enemies: [{ enemyId, count, spawnDelayMs, difficultyLabel }] }
+   */
+  async replaceWave(req: Request, res: Response): Promise<void> {
+    try {
+      const waveNumberParam = req.params['waveNumber'];
+      const waveNumber = parseIntParam(waveNumberParam);
+
+      if (isNaN(waveNumber) || waveNumber < 1) {
+        res.status(400).json({ error: 'Invalid wave number. Must be a positive integer.' });
+        return;
+      }
+
+      const { enemies } = req.body;
+
+      if (!Array.isArray(enemies) || enemies.length === 0) {
+        res.status(400).json({ error: 'Required: enemies array with at least one entry' });
+        return;
+      }
+
+      const wave = await waveService.replaceWave(waveNumber, enemies);
+      res.json(wave);
+    } catch (error) {
+      if (error instanceof Error) {
+        res.status(400).json({ error: error.message });
+      } else {
+        console.error('Error replacing wave:', error);
+        res.status(500).json({ error: 'Failed to replace wave' });
+      }
+    }
+  }
+
+  /**
+   * DELETE /api/config/waves/:waveNumber
+   * Delete an entire wave
+   */
+  async deleteWave(req: Request, res: Response): Promise<void> {
+    try {
+      const waveNumberParam = req.params['waveNumber'];
+      const waveNumber = parseIntParam(waveNumberParam);
+
+      if (isNaN(waveNumber) || waveNumber < 1) {
+        res.status(400).json({ error: 'Invalid wave number. Must be a positive integer.' });
+        return;
+      }
+
+      const success = await waveService.deleteWave(waveNumber);
+
+      if (!success) {
+        res.status(404).json({ error: `Wave ${waveNumber} not found` });
+        return;
+      }
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting wave:', error);
+      res.status(500).json({ error: 'Failed to delete wave' });
+    }
+  }
 }
 
 export const configController = new ConfigController();

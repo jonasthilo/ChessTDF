@@ -26,6 +26,10 @@ router.patch('/enemies/:id', (req, res) => configController.updateEnemyDefinitio
 
 // Wave Definitions
 router.get('/waves', (req, res) => configController.getWaves(req, res));
+router.post('/waves', (req, res) => configController.createWave(req, res));
+router.get('/waves/:waveNumber', (req, res) => configController.getWave(req, res));
+router.put('/waves/:waveNumber', (req, res) => configController.replaceWave(req, res));
+router.delete('/waves/:waveNumber', (req, res) => configController.deleteWave(req, res));
 
 // Game Settings
 router.get('/settings', (req, res) => configController.getAllSettings(req, res));

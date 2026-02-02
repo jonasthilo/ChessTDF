@@ -54,10 +54,6 @@ CREATE TABLE IF NOT EXISTS game_settings (
     mode VARCHAR(20) NOT NULL UNIQUE, -- 'easy', 'normal', 'hard', 'custom'
     initial_coins INTEGER NOT NULL DEFAULT 200,
     initial_lives INTEGER NOT NULL DEFAULT 10,
-    tower_cost_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
-    enemy_health_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
-    enemy_speed_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
-    enemy_reward_multiplier DECIMAL(3,2) NOT NULL DEFAULT 1.00,
     enemy_health_wave_multiplier DECIMAL(4,3) NOT NULL DEFAULT 0.100,
     enemy_reward_wave_multiplier DECIMAL(4,3) NOT NULL DEFAULT 0.050,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -140,19 +136,16 @@ VALUES
 ON CONFLICT (name) DO NOTHING;
 
 -- Insert default tower levels (level 1 = base, level 2+ = upgrades)
--- Basic Tower: 5 levels (tower_id=1)
 INSERT INTO tower_levels (tower_id, level, cost, damage, range, fire_rate)
 VALUES
-    (1, 1, 25, 20, 120, 1.00),
+    (1, 1, 29, 21, 120, 1.00),
     (1, 2, 38, 30, 135, 1.10),
     (1, 3, 56, 40, 150, 1.20),
     (1, 4, 84, 50, 165, 1.30),
     (1, 5, 126, 60, 180, 1.40),
-    -- Sniper Tower: 3 levels (tower_id=2)
     (2, 1, 75, 80, 250, 0.50),
     (2, 2, 150, 110, 275, 0.55),
     (2, 3, 300, 140, 300, 0.60),
-    -- Rapid Tower: 4 levels (tower_id=3)
     (3, 1, 50, 10, 100, 3.00),
     (3, 2, 70, 15, 110, 3.30),
     (3, 3, 98, 20, 120, 3.60),
@@ -162,68 +155,55 @@ ON CONFLICT (tower_id, level) DO NOTHING;
 -- Insert default enemy definitions
 INSERT INTO enemy_definitions (name, description, health, speed, reward, color, size)
 VALUES
-    ('Pawn', 'Weak but numerous foot soldier', 50, 60, 15, '#4CAF50', 20),
-    ('Knight', 'Fast moving cavalry unit', 100, 120, 35, '#2196F3', 25),
-    ('Bishop', 'Agile diagonal attacker', 80, 90, 30, '#9C27B0', 28),
-    ('Rook', 'Slow but heavily armored', 200, 50, 70, '#FF9800', 30),
-    ('Queen', 'Powerful versatile unit', 300, 80, 120, '#F44336', 35),
-    ('King', 'Ultimate boss unit', 500, 40, 250, '#FFC107', 40)
+    ('Pawn', 'Weak but numerous foot soldier', 49, 60, 8, '#4CAF50', 20),
+    ('Bishop', 'Agile diagonal attacker', 80, 90, 15, '#9C27B0', 28),
+    ('Knight', 'Fast moving cavalry unit', 100, 120, 18, '#2196F3', 25),
+    ('Rook', 'Slow but heavily armored', 200, 50, 35, '#FF9800', 30),
+    ('Queen', 'Powerful versatile unit', 300, 80, 60, '#F44336', 35),
+    ('King', 'Ultimate boss unit', 800, 30, 200, '#FFC107', 40)
 ON CONFLICT (name) DO NOTHING;
 
 -- Insert default wave definitions
 INSERT INTO wave_definitions (wave_number, enemy_id, count, spawn_delay_ms, difficulty_label) VALUES
-    -- Wave 1: 7 pawns
-    (1, 1, 7, 800, 'easy'),
-    -- Wave 2: 9 pawns
-    (2, 1, 9, 800, 'easy'),
-    -- Wave 3: 11 pawns
-    (3, 1, 11, 800, 'easy'),
-    -- Wave 4: 8 pawns + 3 knights
-    (4, 1, 8, 600, 'medium'),
-    (4, 2, 3, 1000, 'medium'),
-    -- Wave 5: 8 pawns + 3 knights
-    (5, 1, 8, 600, 'medium'),
-    (5, 2, 3, 1000, 'medium'),
-    -- Wave 6: 8 pawns + 3 knights
-    (6, 1, 8, 600, 'medium'),
-    (6, 2, 3, 1000, 'medium'),
-    -- Wave 7: mixed (4 of each basic type)
-    (7, 1, 4, 500, 'hard'),
-    (7, 2, 4, 500, 'hard'),
-    (7, 3, 4, 500, 'hard'),
-    (7, 4, 3, 500, 'hard'),
-    -- Wave 8: similar mixed
-    (8, 1, 4, 500, 'hard'),
-    (8, 2, 4, 500, 'hard'),
-    (8, 3, 4, 500, 'hard'),
+    (1, 1, 8, 800, 'easy'),
+    (2, 1, 3, 700, 'easy'),
+    (2, 2, 5, 600, 'easy'),
+    (3, 1, 3, 700, 'medium'),
+    (3, 3, 5, 600, 'medium'),
+    (4, 1, 2, 600, 'medium'),
+    (4, 2, 2, 600, 'medium'),
+    (4, 4, 4, 800, 'medium'),
+    (5, 1, 4, 500, 'hard'),
+    (5, 2, 2, 500, 'hard'),
+    (5, 6, 1, 2000, 'hard'),
+    (6, 2, 5, 450, 'hard'),
+    (6, 3, 5, 450, 'hard'),
+    (7, 4, 3, 700, 'hard'),
+    (7, 5, 2, 1000, 'hard'),
+    (8, 1, 3, 450, 'hard'),
+    (8, 2, 3, 450, 'hard'),
+    (8, 3, 3, 450, 'hard'),
     (8, 4, 3, 500, 'hard'),
-    -- Wave 9: harder mixed
-    (9, 1, 3, 450, 'hard'),
-    (9, 2, 4, 450, 'hard'),
-    (9, 3, 4, 450, 'hard'),
-    (9, 4, 4, 450, 'hard'),
-    -- Wave 10: introduce queen + king
-    (10, 1, 3, 450, 'hard'),
-    (10, 2, 3, 450, 'hard'),
-    (10, 3, 3, 450, 'hard'),
-    (10, 4, 3, 450, 'hard'),
-    (10, 5, 2, 450, 'hard'),
-    (10, 6, 1, 450, 'hard'),
-    -- Wave 11+: all types, heavy (used for waves beyond max defined)
-    (11, 1, 5, 400, 'extreme'),
-    (11, 2, 4, 400, 'extreme'),
-    (11, 3, 4, 400, 'extreme'),
-    (11, 4, 4, 400, 'extreme'),
-    (11, 5, 2, 400, 'extreme'),
-    (11, 6, 1, 400, 'extreme')
+    (9, 2, 2, 500, 'extreme'),
+    (9, 4, 3, 600, 'extreme'),
+    (9, 5, 3, 800, 'extreme'),
+    (10, 4, 4, 600, 'extreme'),
+    (10, 5, 2, 800, 'extreme'),
+    (10, 6, 2, 2500, 'extreme'),
+    (11, 1, 3, 400, 'extreme'),
+    (11, 2, 3, 400, 'extreme'),
+    (11, 3, 3, 400, 'extreme'),
+    (11, 4, 3, 500, 'extreme'),
+    (11, 5, 2, 600, 'extreme'),
+    (11, 6, 3, 2000, 'extreme')
 ON CONFLICT (wave_number, enemy_id) DO NOTHING;
 
 -- Insert default game settings presets
-INSERT INTO game_settings (mode, initial_coins, initial_lives, tower_cost_multiplier, enemy_health_multiplier, enemy_speed_multiplier, enemy_reward_multiplier, enemy_health_wave_multiplier, enemy_reward_wave_multiplier)
+INSERT INTO game_settings (mode, initial_coins, initial_lives, enemy_health_wave_multiplier, enemy_reward_wave_multiplier)
 VALUES
-    ('easy', 400, 15, 0.80, 0.80, 0.80, 1.50, 0.080, 0.040),
-    ('normal', 300, 10, 1.00, 1.00, 1.00, 1.00, 0.100, 0.050),
-    ('hard', 200, 7, 1.20, 1.50, 1.20, 0.75, 0.150, 0.070)
+    ('easy', 250, 15, 0.080, 0.040),
+    ('normal', 200, 10, 0.100, 0.050),
+    ('hard', 150, 5, 0.150, 0.060)
 ON CONFLICT (mode) DO NOTHING;
 
 -- Function to update updated_at timestamp

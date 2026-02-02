@@ -179,10 +179,6 @@ export interface GameSettings {
   mode: 'easy' | 'normal' | 'hard' | 'custom';
   initialCoins: number;
   initialLives: number;
-  towerCostMultiplier: number;
-  enemyHealthMultiplier: number;
-  enemySpeedMultiplier: number;
-  enemyRewardMultiplier: number;
   enemyHealthWaveMultiplier: number;
   enemyRewardWaveMultiplier: number;
 }

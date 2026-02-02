@@ -351,6 +351,115 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ *   post:
+ *     summary: Create a new wave
+ *     tags: [Config]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [waveNumber, enemies]
+ *             properties:
+ *               waveNumber:
+ *                 type: integer
+ *                 example: 12
+ *               enemies:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required: [enemyId, count, spawnDelayMs, difficultyLabel]
+ *                   properties:
+ *                     enemyId:
+ *                       type: integer
+ *                       example: 1
+ *                     count:
+ *                       type: integer
+ *                       example: 5
+ *                     spawnDelayMs:
+ *                       type: integer
+ *                       example: 500
+ *                     difficultyLabel:
+ *                       type: string
+ *                       example: hard
+ *     responses:
+ *       201:
+ *         description: Created wave
+ *       400:
+ *         description: Validation error or wave already exists
+ */
+
+/**
+ * @swagger
+ * /api/config/waves/{waveNumber}:
+ *   get:
+ *     summary: Get a single wave composition
+ *     tags: [Config]
+ *     parameters:
+ *       - in: path
+ *         name: waveNumber
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Wave number
+ *     responses:
+ *       200:
+ *         description: Wave composition
+ *       404:
+ *         description: Wave not found
+ *   put:
+ *     summary: Replace entire wave composition
+ *     tags: [Config]
+ *     parameters:
+ *       - in: path
+ *         name: waveNumber
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Wave number
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [enemies]
+ *             properties:
+ *               enemies:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required: [enemyId, count, spawnDelayMs, difficultyLabel]
+ *                   properties:
+ *                     enemyId:
+ *                       type: integer
+ *                     count:
+ *                       type: integer
+ *                     spawnDelayMs:
+ *                       type: integer
+ *                     difficultyLabel:
+ *                       type: string
+ *     responses:
+ *       200:
+ *         description: Replaced wave composition
+ *       400:
+ *         description: Validation error
+ *   delete:
+ *     summary: Delete an entire wave
+ *     tags: [Config]
+ *     parameters:
+ *       - in: path
+ *         name: waveNumber
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Wave number
+ *     responses:
+ *       200:
+ *         description: Wave deleted
+ *       404:
+ *         description: Wave not found
  */
 
 /**
