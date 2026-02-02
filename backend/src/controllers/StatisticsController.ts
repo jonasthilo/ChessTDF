@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-import { StatisticsService } from '../services/StatisticsService';
+import { statisticsService } from '../services/StatisticsService';
 import { GameStatistics } from '../types';
 import { parseIntParam } from './helpers';
-
-const statisticsService = new StatisticsService();
 
 /**
  * StatisticsController
@@ -20,7 +18,7 @@ export class StatisticsController {
       const offset = parseInt(req.query['offset'] as string) || 0;
 
       const statistics = await statisticsService.getAllStatistics(limit, offset);
-      res.json({ statistics, total: statistics.length });
+      res.status(200).json({ statistics, total: statistics.length });
     } catch (error) {
       console.error('Error fetching statistics:', error);
       res.status(500).json({ error: 'Failed to fetch statistics' });
@@ -34,7 +32,7 @@ export class StatisticsController {
   async getStatisticsSummary(req: Request, res: Response): Promise<void> {
     try {
       const summary = await statisticsService.getStatisticsSummary();
-      res.json(summary);
+      res.status(200).json(summary);
     } catch (error) {
       console.error('Error fetching statistics summary:', error);
       res.status(500).json({ error: 'Failed to fetch statistics summary' });
@@ -56,7 +54,7 @@ export class StatisticsController {
         return;
       }
 
-      res.json(statistics);
+      res.status(200).json(statistics);
     } catch (error) {
       console.error('Error fetching game statistics:', error);
       res.status(500).json({ error: 'Failed to fetch game statistics' });
@@ -79,7 +77,7 @@ export class StatisticsController {
       const limit = parseInt(req.query['limit'] as string) || 50;
       const statistics = await statisticsService.getStatisticsByOutcome(outcome, limit);
 
-      res.json(statistics);
+      res.status(200).json(statistics);
     } catch (error) {
       console.error('Error fetching statistics by outcome:', error);
       res.status(500).json({ error: 'Failed to fetch statistics' });
@@ -102,7 +100,7 @@ export class StatisticsController {
       const limit = parseInt(req.query['limit'] as string) || 50;
       const statistics = await statisticsService.getStatisticsByGameMode(gameMode, limit);
 
-      res.json(statistics);
+      res.status(200).json(statistics);
     } catch (error) {
       console.error('Error fetching statistics by game mode:', error);
       res.status(500).json({ error: 'Failed to fetch statistics' });
@@ -118,7 +116,7 @@ export class StatisticsController {
       const limit = parseInt(req.query['limit'] as string) || 10;
       const topScores = await statisticsService.getTopScores(limit);
 
-      res.json(topScores);
+      res.status(200).json(topScores);
     } catch (error) {
       console.error('Error fetching top scores:', error);
       res.status(500).json({ error: 'Failed to fetch top scores' });
@@ -134,7 +132,7 @@ export class StatisticsController {
       const limit = parseInt(req.query['limit'] as string) || 20;
       const recentGames = await statisticsService.getRecentGames(limit);
 
-      res.json(recentGames);
+      res.status(200).json(recentGames);
     } catch (error) {
       console.error('Error fetching recent games:', error);
       res.status(500).json({ error: 'Failed to fetch recent games' });
@@ -192,7 +190,7 @@ export class StatisticsController {
 
       const periodStats = await statisticsService.getStatisticsForPeriod(startDate, endDate);
 
-      res.json(periodStats);
+      res.status(200).json(periodStats);
     } catch (error) {
       console.error('Error fetching period statistics:', error);
       res.status(500).json({ error: 'Failed to fetch period statistics' });
@@ -200,12 +198,12 @@ export class StatisticsController {
   }
 
   /**
-   * DELETE /api/statistics/cleanup/:days
+   * DELETE /api/statistics?olderThanDays=90
    * Cleanup old statistics (admin endpoint)
    */
   async cleanupOldStatistics(req: Request, res: Response): Promise<void> {
     try {
-      const daysParam = req.params['days'];
+      const daysParam = req.query['olderThanDays'] as string | undefined;
       const days = parseIntParam(daysParam);
 
       if (isNaN(days) || days < 30) {
@@ -215,7 +213,7 @@ export class StatisticsController {
 
       const deletedCount = await statisticsService.cleanupOldStatistics(days);
 
-      res.json({ message: `Deleted ${deletedCount} old statistics`, deletedCount });
+      res.status(200).json({ message: `Deleted ${deletedCount} old statistics`, deletedCount });
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ error: error.message });

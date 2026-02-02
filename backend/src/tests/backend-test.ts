@@ -124,7 +124,7 @@ async function fetchWithStatus<T>(path: string, options?: RequestInit): Promise<
       ...options?.headers,
     },
   });
-  const data = (await response.json()) as T;
+  const data = response.status === 204 ? (undefined as T) : ((await response.json()) as T);
   return { status: response.status, data };
 }
 
@@ -1022,12 +1022,12 @@ async function testApiEndpoints(): Promise<void> {
   });
 
   // ---- Game Lifecycle ----
-  await test('POST /api/game/start', async () => {
+  await test('POST /api/games', async () => {
     const { status, data: response } = await fetchWithStatus<{
       gameId: string;
       initialCoins: number;
       lives: number;
-    }>('/api/game/start', {
+    }>('/api/games', {
       method: 'POST',
       body: JSON.stringify({ difficulty: 'normal', gameMode: '10waves' }),
     });
@@ -1036,35 +1036,35 @@ async function testApiEndpoints(): Promise<void> {
     assertEqual(response.initialCoins, normalSettings.initialCoins, 'Initial coins should match DB');
     assertEqual(response.lives, normalSettings.initialLives, 'Lives should match DB');
     // Cleanup
-    await fetchJson(`/api/game/${response.gameId}/end`, {
+    await fetchJson(`/api/games/${response.gameId}/end`, {
       method: 'POST',
       body: JSON.stringify({ finalWave: 0, enemiesKilled: 0 }),
     });
   });
 
-  await test('GET /api/game/config', async () => {
+  await test('GET /api/games/config', async () => {
     const { status, data: config } = await fetchWithStatus<{
       towers: unknown[];
       enemies: unknown[];
-    }>('/api/game/config');
+    }>('/api/games/config');
     assertEqual(status, 200, 'Should return 200');
     assert(config.towers.length >= 3, 'Expected at least 3 towers');
     assert(config.enemies.length >= 6, 'Expected at least 6 enemies');
   });
 
   // Create a game for tower/wave/state tests
-  const gameResponse = await fetchJson<{ gameId: string }>('/api/game/start', {
+  const gameResponse = await fetchJson<{ gameId: string }>('/api/games', {
     method: 'POST',
     body: JSON.stringify({ difficulty: 'normal', gameMode: '10waves' }),
   });
   const testGameId = gameResponse.gameId;
 
-  await test('POST /api/game/:gameId/tower (build)', async () => {
+  await test('POST /api/games/:gameId/towers (build)', async () => {
     const { status, data: response } = await fetchWithStatus<{
       success: boolean;
       tower: { towerId: number; level: number };
       remainingCoins: number;
-    }>(`/api/game/${testGameId}/tower`, {
+    }>(`/api/games/${testGameId}/towers`, {
       method: 'POST',
       body: JSON.stringify({ towerId: 1, gridX: 5, gridY: 3 }),
     });
@@ -1078,9 +1078,9 @@ async function testApiEndpoints(): Promise<void> {
     );
   });
 
-  await test('POST /api/game/:gameId/tower (occupied position)', async () => {
+  await test('POST /api/games/:gameId/towers (occupied position)', async () => {
     const { status, data } = await fetchWithStatus<{ error: string }>(
-      `/api/game/${testGameId}/tower`,
+      `/api/games/${testGameId}/towers`,
       {
         method: 'POST',
         body: JSON.stringify({ towerId: 1, gridX: 5, gridY: 3 }),
@@ -1090,13 +1090,13 @@ async function testApiEndpoints(): Promise<void> {
     assert(data.error !== undefined, 'Should return error message');
   });
 
-  await test('GET /api/game/:gameId/state', async () => {
+  await test('GET /api/games/:gameId', async () => {
     const { status, data: state } = await fetchWithStatus<{
       coins: number;
       lives: number;
       wave: number;
       towers: unknown[];
-    }>(`/api/game/${testGameId}/state`);
+    }>(`/api/games/${testGameId}`);
     assertEqual(status, 200, 'Should return 200');
     assertEqual(
       state.coins,
@@ -1108,66 +1108,66 @@ async function testApiEndpoints(): Promise<void> {
     assert(state.towers.length >= 1, 'Should have at least 1 tower');
   });
 
-  await test('GET /api/game/:gameId/state (not found)', async () => {
+  await test('GET /api/games/:gameId (not found)', async () => {
     const { status } = await fetchWithStatus<{ error: string }>(
-      '/api/game/nonexistent-game-id/state'
+      '/api/games/nonexistent-game-id'
     );
     assertEqual(status, 404, 'Should return 404 for nonexistent game');
   });
 
   // Get the tower ID from state for upgrade/sell tests
   const stateForTower = await fetchJson<{ towers: Array<{ id: string }> }>(
-    `/api/game/${testGameId}/state`
+    `/api/games/${testGameId}`
   );
   const builtTowerId = stateForTower.towers[0]?.id;
 
-  await test('POST /api/game/:gameId/tower/:towerId/upgrade', async () => {
+  await test('PATCH /api/games/:gameId/towers/:towerId (upgrade)', async () => {
     assertDefined(builtTowerId, 'Need a tower ID for upgrade test');
     const { status, data } = await fetchWithStatus<{
       success: boolean;
       tower: { level: number };
       remainingCoins: number;
-    }>(`/api/game/${testGameId}/tower/${builtTowerId}/upgrade`, { method: 'POST' });
+    }>(`/api/games/${testGameId}/towers/${builtTowerId}`, { method: 'PATCH' });
     assertEqual(status, 200, 'Should return 200');
     assert(data.success, 'Upgrade should succeed');
     assertEqual(data.tower.level, 2, 'Tower should be level 2 after upgrade');
   });
 
-  await test('POST /api/game/:gameId/tower/:towerId/upgrade (not found)', async () => {
+  await test('PATCH /api/games/:gameId/towers/:towerId (not found)', async () => {
     const { status } = await fetchWithStatus<{ error: string }>(
-      `/api/game/${testGameId}/tower/fake-tower-id/upgrade`,
-      { method: 'POST' }
+      `/api/games/${testGameId}/towers/fake-tower-id`,
+      { method: 'PATCH' }
     );
     assertEqual(status, 400, 'Should return 400 for nonexistent tower');
   });
 
-  await test('DELETE /api/game/:gameId/tower/:towerId (sell)', async () => {
+  await test('DELETE /api/games/:gameId/towers/:towerId (sell)', async () => {
     assertDefined(builtTowerId, 'Need a tower ID for sell test');
     const { status, data } = await fetchWithStatus<{
       success: boolean;
       refundAmount: number;
       remainingCoins: number;
-    }>(`/api/game/${testGameId}/tower/${builtTowerId}`, { method: 'DELETE' });
+    }>(`/api/games/${testGameId}/towers/${builtTowerId}`, { method: 'DELETE' });
     assertEqual(status, 200, 'Should return 200');
     assert(data.success, 'Sell should succeed');
     assertGreater(data.refundAmount, 0, 'Refund should be positive');
     assertGreater(data.remainingCoins, 0, 'Remaining coins should be positive');
   });
 
-  await test('DELETE /api/game/:gameId/tower/:towerId (not found)', async () => {
+  await test('DELETE /api/games/:gameId/towers/:towerId (not found)', async () => {
     const { status } = await fetchWithStatus<{ error: string }>(
-      `/api/game/${testGameId}/tower/fake-tower-id`,
+      `/api/games/${testGameId}/towers/fake-tower-id`,
       { method: 'DELETE' }
     );
     assertEqual(status, 400, 'Should return 400 for nonexistent tower');
   });
 
   // Coins and lives endpoints
-  await test('POST /api/game/:gameId/coins', async () => {
+  await test('PATCH /api/games/:gameId/coins', async () => {
     const { status, data } = await fetchWithStatus<{ success: boolean; coins: number }>(
-      `/api/game/${testGameId}/coins`,
+      `/api/games/${testGameId}/coins`,
       {
-        method: 'POST',
+        method: 'PATCH',
         body: JSON.stringify({ amount: 100 }),
       }
     );
@@ -1176,47 +1176,47 @@ async function testApiEndpoints(): Promise<void> {
     assertGreater(data.coins, 0, 'Coins should be positive');
   });
 
-  await test('POST /api/game/:gameId/coins (invalid amount)', async () => {
+  await test('PATCH /api/games/:gameId/coins (invalid amount)', async () => {
     const { status } = await fetchWithStatus<{ error: string }>(
-      `/api/game/${testGameId}/coins`,
+      `/api/games/${testGameId}/coins`,
       {
-        method: 'POST',
+        method: 'PATCH',
         body: JSON.stringify({ amount: -10 }),
       }
     );
     assertEqual(status, 400, 'Should return 400 for negative amount');
   });
 
-  await test('POST /api/game/:gameId/coins (not found)', async () => {
+  await test('PATCH /api/games/:gameId/coins (not found)', async () => {
     const { status } = await fetchWithStatus<{ error: string }>(
-      '/api/game/nonexistent-game-id/coins',
+      '/api/games/nonexistent-game-id/coins',
       {
-        method: 'POST',
+        method: 'PATCH',
         body: JSON.stringify({ amount: 10 }),
       }
     );
     assertEqual(status, 404, 'Should return 404 for nonexistent game');
   });
 
-  await test('POST /api/game/:gameId/life/lose', async () => {
+  await test('PATCH /api/games/:gameId/lives', async () => {
     const { status, data } = await fetchWithStatus<{
       success: boolean;
       lives: number;
       gameOver: boolean;
-    }>(`/api/game/${testGameId}/life/lose`, { method: 'POST' });
+    }>(`/api/games/${testGameId}/lives`, { method: 'PATCH' });
     assertEqual(status, 200, 'Should return 200');
     assert(data.success, 'Lose life should succeed');
     assertEqual(data.lives, normalSettings.initialLives - 1, 'Lives should decrease by 1');
     assert(!data.gameOver, 'Should not be game over yet');
   });
 
-  await test('POST /api/game/:gameId/wave', async () => {
+  await test('POST /api/games/:gameId/waves', async () => {
     const { status, data: response } = await fetchWithStatus<{
       waveNumber: number;
       enemies: unknown[];
       enemyHealthWaveMultiplier: number;
       enemyRewardWaveMultiplier: number;
-    }>(`/api/game/${testGameId}/wave`, { method: 'POST' });
+    }>(`/api/games/${testGameId}/waves`, { method: 'POST' });
     assertEqual(status, 200, 'Should return 200');
     assertEqual(response.waveNumber, 1, 'Wave should be 1');
     assert(response.enemies.length > 0, 'Should have enemies');
@@ -1224,9 +1224,9 @@ async function testApiEndpoints(): Promise<void> {
     assert(typeof response.enemyRewardWaveMultiplier === 'number', 'Should have reward multiplier');
   });
 
-  await test('POST /api/game/:gameId/end', async () => {
+  await test('POST /api/games/:gameId/end', async () => {
     const { status, data: response } = await fetchWithStatus<{ success: boolean }>(
-      `/api/game/${testGameId}/end`,
+      `/api/games/${testGameId}/end`,
       {
         method: 'POST',
         body: JSON.stringify({ finalWave: 1, enemiesKilled: 5 }),
@@ -1361,9 +1361,9 @@ async function testApiEndpoints(): Promise<void> {
     assertEqual(status, 400, 'Should return 400 for missing required fields');
   });
 
-  await test('DELETE /api/statistics/cleanup/:days (invalid)', async () => {
+  await test('DELETE /api/statistics?olderThanDays=5 (invalid)', async () => {
     const { status } = await fetchWithStatus<{ error: string }>(
-      '/api/statistics/cleanup/5',
+      '/api/statistics?olderThanDays=5',
       { method: 'DELETE' }
     );
     assertEqual(status, 400, 'Should return 400 for days < 30');

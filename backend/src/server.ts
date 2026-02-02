@@ -107,7 +107,7 @@ app.get('/health', async (req: Request, res: Response) => {
 });
 
 // API Routes
-app.use('/api/game', gameRoutes);
+app.use('/api/games', gameRoutes);
 app.use('/api/config', configRoutes);
 app.use('/api/statistics', statisticsRoutes);
 

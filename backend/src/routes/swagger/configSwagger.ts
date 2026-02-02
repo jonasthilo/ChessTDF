@@ -209,16 +209,8 @@
  *           minimum: 1
  *         description: Level number
  *     responses:
- *       200:
+ *       204:
  *         description: Level deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
  *       404:
  *         description: Tower level not found
  *         content:
@@ -456,7 +448,7 @@
  *           type: integer
  *         description: Wave number
  *     responses:
- *       200:
+ *       204:
  *         description: Wave deleted
  *       404:
  *         description: Wave not found
@@ -589,6 +581,11 @@
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
+ */
+
+/**
+ * @swagger
+ * /api/config/settings/{id}:
  *   patch:
  *     summary: Update settings
  *     tags: [Config]

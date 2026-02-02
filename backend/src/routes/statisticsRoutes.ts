@@ -32,7 +32,7 @@ router.get('/mode/:gameMode', (req, res) => statisticsController.getStatisticsBy
 // POST /api/statistics - Record new game statistics
 router.post('/', (req, res) => statisticsController.recordStatistics(req, res));
 
-// DELETE /api/statistics/cleanup/:days - Cleanup old statistics (admin)
-router.delete('/cleanup/:days', (req, res) => statisticsController.cleanupOldStatistics(req, res));
+// DELETE /api/statistics?olderThanDays=90 - Cleanup old statistics (admin)
+router.delete('/', (req, res) => statisticsController.cleanupOldStatistics(req, res));
 
 export default router;

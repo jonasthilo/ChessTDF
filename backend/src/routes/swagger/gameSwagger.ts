@@ -3,10 +3,25 @@
 
 /**
  * @swagger
- * /api/game/start:
+ * /api/games:
  *   post:
  *     summary: Start a new game session
  *     tags: [Game]
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               difficulty:
+ *                 type: string
+ *                 enum: [easy, normal, hard, custom]
+ *                 default: normal
+ *               gameMode:
+ *                 type: string
+ *                 enum: [10waves, 20waves, endless]
+ *                 default: 10waves
  *     responses:
  *       201:
  *         description: Game created successfully
@@ -24,7 +39,7 @@
 
 /**
  * @swagger
- * /api/game/config:
+ * /api/games/config:
  *   get:
  *     summary: Get game configuration (tower and enemy definitions)
  *     tags: [Game]
@@ -45,7 +60,7 @@
 
 /**
  * @swagger
- * /api/game/{gameId}/state:
+ * /api/games/{gameId}:
  *   get:
  *     summary: Get current game state
  *     tags: [Game]
@@ -80,7 +95,7 @@
 
 /**
  * @swagger
- * /api/game/{gameId}/tower:
+ * /api/games/{gameId}/towers:
  *   post:
  *     summary: Build a tower at specified grid position
  *     tags: [Tower]
@@ -121,8 +136,8 @@
 
 /**
  * @swagger
- * /api/game/{gameId}/tower/{towerId}/upgrade:
- *   post:
+ * /api/games/{gameId}/towers/{towerId}:
+ *   patch:
  *     summary: Upgrade a tower to the next level
  *     tags: [Tower]
  *     parameters:
@@ -143,17 +158,22 @@
  *     responses:
  *       200:
  *         description: Tower upgraded successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/UpgradeTowerResponse'
  *       400:
  *         description: Invalid request (insufficient coins, max level, etc.)
- *       404:
- *         description: Game or tower not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server error
- */
-
-/**
- * @swagger
- * /api/game/{gameId}/tower/{towerId}:
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *   delete:
  *     summary: Sell a tower for a partial refund
  *     tags: [Tower]
@@ -175,15 +195,27 @@
  *     responses:
  *       200:
  *         description: Tower sold successfully
- *       404:
- *         description: Game or tower not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/SellTowerResponse'
+ *       400:
+ *         description: Tower not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 /**
  * @swagger
- * /api/game/{gameId}/wave:
+ * /api/games/{gameId}/waves:
  *   post:
  *     summary: Start the next wave
  *     tags: [Wave]
@@ -218,7 +250,7 @@
 
 /**
  * @swagger
- * /api/game/{gameId}/end:
+ * /api/games/{gameId}/end:
  *   post:
  *     summary: End the game and submit final stats
  *     tags: [Game]
@@ -253,8 +285,8 @@
 
 /**
  * @swagger
- * /api/game/{gameId}/coins:
- *   post:
+ * /api/games/{gameId}/coins:
+ *   patch:
  *     summary: Add coins to the game (when enemy dies)
  *     tags: [Game]
  *     parameters:
@@ -271,24 +303,50 @@
  *         application/json:
  *           schema:
  *             type: object
+ *             required: [amount]
  *             properties:
  *               amount:
  *                 type: number
+ *                 minimum: 1
+ *                 example: 10
  *     responses:
  *       200:
  *         description: Coins added successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 coins:
+ *                   type: number
+ *                   example: 260
  *       400:
  *         description: Invalid amount
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       404:
  *         description: Game not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 /**
  * @swagger
- * /api/game/{gameId}/life/lose:
- *   post:
+ * /api/games/{gameId}/lives:
+ *   patch:
  *     summary: Lose a life (when enemy reaches end)
  *     tags: [Game]
  *     parameters:
@@ -302,10 +360,32 @@
  *     responses:
  *       200:
  *         description: Life lost successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 lives:
+ *                   type: number
+ *                   example: 9
+ *                 gameOver:
+ *                   type: boolean
+ *                   example: false
  *       404:
  *         description: Game not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  *       500:
  *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 
 export {};
