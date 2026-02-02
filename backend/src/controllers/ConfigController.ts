@@ -1,11 +1,8 @@
 import { Request, Response } from 'express';
-import { ConfigService } from '../services/ConfigService';
-import { WaveService } from '../services/WaveService';
+import { configService } from '../services/ConfigService';
+import { waveService } from '../services/WaveService';
 import { TowerLevel, EnemyDefinition, GameSettings } from '../types';
 import { parseIntParam } from './helpers';
-
-const configService = new ConfigService();
-const waveService = new WaveService();
 
 /**
  * ConfigController
@@ -38,7 +35,7 @@ export class ConfigController {
       }
 
       // If id provided, return single object; otherwise return array
-      res.json(id ? towers[0] : towers);
+      res.status(200).json(id ? towers[0] : towers);
     } catch (error) {
       console.error('Error fetching tower definitions:', error);
       res.status(500).json({ error: 'Failed to fetch tower definitions' });
@@ -69,7 +66,7 @@ export class ConfigController {
       }
 
       const updatedTower = await configService.getTowerDefinitionsWithLevels(id);
-      res.json(updatedTower[0]);
+      res.status(200).json(updatedTower[0]);
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ error: error.message });
@@ -103,7 +100,7 @@ export class ConfigController {
         return;
       }
 
-      res.json(levels);
+      res.status(200).json(levels);
     } catch (error) {
       console.error('Error fetching tower levels:', error);
       res.status(500).json({ error: 'Failed to fetch tower levels' });
@@ -138,7 +135,7 @@ export class ConfigController {
         return;
       }
 
-      res.json(towerLevel);
+      res.status(200).json(towerLevel);
     } catch (error) {
       console.error('Error fetching tower level:', error);
       res.status(500).json({ error: 'Failed to fetch tower level' });
@@ -180,7 +177,7 @@ export class ConfigController {
       await configService.upsertTowerLevel(towerLevel);
 
       const updated = await configService.getTowerLevel(towerId, level);
-      res.json(updated);
+      res.status(200).json(updated);
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ error: error.message });
@@ -219,7 +216,7 @@ export class ConfigController {
         return;
       }
 
-      res.json({ success: true });
+      res.status(204).send();
     } catch (error) {
       console.error('Error deleting tower level:', error);
       res.status(500).json({ error: 'Failed to delete tower level' });
@@ -235,7 +232,7 @@ export class ConfigController {
   async getAllEnemyDefinitions(req: Request, res: Response): Promise<void> {
     try {
       const enemies = await configService.getAllEnemyDefinitions();
-      res.json(enemies);
+      res.status(200).json(enemies);
     } catch (error) {
       console.error('Error fetching enemy definitions:', error);
       res.status(500).json({ error: 'Failed to fetch enemy definitions' });
@@ -263,7 +260,7 @@ export class ConfigController {
         return;
       }
 
-      res.json(enemy);
+      res.status(200).json(enemy);
     } catch (error) {
       console.error('Error fetching enemy definition:', error);
       res.status(500).json({ error: 'Failed to fetch enemy definition' });
@@ -294,7 +291,7 @@ export class ConfigController {
       }
 
       const updatedEnemy = await configService.getEnemyDefinition(id);
-      res.json(updatedEnemy);
+      res.status(200).json(updatedEnemy);
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ error: error.message });
@@ -314,7 +311,7 @@ export class ConfigController {
   async getAllSettings(req: Request, res: Response): Promise<void> {
     try {
       const settings = await configService.getAllSettings();
-      res.json(settings);
+      res.status(200).json(settings);
     } catch (error) {
       console.error('Error fetching settings:', error);
       res.status(500).json({ error: 'Failed to fetch settings' });
@@ -327,7 +324,7 @@ export class ConfigController {
    */
   async getSettingsByMode(req: Request, res: Response): Promise<void> {
     try {
-      const { mode } = req.params;
+      const mode = req.params['mode'] as string;
 
       if (mode !== 'easy' && mode !== 'normal' && mode !== 'hard' && mode !== 'custom') {
         res.status(400).json({ error: 'Invalid mode. Must be easy, normal, hard, or custom' });
@@ -341,7 +338,7 @@ export class ConfigController {
         return;
       }
 
-      res.json(settings);
+      res.status(200).json(settings);
     } catch (error) {
       console.error('Error fetching settings by mode:', error);
       res.status(500).json({ error: 'Failed to fetch settings' });
@@ -369,7 +366,7 @@ export class ConfigController {
         return;
       }
 
-      res.json(settings);
+      res.status(200).json(settings);
     } catch (error) {
       console.error('Error fetching settings by ID:', error);
       res.status(500).json({ error: 'Failed to fetch settings' });
@@ -431,7 +428,7 @@ export class ConfigController {
       }
 
       const updatedSettings = await configService.getSettingsById(id);
-      res.json(updatedSettings);
+      res.status(200).json(updatedSettings);
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ error: error.message });
@@ -455,7 +452,7 @@ export class ConfigController {
         return;
       }
 
-      res.json(settings);
+      res.status(200).json(settings);
     } catch (error) {
       console.error('Error fetching default settings:', error);
       res.status(500).json({ error: 'Failed to fetch default settings' });
@@ -471,7 +468,7 @@ export class ConfigController {
   async getWaves(req: Request, res: Response): Promise<void> {
     try {
       const waves = await waveService.getAllWaves();
-      res.json(waves);
+      res.status(200).json(waves);
     } catch (error) {
       console.error('Error fetching wave definitions:', error);
       res.status(500).json({ error: 'Failed to fetch wave definitions' });
@@ -499,7 +496,7 @@ export class ConfigController {
         return;
       }
 
-      res.json(wave);
+      res.status(200).json(wave);
     } catch (error) {
       console.error('Error fetching wave:', error);
       res.status(500).json({ error: 'Failed to fetch wave' });
@@ -555,7 +552,7 @@ export class ConfigController {
       }
 
       const wave = await waveService.replaceWave(waveNumber, enemies);
-      res.json(wave);
+      res.status(200).json(wave);
     } catch (error) {
       if (error instanceof Error) {
         res.status(400).json({ error: error.message });
@@ -587,7 +584,7 @@ export class ConfigController {
         return;
       }
 
-      res.json({ success: true });
+      res.status(204).send();
     } catch (error) {
       console.error('Error deleting wave:', error);
       res.status(500).json({ error: 'Failed to delete wave' });

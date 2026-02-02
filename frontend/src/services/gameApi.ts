@@ -32,7 +32,7 @@ export const gameApi = {
    * Get game configuration (tower and enemy definitions)
    */
   async getConfig(): Promise<GameConfigResponse> {
-    const response = await api.get<GameConfigResponse>('/game/config');
+    const response = await api.get<GameConfigResponse>('/games/config');
     return response.data;
   },
 
@@ -40,7 +40,7 @@ export const gameApi = {
    * Start a new game session
    */
   async startGame(difficulty: string = 'normal'): Promise<StartGameResponse> {
-    const response = await api.post<StartGameResponse>('/game/start', { difficulty });
+    const response = await api.post<StartGameResponse>('/games', { difficulty });
     return response.data;
   },
 
@@ -48,7 +48,7 @@ export const gameApi = {
    * Build a tower at the specified grid position
    */
   async buildTower(gameId: string, request: BuildTowerRequest): Promise<BuildTowerResponse> {
-    const response = await api.post<BuildTowerResponse>(`/game/${gameId}/tower`, request);
+    const response = await api.post<BuildTowerResponse>(`/games/${gameId}/towers`, request);
     return response.data;
   },
 
@@ -56,7 +56,7 @@ export const gameApi = {
    * Start the next wave
    */
   async startWave(gameId: string): Promise<StartWaveResponse> {
-    const response = await api.post<StartWaveResponse>(`/game/${gameId}/wave`);
+    const response = await api.post<StartWaveResponse>(`/games/${gameId}/waves`);
     return response.data;
   },
 
@@ -64,7 +64,7 @@ export const gameApi = {
    * Get current game state
    */
   async getGameState(gameId: string): Promise<GameStateResponse> {
-    const response = await api.get<GameStateResponse>(`/game/${gameId}/state`);
+    const response = await api.get<GameStateResponse>(`/games/${gameId}`);
     return response.data;
   },
 
@@ -72,7 +72,7 @@ export const gameApi = {
    * End the game and submit final statistics
    */
   async endGame(gameId: string, request: EndGameRequest): Promise<EndGameResponse> {
-    const response = await api.post<EndGameResponse>(`/game/${gameId}/end`, request);
+    const response = await api.post<EndGameResponse>(`/games/${gameId}/end`, request);
     return response.data;
   },
 
@@ -80,8 +80,8 @@ export const gameApi = {
    * Upgrade a tower to the next level
    */
   async upgradeTower(gameId: string, towerId: string): Promise<UpgradeTowerResponse> {
-    const response = await api.post<UpgradeTowerResponse>(
-      `/game/${gameId}/tower/${towerId}/upgrade`
+    const response = await api.patch<UpgradeTowerResponse>(
+      `/games/${gameId}/towers/${towerId}`
     );
     return response.data;
   },
@@ -90,7 +90,7 @@ export const gameApi = {
    * Sell a tower for a partial refund
    */
   async sellTower(gameId: string, towerId: string): Promise<SellTowerResponse> {
-    const response = await api.delete<SellTowerResponse>(`/game/${gameId}/tower/${towerId}`);
+    const response = await api.delete<SellTowerResponse>(`/games/${gameId}/towers/${towerId}`);
     return response.data;
   },
 
@@ -211,20 +211,18 @@ export const gameApi = {
   /**
    * Delete a tower level
    */
-  async deleteTowerLevel(towerId: number, level: number): Promise<{ success: boolean }> {
-    const response = await api.delete<{ success: boolean }>(
-      `/config/towers/${towerId}/levels/${level}`
-    );
-    return response.data;
+  async deleteTowerLevel(towerId: number, level: number): Promise<void> {
+    await api.delete(`/config/towers/${towerId}/levels/${level}`);
   },
 
   /**
    * Add coins to the game (when enemy dies)
    */
   async addCoins(gameId: string, amount: number): Promise<{ success: boolean; coins: number }> {
-    const response = await api.post<{ success: boolean; coins: number }>(`/game/${gameId}/coins`, {
-      amount,
-    });
+    const response = await api.patch<{ success: boolean; coins: number }>(
+      `/games/${gameId}/coins`,
+      { amount }
+    );
     return response.data;
   },
 
@@ -232,8 +230,8 @@ export const gameApi = {
    * Lose a life (when enemy reaches end)
    */
   async loseLife(gameId: string): Promise<{ success: boolean; lives: number; gameOver: boolean }> {
-    const response = await api.post<{ success: boolean; lives: number; gameOver: boolean }>(
-      `/game/${gameId}/life/lose`
+    const response = await api.patch<{ success: boolean; lives: number; gameOver: boolean }>(
+      `/games/${gameId}/lives`
     );
     return response.data;
   },
