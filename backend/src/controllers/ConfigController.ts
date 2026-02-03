@@ -163,7 +163,24 @@ export class ConfigController {
         return;
       }
 
-      const { cost, damage, range, fireRate } = req.body;
+      const {
+        cost,
+        damage,
+        range,
+        fireRate,
+        projectileSpeed,
+        splashRadius,
+        splashChance,
+        chainCount,
+        pierceCount,
+        targetCount,
+        statusEffect,
+        effectDuration,
+        effectStrength,
+        auraRadius,
+        auraEffect,
+        auraStrength,
+      } = req.body;
 
       const towerLevel: TowerLevel = {
         towerId,
@@ -172,6 +189,18 @@ export class ConfigController {
         damage,
         range,
         fireRate,
+        projectileSpeed,
+        splashRadius,
+        splashChance,
+        chainCount,
+        pierceCount,
+        targetCount,
+        statusEffect,
+        effectDuration,
+        effectStrength,
+        auraRadius,
+        auraEffect,
+        auraStrength,
       };
 
       await configService.upsertTowerLevel(towerLevel);

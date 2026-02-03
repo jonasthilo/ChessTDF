@@ -12,6 +12,9 @@ CREATE TABLE IF NOT EXISTS tower_definitions (
     color VARCHAR(20) NOT NULL,
     description TEXT,
     max_level INTEGER NOT NULL DEFAULT 5,
+    attack_type VARCHAR(20) NOT NULL DEFAULT 'single', -- single | pierce | splash | chain | multi | aura
+    projectile_type VARCHAR(20) NOT NULL DEFAULT 'homing', -- homing | ballistic | lob
+    default_targeting VARCHAR(20) NOT NULL DEFAULT 'first', -- first | last | nearest | strongest | weakest
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -27,6 +30,23 @@ CREATE TABLE IF NOT EXISTS tower_levels (
     damage INTEGER NOT NULL,
     range INTEGER NOT NULL,
     fire_rate DECIMAL(4,2) NOT NULL,
+    -- Projectile properties
+    projectile_speed INTEGER NOT NULL DEFAULT 400,
+    -- Splash properties (for splash/single with splash_chance)
+    splash_radius INTEGER NOT NULL DEFAULT 0,
+    splash_chance INTEGER NOT NULL DEFAULT 0, -- 0-100%
+    -- Multi-target properties
+    chain_count INTEGER NOT NULL DEFAULT 0,
+    pierce_count INTEGER NOT NULL DEFAULT 0,
+    target_count INTEGER NOT NULL DEFAULT 1,
+    -- Status effect properties
+    status_effect VARCHAR(20) NOT NULL DEFAULT 'none', -- none | slow | poison | armor_shred | mark
+    effect_duration INTEGER NOT NULL DEFAULT 0, -- milliseconds
+    effect_strength INTEGER NOT NULL DEFAULT 0, -- percentage (e.g., 20 = 20% slow, or DPS for poison)
+    -- Aura properties (for King tower)
+    aura_radius INTEGER NOT NULL DEFAULT 0,
+    aura_effect VARCHAR(20) NOT NULL DEFAULT 'none', -- none | damage_buff | speed_buff | range_buff
+    aura_strength INTEGER NOT NULL DEFAULT 0, -- percentage (e.g., 15 = 1.15x multiplier)
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (tower_id, level)
@@ -128,28 +148,60 @@ CREATE INDEX IF NOT EXISTS idx_game_statistics_game_mode ON game_statistics(game
 CREATE INDEX IF NOT EXISTS idx_wave_definitions_wave ON wave_definitions(wave_number);
 
 -- Insert default tower definitions (metadata only)
-INSERT INTO tower_definitions (name, color, description, max_level)
+-- Tower IDs map to chess pieces: 1=Pawn, 2=Rook, 3=Knight, 4=Bishop, 5=Queen, 6=King
+INSERT INTO tower_definitions (name, color, description, max_level, attack_type, projectile_type, default_targeting)
 VALUES
-    ('Basic Tower', '#607D8B', 'Balanced tower for general defense', 5),
-    ('Sniper Tower', '#1565C0', 'Long range, high damage, slow firing', 3),
-    ('Rapid Tower', '#7CB342', 'Fast firing, low damage, short range', 4)
+    ('Morphy Tower', '#607D8B', 'The foundation of any defense. Balanced and reliable, like the father of modern chess.', 5, 'single', 'homing', 'first'),
+    ('Carlsen Tower', '#1565C0', 'Precise piercing shots that see far ahead and pass through multiple enemies.', 3, 'pierce', 'homing', 'first'),
+    ('Tal Tower', '#7CB342', 'The Magician strikes fast with tactical slows and surprising splash damage.', 4, 'single', 'homing', 'nearest'),
+    ('Kasparov Tower', '#9C27B0', 'Powerful chain attacks bounce between enemies, leaving poison in their wake.', 4, 'chain', 'homing', 'nearest'),
+    ('Fischer Tower', '#F44336', 'Dominant multi-target attacks mark enemies for devastating follow-up damage.', 3, 'multi', 'homing', 'strongest'),
+    ('Petrosian Tower', '#FFC107', 'Iron defense that buffs nearby towers with a powerful damage aura.', 3, 'aura', 'homing', 'nearest')
 ON CONFLICT (name) DO NOTHING;
 
 -- Insert default tower levels (level 1 = base, level 2+ = upgrades)
-INSERT INTO tower_levels (tower_id, level, cost, damage, range, fire_rate)
+-- Design philosophy: Rock-paper-scissors trade-offs, not all stats increase every level
+-- Columns: tower_id, level, cost, damage, range, fire_rate, projectile_speed,
+--          splash_radius, splash_chance, chain_count, pierce_count, target_count,
+--          status_effect, effect_duration, effect_strength, aura_radius, aura_effect, aura_strength
+INSERT INTO tower_levels (tower_id, level, cost, damage, range, fire_rate, projectile_speed,
+    splash_radius, splash_chance, chain_count, pierce_count, target_count,
+    status_effect, effect_duration, effect_strength, aura_radius, aura_effect, aura_strength)
 VALUES
-    (1, 1, 29, 21, 120, 1.00),
-    (1, 2, 38, 30, 135, 1.10),
-    (1, 3, 56, 40, 150, 1.20),
-    (1, 4, 84, 50, 165, 1.30),
-    (1, 5, 126, 60, 180, 1.40),
-    (2, 1, 75, 80, 250, 0.50),
-    (2, 2, 150, 110, 275, 0.55),
-    (2, 3, 300, 140, 300, 0.60),
-    (3, 1, 50, 10, 100, 3.00),
-    (3, 2, 70, 15, 110, 3.30),
-    (3, 3, 98, 20, 120, 3.60),
-    (3, 4, 137, 25, 130, 3.90)
+    -- Morphy Tower (Pawn) - Balanced foundation, cheap & reliable
+    -- Trade-off: Jack of all trades, master of none. No special effects.
+    (1, 1, 30, 20, 120, 1.00, 400, 0, 0, 0, 0, 1, 'none', 0, 0, 0, 'none', 0),
+    (1, 2, 40, 28, 120, 1.10, 400, 0, 0, 0, 0, 1, 'none', 0, 0, 0, 'none', 0),
+    (1, 3, 60, 36, 130, 1.20, 400, 0, 0, 0, 0, 1, 'none', 0, 0, 0, 'none', 0),
+    (1, 4, 90, 45, 130, 1.30, 400, 0, 0, 0, 0, 1, 'none', 0, 0, 0, 'none', 0),
+    (1, 5, 150, 70, 150, 1.50, 420, 0, 0, 0, 0, 1, 'none', 0, 0, 0, 'none', 0),
+    -- Carlsen Tower (Rook) - Long range pierce, slow but devastating
+    -- Trade-off: Overkills single weak enemies, shine against lines. Range stays high.
+    (2, 1, 80, 70, 250, 0.45, 500, 0, 0, 0, 2, 1, 'none', 0, 0, 0, 'none', 0),
+    (2, 2, 160, 90, 250, 0.50, 520, 0, 0, 0, 3, 1, 'none', 0, 0, 0, 'none', 0),
+    (2, 3, 350, 120, 280, 0.55, 540, 0, 0, 0, 5, 1, 'none', 0, 0, 0, 'none', 0),
+    -- Tal Tower (Knight) - Fast utility, slows & splashes, LOW damage
+    -- Trade-off: Crowd control specialist, nearly useless vs bosses. Short range.
+    (3, 1, 45, 8, 100, 2.50, 350, 45, 10, 0, 0, 1, 'slow', 2000, 15, 0, 'none', 0),
+    (3, 2, 65, 10, 100, 2.80, 350, 55, 20, 0, 0, 1, 'slow', 2500, 20, 0, 'none', 0),
+    (3, 3, 95, 12, 110, 3.10, 360, 65, 30, 0, 0, 1, 'slow', 3000, 25, 0, 'none', 0),
+    (3, 4, 160, 15, 110, 3.50, 370, 80, 50, 0, 0, 1, 'slow', 4000, 35, 0, 'none', 0),
+    -- Kasparov Tower (Bishop) - Chain lightning + poison DOT
+    -- Trade-off: Great vs clusters, weak vs spread enemies. Poison is the real damage.
+    (4, 1, 55, 20, 140, 0.75, 380, 0, 0, 2, 0, 1, 'poison', 2500, 4, 0, 'none', 0),
+    (4, 2, 85, 25, 140, 0.80, 390, 0, 0, 3, 0, 1, 'poison', 3000, 6, 0, 'none', 0),
+    (4, 3, 130, 30, 150, 0.85, 400, 0, 0, 4, 0, 1, 'poison', 3500, 10, 0, 'none', 0),
+    (4, 4, 220, 40, 160, 0.95, 420, 0, 0, 6, 0, 1, 'poison', 4000, 15, 0, 'none', 0),
+    -- Fischer Tower (Queen) - Multi-target + mark for team damage bonus
+    -- Trade-off: Expensive force multiplier. Mediocre alone, devastating with allies.
+    (5, 1, 110, 35, 150, 0.65, 400, 0, 0, 0, 0, 2, 'mark', 3500, 12, 0, 'none', 0),
+    (5, 2, 220, 45, 160, 0.75, 420, 0, 0, 0, 0, 3, 'mark', 4000, 18, 0, 'none', 0),
+    (5, 3, 450, 60, 170, 0.85, 440, 0, 0, 0, 0, 5, 'mark', 5000, 30, 0, 'none', 0),
+    -- Petrosian Tower (King) - Support aura, VERY weak personal damage
+    -- Trade-off: Does almost nothing alone. Multiplies nearby tower damage.
+    (6, 1, 100, 10, 90, 0.40, 280, 0, 0, 0, 0, 1, 'none', 0, 0, 100, 'damage_buff', 12),
+    (6, 2, 200, 12, 90, 0.45, 290, 0, 0, 0, 0, 1, 'none', 0, 0, 140, 'damage_buff', 20),
+    (6, 3, 450, 18, 100, 0.50, 300, 0, 0, 0, 0, 1, 'none', 0, 0, 200, 'damage_buff', 35)
 ON CONFLICT (tower_id, level) DO NOTHING;
 
 -- Insert default enemy definitions

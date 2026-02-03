@@ -285,16 +285,20 @@ async function testRepositories(): Promise<void> {
   // Tower Repository
   await test('TowerRepository.getAllTowerDefinitions', async () => {
     const towers = await towerRepo.getAllTowerDefinitions();
-    assert(towers.length >= 3, 'Expected at least 3 tower definitions');
-    const basic = towers.find((t) => t.id === 1);
-    assertDefined(basic, 'Basic tower (id=1) not found');
-    assertEqual(basic.name, 'Basic Tower', 'Basic tower name mismatch');
+    assert(towers.length >= 6, 'Expected at least 6 tower definitions');
+    const morphy = towers.find((t) => t.id === 1);
+    assertDefined(morphy, 'Morphy tower (id=1) not found');
+    assertEqual(morphy.name, 'Morphy Tower', 'Morphy tower name mismatch');
+    // Check new properties exist
+    assertDefined(morphy.attackType, 'Attack type should be defined');
+    assertDefined(morphy.defaultTargeting, 'Default targeting should be defined');
   });
 
   await test('TowerRepository.getTowerDefinition', async () => {
     const tower = await towerRepo.getTowerDefinition(2);
-    assertDefined(tower, 'Sniper tower (id=2) not found');
-    assertEqual(tower.name, 'Sniper Tower', 'Sniper tower name mismatch');
+    assertDefined(tower, 'Carlsen tower (id=2) not found');
+    assertEqual(tower.name, 'Carlsen Tower', 'Carlsen tower name mismatch');
+    assertEqual(tower.attackType, 'pierce', 'Carlsen tower should have pierce attack');
   });
 
   await test('TowerRepository.getTowerDefinition - nonexistent', async () => {
@@ -321,12 +325,21 @@ async function testRepositories(): Promise<void> {
 
   await test('TowerRepository.getTowerLevel', async () => {
     const level = await towerRepo.getTowerLevel(1, 1);
-    assertDefined(level, 'Basic tower level 1 not found');
+    assertDefined(level, 'Morphy tower level 1 not found');
     assertEqual(level.level, 1, 'Level number mismatch');
     assertGreater(level.cost, 0, 'Cost should be positive');
-    assertGreater(level.damage, 0, 'Damage should be positive');
+    assertGreater(level.damage, 0, 'Damage should be non-negative');
     assertGreater(level.range, 0, 'Range should be positive');
     assertGreater(level.fireRate, 0, 'Fire rate should be positive');
+    assertGreater(level.projectileSpeed, 0, 'Projectile speed should be positive');
+    // New columns should exist
+    assertGreaterOrEqual(level.splashRadius, 0, 'Splash radius should be non-negative');
+    assertGreaterOrEqual(level.splashChance, 0, 'Splash chance should be non-negative');
+    assertGreaterOrEqual(level.chainCount, 0, 'Chain count should be non-negative');
+    assertGreaterOrEqual(level.pierceCount, 0, 'Pierce count should be non-negative');
+    assertGreaterOrEqual(level.targetCount, 1, 'Target count should be at least 1');
+    assertDefined(level.statusEffect, 'Status effect should be defined');
+    assertDefined(level.auraEffect, 'Aura effect should be defined');
   });
 
   await test('TowerRepository.getMaxLevel', async () => {
