@@ -1,5 +1,12 @@
 // Shared TypeScript Type Definitions for Chess Tower Defense
 
+// Tower Attack and Targeting Types
+export type AttackType = 'single' | 'pierce' | 'splash' | 'chain' | 'multi' | 'aura';
+export type ProjectileType = 'homing' | 'ballistic' | 'lob';
+export type TargetingMode = 'first' | 'last' | 'nearest' | 'strongest' | 'weakest';
+export type StatusEffectType = 'none' | 'slow' | 'poison' | 'armor_shred' | 'mark';
+export type AuraEffectType = 'none' | 'damage_buff' | 'speed_buff' | 'range_buff';
+
 // Tower Definition (Static metadata - no stats, those are in TowerLevel)
 export interface TowerDefinition {
   id: number;
@@ -7,6 +14,9 @@ export interface TowerDefinition {
   color: string;
   description: string;
   maxLevel: number;
+  attackType: AttackType;
+  projectileType: ProjectileType;
+  defaultTargeting: TargetingMode;
 }
 
 // Tower Level (Per-level stats for a tower type)
@@ -19,6 +29,23 @@ export interface TowerLevel {
   damage: number;
   range: number;
   fireRate: number; // shots per second
+  // Projectile properties
+  projectileSpeed: number;
+  // Splash properties
+  splashRadius: number;
+  splashChance: number; // 0-100%
+  // Multi-target properties
+  chainCount: number;
+  pierceCount: number;
+  targetCount: number;
+  // Status effect properties
+  statusEffect: StatusEffectType;
+  effectDuration: number; // milliseconds
+  effectStrength: number; // percentage (e.g., 20 = 20% slow, or DPS for poison)
+  // Aura properties
+  auraRadius: number;
+  auraEffect: AuraEffectType;
+  auraStrength: number; // percentage (e.g., 15 = 1.15x multiplier)
 }
 
 // Tower definition with all its levels included
@@ -45,6 +72,23 @@ export interface TowerStats {
   damage: number;
   range: number;
   fireRate: number;
+  // Projectile properties
+  projectileSpeed: number;
+  // Splash properties
+  splashRadius: number;
+  splashChance: number;
+  // Multi-target properties
+  chainCount: number;
+  pierceCount: number;
+  targetCount: number;
+  // Status effect properties
+  statusEffect: StatusEffectType;
+  effectDuration: number;
+  effectStrength: number;
+  // Aura properties
+  auraRadius: number;
+  auraEffect: AuraEffectType;
+  auraStrength: number;
 }
 
 // Tower Instance (Runtime game object)

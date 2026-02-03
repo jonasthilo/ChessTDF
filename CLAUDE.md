@@ -37,8 +37,9 @@ KISS, YAGNI, DRY. Auto-reload on code changes. Only restart containers for DB sc
 
 ## Data Model
 Tables: tower_definitions, tower_levels, enemy_definitions, wave_definitions, game_settings, game_sessions, game_statistics
-Tower IDs: 1=Basic(pawn), 2=Sniper(rook), 3=Rapid(knight) | Enemy IDs: 1=Pawn, 2=Knight, 3=Bishop, 4=Rook, 5=Queen, 6=King
-Game modes: `10waves | 20waves | endless` | Difficulty: `easy | normal | hard | custom` (multipliers for cost/hp/speed/reward)
+Tower IDs: 1=Morphy(pawn/single), 2=Carlsen(rook/pierce), 3=Tal(knight/slow+splash), 4=Kasparov(bishop/chain+poison), 5=Fischer(queen/multi+mark), 6=Petrosian(king/aura)
+Enemy IDs: 1=Pawn, 2=Knight, 3=Bishop, 4=Rook, 5=Queen, 6=King
+Game modes: `10waves | 20waves | endless` | Difficulty: `easy | normal | hard | custom`
 Waves defined up to 11; beyond 11 reuses wave 11 composition. Sell refund = 70% total invested.
 Flow: DB → repository → service → controller → API → frontend store → systems → renderer
 

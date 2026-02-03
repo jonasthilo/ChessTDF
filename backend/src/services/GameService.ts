@@ -31,7 +31,24 @@ export class GameService {
   }
 
   private static levelToStats(level: TowerLevel): TowerStats {
-    return { cost: level.cost, damage: level.damage, range: level.range, fireRate: level.fireRate };
+    return {
+      cost: level.cost,
+      damage: level.damage,
+      range: level.range,
+      fireRate: level.fireRate,
+      projectileSpeed: level.projectileSpeed,
+      splashRadius: level.splashRadius,
+      splashChance: level.splashChance,
+      chainCount: level.chainCount,
+      pierceCount: level.pierceCount,
+      targetCount: level.targetCount,
+      statusEffect: level.statusEffect,
+      effectDuration: level.effectDuration,
+      effectStrength: level.effectStrength,
+      auraRadius: level.auraRadius,
+      auraEffect: level.auraEffect,
+      auraStrength: level.auraStrength,
+    };
   }
 
   private static towerToDb(t: Tower): TowerDB {
