@@ -1,6 +1,38 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { GridManager } from './GridManager';
 import { CanvasState } from '../../config/gameConfig';
+import type { Tower } from '../../types';
+
+// Helper to create a mock tower with all required fields
+function createMockTower(overrides: Partial<Tower> & { id: string; towerId: number; gridX: number; gridY: number }): Tower {
+  return {
+    level: 1,
+    x: 100,
+    y: 100,
+    lastFireTime: 0,
+    attackType: 'single',
+    targetingMode: 'first',
+    stats: {
+      cost: 0,
+      damage: 0,
+      range: 0,
+      fireRate: 0,
+      projectileSpeed: 400,
+      splashRadius: 0,
+      splashChance: 0,
+      chainCount: 0,
+      pierceCount: 0,
+      targetCount: 1,
+      statusEffect: 'none',
+      effectDuration: 0,
+      effectStrength: 0,
+      auraRadius: 0,
+      auraEffect: 'none',
+      auraStrength: 0,
+    },
+    ...overrides,
+  };
+}
 
 describe('GridManager Coordinate Transformations', () => {
   let gridManager: GridManager;
@@ -8,7 +40,7 @@ describe('GridManager Coordinate Transformations', () => {
   beforeEach(() => {
     gridManager = new GridManager();
     // Set up standard canvas dimensions
-    CanvasState.updateCanvas(800, 400);
+    CanvasState.updateDimensions(800, 400);
   });
 
   describe('gridToPixel', () => {
@@ -134,7 +166,7 @@ describe('GridManager Coordinate Transformations', () => {
       const initialPixel = gridManager.gridToPixel(5, 5);
 
       // Resize canvas
-      CanvasState.updateCanvas(1024, 512);
+      CanvasState.updateDimensions(1024, 512);
 
       // New transformation should reflect new grid size
       const newPixel = gridManager.gridToPixel(5, 5);
@@ -172,17 +204,12 @@ describe('GridManager Coordinate Transformations', () => {
 
     test('rejects placement on occupied cells', () => {
       const towers = [
-        {
+        createMockTower({
           id: 'tower1',
           towerId: 1,
-          level: 1,
           gridX: 5,
           gridY: 3,
-          x: 100,
-          y: 100,
-          stats: { cost: 0, damage: 0, range: 0, fireRate: 0 },
-          lastFireTime: 0,
-        },
+        }),
       ];
 
       expect(gridManager.isValidPlacement(5, 3, towers)).toBe(false);

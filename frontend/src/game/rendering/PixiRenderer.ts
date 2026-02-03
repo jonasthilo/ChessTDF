@@ -421,19 +421,25 @@ export class PixiRenderer {
     // Create tower preview sprite
     // Get level 1 stats for this tower type to show preview stats
     const level1 = useGameStore.getState().getTowerLevelStats(towerDef.id, 1);
-    const previewStats = level1
-      ? {
-          cost: level1.cost,
-          damage: level1.damage,
-          range: level1.range,
-          fireRate: level1.fireRate,
-        }
-      : {
-          cost: 0,
-          damage: 0,
-          range: 0,
-          fireRate: 0,
-        };
+    const defaultStats = {
+      cost: 0,
+      damage: 0,
+      range: 0,
+      fireRate: 0,
+      projectileSpeed: 400,
+      splashRadius: 0,
+      splashChance: 0,
+      chainCount: 0,
+      pierceCount: 0,
+      targetCount: 1,
+      statusEffect: 'none' as const,
+      effectDuration: 0,
+      effectStrength: 0,
+      auraRadius: 0,
+      auraEffect: 'none' as const,
+      auraStrength: 0,
+    };
+    const previewStats = level1 ?? defaultStats;
 
     const towerSprite = this.spriteFactory.createTowerSprite({
       id: 'preview',
@@ -445,6 +451,8 @@ export class PixiRenderer {
       x: pixelPos.x,
       y: pixelPos.y,
       lastFireTime: 0,
+      attackType: towerDef.attackType,
+      targetingMode: towerDef.defaultTargeting,
     });
 
     // Position the tower sprite at the correct pixel location

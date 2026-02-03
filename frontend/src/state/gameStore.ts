@@ -16,6 +16,8 @@ import type {
   Tower,
   Enemy,
   Projectile,
+  TargetingMode,
+  AttackType,
 } from '../types';
 import { gameApi } from '../services/gameApi';
 import { GAME_CONFIG, CanvasState } from '../config/gameConfig';
@@ -75,6 +77,9 @@ interface GameStore {
   selectedEnemy: Enemy | null;
   selectEnemy: (enemy: Enemy | null) => void;
 
+  // Tower targeting mode
+  setTowerTargetingMode: (towerId: string, mode: TargetingMode) => void;
+
   // Tower upgrade/sell
   upgradeTower: (towerId: string) => Promise<boolean>;
   sellTower: (towerId: string) => Promise<boolean>;
@@ -122,6 +127,20 @@ interface GameStore {
 
   // Reset
   resetGame: () => void;
+}
+
+/**
+ * Hydrate a tower from backend with runtime properties from definition
+ */
+function hydrateTower(
+  backendTower: Omit<Tower, 'attackType' | 'targetingMode'>,
+  definition: TowerDefinitionWithLevels
+): Tower {
+  return {
+    ...backendTower,
+    attackType: definition.attackType,
+    targetingMode: definition.defaultTargeting,
+  };
 }
 
 export const useGameStore = create<GameStore>((set, get) => ({
@@ -185,6 +204,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
       damage: levelData.damage,
       range: levelData.range,
       fireRate: levelData.fireRate,
+      projectileSpeed: levelData.projectileSpeed,
+      splashRadius: levelData.splashRadius,
+      splashChance: levelData.splashChance,
+      chainCount: levelData.chainCount,
+      pierceCount: levelData.pierceCount,
+      targetCount: levelData.targetCount,
+      statusEffect: levelData.statusEffect,
+      effectDuration: levelData.effectDuration,
+      effectStrength: levelData.effectStrength,
+      auraRadius: levelData.auraRadius,
+      auraEffect: levelData.auraEffect,
+      auraStrength: levelData.auraStrength,
     };
   },
 
@@ -193,9 +224,20 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return def?.maxLevel ?? 1;
   },
 
+  // Tower targeting mode
+  setTowerTargetingMode: (towerId, mode) => {
+    set((state) => ({
+      towers: state.towers.map((t) => (t.id === towerId ? { ...t, targetingMode: mode } : t)),
+      selectedTower:
+        state.selectedTower?.id === towerId
+          ? { ...state.selectedTower, targetingMode: mode }
+          : state.selectedTower,
+    }));
+  },
+
   // Tower upgrade
   upgradeTower: async (towerId) => {
-    const { gameId, towers } = get();
+    const { gameId, towers, towerDefinitions } = get();
     if (!gameId) {
       console.error('No gameId for upgrade');
       return false;
@@ -209,6 +251,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
       console.log('Upgrade response:', response);
       if (response.success && response.tower) {
         const upgradedTower = response.tower;
+        // Get definition to preserve attackType, and keep current targetingMode
+        const definition = towerDefinitions.find((d) => d.id === currentTower?.towerId);
+        const attackType: AttackType = definition?.attackType ?? 'single';
+        const targetingMode: TargetingMode = currentTower?.targetingMode ?? 'first';
+
         set((state) => ({
           towers: state.towers.map((t) =>
             t.id === towerId
@@ -216,13 +263,21 @@ export const useGameStore = create<GameStore>((set, get) => ({
                   ...t,
                   level: upgradedTower.level,
                   stats: upgradedTower.stats,
+                  attackType,
+                  targetingMode,
                 }
               : t
           ),
           coins: response.remainingCoins,
           selectedTower:
             state.selectedTower?.id === towerId
-              ? { ...state.selectedTower, level: upgradedTower.level, stats: upgradedTower.stats }
+              ? {
+                  ...state.selectedTower,
+                  level: upgradedTower.level,
+                  stats: upgradedTower.stats,
+                  attackType,
+                  targetingMode,
+                }
               : state.selectedTower,
         }));
         console.log('Tower upgraded successfully to level:', upgradedTower.level);
@@ -324,7 +379,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // Build tower
   buildTower: async (gridX, gridY) => {
-    const { gameId, selectedTowerId } = get();
+    const { gameId, selectedTowerId, towerDefinitions } = get();
     if (!gameId || !selectedTowerId) return false;
 
     try {
@@ -335,17 +390,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
       });
 
       if (response.success && response.tower) {
+        // Get tower definition for hydration
+        const definition = towerDefinitions.find((d) => d.id === selectedTowerId);
+        if (!definition) {
+          console.error('Tower definition not found for ID:', selectedTowerId);
+          return false;
+        }
+
         // Recalculate tower position using frontend grid size
         const gridManager = new GridManager();
         const pixelPos = gridManager.gridToPixel(response.tower.gridX, response.tower.gridY);
-        const correctedTower = {
-          ...response.tower,
-          x: pixelPos.x,
-          y: pixelPos.y,
-        };
+
+        // Hydrate tower with runtime properties
+        const hydratedTower = hydrateTower(
+          {
+            ...response.tower,
+            x: pixelPos.x,
+            y: pixelPos.y,
+          },
+          definition
+        );
 
         set((state) => ({
-          towers: [...state.towers, correctedTower],
+          towers: [...state.towers, hydratedTower],
           coins: response.remainingCoins,
           selectedTowerId: null,
         }));
@@ -585,6 +652,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           x: spawnPos.x,
           y: spawnPos.y,
           isDead: false,
+          statusEffects: [], // Initialize with empty status effects
         });
       } else {
         remaining.push(data);

@@ -185,11 +185,24 @@ export const SettingsScreen = () => {
           const tower = towers.find((t) => t.id === towerId);
           const originalLevel = tower?.levels.find((l) => l.level === levelNum);
           if (originalLevel) {
+            // Spread all original fields, then override with edited values
             const completeData: Omit<TowerLevel, 'towerId' | 'level'> = {
               cost: updates.cost ?? originalLevel.cost,
               damage: updates.damage ?? originalLevel.damage,
               range: updates.range ?? originalLevel.range,
               fireRate: updates.fireRate ?? originalLevel.fireRate,
+              projectileSpeed: originalLevel.projectileSpeed,
+              splashRadius: originalLevel.splashRadius,
+              splashChance: originalLevel.splashChance,
+              chainCount: originalLevel.chainCount,
+              pierceCount: originalLevel.pierceCount,
+              targetCount: originalLevel.targetCount,
+              statusEffect: originalLevel.statusEffect,
+              effectDuration: originalLevel.effectDuration,
+              effectStrength: originalLevel.effectStrength,
+              auraRadius: originalLevel.auraRadius,
+              auraEffect: originalLevel.auraEffect,
+              auraStrength: originalLevel.auraStrength,
             };
             promises.push(gameApi.upsertTowerLevel(towerId, levelNum, completeData));
           }

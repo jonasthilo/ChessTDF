@@ -1,16 +1,19 @@
 import { NumberField } from '../../common/NumberField';
 import type { TowerLevel } from '../../../types';
 
+// Numeric fields that can be edited in the basic level editor
+type NumericLevelField = 'cost' | 'damage' | 'range' | 'fireRate';
+
 interface TowerLevelEditorProps {
   level: TowerLevel;
   edits: Partial<TowerLevel>;
-  onChange: (field: keyof Omit<TowerLevel, 'id' | 'towerId' | 'level'>, value: number) => void;
+  onChange: (field: NumericLevelField, value: number) => void;
 }
 
 export const TowerLevelEditor = ({ level, edits, onChange }: TowerLevelEditorProps) => {
-  const getValue = (field: keyof Omit<TowerLevel, 'id' | 'towerId' | 'level'>): number => {
+  const getValue = (field: NumericLevelField): number => {
     const editValue = edits[field];
-    if (editValue !== undefined) return editValue as number;
+    if (editValue !== undefined) return editValue;
     return level[field];
   };
 
