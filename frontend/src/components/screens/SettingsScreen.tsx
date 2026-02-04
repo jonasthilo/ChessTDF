@@ -149,7 +149,7 @@ export const SettingsScreen = () => {
     towerId: number,
     level: number,
     field: keyof Omit<TowerLevel, 'id' | 'towerId' | 'level'>,
-    value: number
+    value: number | string
   ) => updateEditMap(setEditedTowerLevels, `${towerId}-${level}`, field, value);
 
   const handleEnemyChange = (id: number, field: keyof EnemyDefinition, value: number | string) =>
