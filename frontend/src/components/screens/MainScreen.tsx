@@ -228,7 +228,7 @@ export const MainScreen = () => {
       navRight={navRight}
       watermarks
       heading={hasResult ? (isVictory ? 'Victory!' : 'Checkmate!') : 'Defend Your Kingdom'}
-      headingClassName={hasResult ? `end-title ${isVictory ? 'victory' : 'defeat'}` : undefined}
+      headingClassName={hasResult ? `end-title ${isVictory ? 'victory' : 'defeat'}` : ''}
       subtitle={
         hasResult
           ? isVictory
