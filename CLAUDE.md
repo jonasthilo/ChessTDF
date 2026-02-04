@@ -13,7 +13,7 @@ KISS, YAGNI, DRY. Auto-reload on code changes. Only restart containers for DB sc
 | Area | Location |
 |------|----------|
 | Game state + API calls | `state/gameStore.ts` (single source of truth) |
-| Game loop + systems | `game/GameEngine.ts` → systems/ (Enemy, Tower, Projectile, Collision) |
+| Game loop + systems | `game/GameEngine.ts` → systems/ (Enemy, Tower, Projectile, Collision, StatusEffect) |
 | Grid/path math | `game/managers/GridManager.ts`, `PathManager.ts` |
 | Rendering | `game/rendering/PixiRenderer.ts`, `SpriteFactory.ts`, `HealthBarRenderer.ts` |
 | Assets | `game/managers/AssetLoader.ts` (chess piece SVGs) |
@@ -21,7 +21,7 @@ KISS, YAGNI, DRY. Auto-reload on code changes. Only restart containers for DB sc
 | Routing | `App.tsx` (`/`→Main, `/settings`, `/statistics`, `/game/:gameId`, `*`→redirect) |
 | Screens | `components/screens/` (MainScreen, GameScreen, SettingsScreen, StatisticsScreen) |
 | HUD | `components/hud/` (TowerPanel, TowerModal, EnemyStatsPanel, GameControls, PlayerStats, WaveInfo, EndGameModal, ViewportWarning) |
-| Common UI | `components/common/` (ScreenLayout, AppNav, DifficultySelector, VersionDisplay, NumberField, TextField) |
+| Common UI | `components/common/` (ScreenLayout, AppNav, DifficultySelector, VersionDisplay, NumberField, TextField, SelectField) |
 | Settings editors | `components/screens/settings/` (TowerEditor, EnemyEditor, SettingsEditor, TowerLevelEditor) |
 | Styles | `styles/variables.css`, `styles/shared.css` (`.btn` + `.btn-gold`/`.btn-dark`/`.btn-danger`/`.btn-ghost`, `.btn-sm`/`.btn-lg`), `styles/animations.css` |
 | Types | `types/index.ts` (frontend), `backend/src/types/index.ts` |
@@ -94,4 +94,4 @@ Git short hash via Vite `__GIT_HASH__` define. package.json versions = 0.0.0 (un
 ## Open Tasks
 - Test 50+ enemies, add object pooling
 - Tune tower costs + enemy stats
-- Post-MVP: area effects, curved paths, maps, achievements, graphics, audio, auto waves
+- Post-MVP: curved paths, maps, achievements, graphics, audio, auto waves

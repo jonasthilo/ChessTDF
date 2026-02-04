@@ -5,9 +5,18 @@ A web-based 2D tower defense game with a chess theme, built with TypeScript, Rea
 ## Features
 
 - Real-time 60 FPS gameplay powered by PixiJS
-- Chess-themed towers and enemies
+- **6 unique towers** named after chess legends, each with distinct attack mechanics:
+  - Morphy (Pawn) - Single target, cheap foundation
+  - Carlsen (Rook) - Pierce through multiple enemies
+  - Tal (Knight) - Slow + splash damage
+  - Kasparov (Bishop) - Chain lightning + poison DOT
+  - Fischer (Queen) - Multi-target + mark for bonus damage
+  - Petrosian (King) - Aura that buffs nearby towers
+- **Status effects**: slow, poison, mark (damage amplification)
+- **Player-selectable targeting**: first, last, nearest, strongest, weakest
+- 6 enemy types (Pawn through King) with scaling health/rewards
 - Database-driven configuration for towers, enemies, and game settings
-- Wave-based enemy spawning
+- Wave-based enemy spawning with progressive difficulty
 - Tower upgrades and strategic placement
 - Statistics and leaderboards
 
