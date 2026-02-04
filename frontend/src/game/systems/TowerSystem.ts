@@ -143,12 +143,16 @@ export class TowerSystem {
   ): void {
     const { stats, attackType } = tower;
 
+    // Calculate damage with aura buffs from nearby King towers
+    const auraDamageMultiplier = this.getAuraDamageMultiplier(tower, state.towers);
+    const buffedDamage = stats.damage * auraDamageMultiplier;
+
     const projectile: Projectile = {
       id: `proj-${this.nextProjectileId++}`,
       x: tower.x,
       y: tower.y,
       targetId: target.id,
-      damage: stats.damage,
+      damage: buffedDamage,
       speed: stats.projectileSpeed,
       // Attack behavior metadata
       attackType,
@@ -167,5 +171,29 @@ export class TowerSystem {
     };
 
     state.addProjectile(projectile);
+  }
+
+  private getAuraDamageMultiplier(tower: Tower, allTowers: Tower[]): number {
+    // Find all aura towers with damage_buff effect
+    const auraTowers = allTowers.filter(
+      (t) => t.attackType === 'aura' && t.stats.auraEffect === 'damage_buff' && t.id !== tower.id
+    );
+
+    if (auraTowers.length === 0) {
+      return 1;
+    }
+
+    // Sum up all damage buffs from aura towers in range (additive stacking)
+    let totalBuff = 0;
+
+    for (const auraTower of auraTowers) {
+      const dist = distance(tower.x, tower.y, auraTower.x, auraTower.y);
+      if (dist <= auraTower.stats.auraRadius) {
+        // auraStrength is percentage (e.g., 15 = 15% damage buff)
+        totalBuff += auraTower.stats.auraStrength;
+      }
+    }
+
+    return 1 + totalBuff / 100;
   }
 }
