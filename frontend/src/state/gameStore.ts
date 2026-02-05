@@ -244,11 +244,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     const currentTower = towers.find((t) => t.id === towerId);
-    console.log('Attempting upgrade for tower:', towerId, 'Current tower:', currentTower);
 
     try {
       const response = await gameApi.upgradeTower(gameId, towerId);
-      console.log('Upgrade response:', response);
       if (response.success && response.tower) {
         const upgradedTower = response.tower;
         // Get definition to preserve attackType, and keep current targetingMode
@@ -280,7 +278,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
                 }
               : state.selectedTower,
         }));
-        console.log('Tower upgraded successfully to level:', upgradedTower.level);
         return true;
       }
       console.error('Upgrade failed:', response.message);
@@ -519,10 +516,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Place tower via API
-    const success = await state.buildTower(gridX, gridY);
-    if (success) {
-      console.log(`Tower placed at (${gridX}, ${gridY})`);
-    }
+    await state.buildTower(gridX, gridY);
   },
 
   // Check if game is over (called after collision system)

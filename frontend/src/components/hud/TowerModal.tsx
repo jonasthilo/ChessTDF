@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useGameStore } from '../../state/gameStore';
 import { getTowerImage } from '../../utils/pieceAssets';
-import { distance } from '../../utils/math';
-import type { TargetingMode, Tower } from '../../types';
+import { getAuraDamageBuff } from '../../utils/tower';
+import type { TargetingMode } from '../../types';
 import './TowerModal.css';
 
 const TARGETING_OPTIONS: { value: TargetingMode; label: string }[] = [
@@ -12,24 +12,6 @@ const TARGETING_OPTIONS: { value: TargetingMode; label: string }[] = [
   { value: 'strongest', label: 'Strongest (highest HP)' },
   { value: 'weakest', label: 'Weakest (lowest HP)' },
 ];
-
-// Calculate aura buff percentage from nearby King towers
-function getAuraBuff(tower: Tower, allTowers: Tower[]): number {
-  const auraTowers = allTowers.filter(
-    (t) => t.attackType === 'aura' && t.stats.auraEffect === 'damage_buff' && t.id !== tower.id
-  );
-
-  if (auraTowers.length === 0) return 0;
-
-  let totalBuff = 0;
-  for (const auraTower of auraTowers) {
-    const dist = distance(tower.x, tower.y, auraTower.x, auraTower.y);
-    if (dist <= auraTower.stats.auraRadius) {
-      totalBuff += auraTower.stats.auraStrength;
-    }
-  }
-  return totalBuff;
-}
 
 export const TowerModal = () => {
   const selectedTower = useGameStore((state) => state.selectedTower);
@@ -98,7 +80,7 @@ export const TowerModal = () => {
   const currentStats = tower.stats;
 
   // Calculate aura buff from nearby King towers
-  const auraBuff = getAuraBuff(tower, towers);
+  const auraBuff = getAuraDamageBuff(tower, towers);
   const hasAuraBuff = auraBuff > 0;
 
   const handleTargetingChange = (mode: TargetingMode) => {
@@ -251,14 +233,7 @@ export const TowerModal = () => {
               Fire Rate: {currentStats.fireRate.toFixed(1)} → {nextLevelData.fireRate.toFixed(1)}
             </div>
           </div>
-          <div
-            style={{
-              marginTop: '0.3rem',
-              fontSize: '0.7rem',
-              color: canAffordUpgrade ? '#4caf50' : '#f44336',
-              textAlign: 'center',
-            }}
-          >
+          <div className={`upgrade-cost-display ${canAffordUpgrade ? 'can-afford' : 'cannot-afford'}`}>
             {coins} / {upgradeCost} coins
           </div>
           <button
@@ -274,7 +249,7 @@ export const TowerModal = () => {
       {isAtMaxLevel && <div className="max-level-badge">MAX LEVEL</div>}
 
       {!isAtMaxLevel && !nextLevelData && (
-        <div className="max-level-badge" style={{ background: '#ff9800' }}>
+        <div className="max-level-badge warning">
           Level Data Missing - Contact Admin
         </div>
       )}

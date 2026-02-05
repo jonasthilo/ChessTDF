@@ -155,6 +155,20 @@
   margin-bottom: 0.1rem;
 }
 
+.upgrade-cost-display {
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  text-align: center;
+}
+
+.upgrade-cost-display.can-afford {
+  color: var(--color-success);
+}
+
+.upgrade-cost-display.cannot-afford {
+  color: var(--color-danger);
+}
+
 /* Layout only (color from btn-gold) */
 .upgrade-button {
   width: 100%;
@@ -171,6 +185,10 @@
   text-transform: uppercase;
   letter-spacing: 0.3px;
   font-size: 0.8rem;
+}
+
+.max-level-badge.warning {
+  background: #ff9800;
 }
 
 .modal-sell {

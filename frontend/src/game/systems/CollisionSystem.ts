@@ -1,6 +1,7 @@
 import type { Enemy, Projectile, StatusEffect } from '../../types';
 import { useGameStore } from '../../state/gameStore';
 import { distance } from '../../utils/math';
+import { handleEnemyDeath } from '../../utils/enemy';
 
 export class CollisionSystem {
   private readonly HIT_THRESHOLD = 10; // pixels
@@ -182,14 +183,7 @@ export class CollisionSystem {
     const newHealth = enemy.health - damage;
 
     if (newHealth <= 0) {
-      // Enemy died
-      if (state.selectedEnemy?.id === enemy.id) {
-        state.selectEnemy(null);
-      }
-      state.removeEnemy(enemy.id);
-      state.addCoinsFromBackend(enemy.scaledReward ?? enemy.definition.reward);
-      state.incrementEnemiesKilled();
-      state.incrementWaveEnemiesDealt();
+      handleEnemyDeath(enemy);
     } else {
       state.updateEnemy(enemy.id, { health: newHealth });
     }

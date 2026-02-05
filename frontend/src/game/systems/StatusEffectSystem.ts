@@ -1,5 +1,6 @@
 import type { StatusEffect } from '../../types';
 import { useGameStore } from '../../state/gameStore';
+import { handleEnemyDeath } from '../../utils/enemy';
 
 export class StatusEffectSystem {
   update(deltaTime: number): void {
@@ -36,14 +37,7 @@ export class StatusEffectSystem {
         const newHealth = enemy.health - totalPoisonDamage;
 
         if (newHealth <= 0) {
-          // Enemy died from poison
-          if (state.selectedEnemy?.id === enemy.id) {
-            state.selectEnemy(null);
-          }
-          state.removeEnemy(enemy.id);
-          state.addCoinsFromBackend(enemy.scaledReward ?? enemy.definition.reward);
-          state.incrementEnemiesKilled();
-          state.incrementWaveEnemiesDealt();
+          handleEnemyDeath(enemy);
           continue;
         }
 
