@@ -22,7 +22,8 @@ export const EnemyStatsPanel = () => {
         setIsClosing(true);
       }
     };
-  }, [selectedEnemyId, selectedEnemy]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedEnemyId]); // Only re-run when ID changes, not when enemy data updates
 
   // End close animation after timeout
   useEffect(() => {
@@ -41,10 +42,9 @@ export const EnemyStatsPanel = () => {
 
   if (!renderPanel || !displayEnemy) return null;
 
-  const enemy = displayEnemy;
-  const def = enemy.definition;
-  const healthPercent = Math.max(0, (enemy.health / enemy.maxHealth) * 100);
-  const pieceImage = getEnemyImage(enemy.enemyId);
+  const def = displayEnemy.definition;
+  const healthPercent = Math.max(0, (displayEnemy.health / displayEnemy.maxHealth) * 100);
+  const pieceImage = getEnemyImage(displayEnemy.enemyId);
 
   const getHealthColor = (percent: number): string => {
     if (percent > 60) return '#4db8a0';
@@ -74,7 +74,7 @@ export const EnemyStatsPanel = () => {
         <div className="health-label">
           <span>HP</span>
           <span>
-            {enemy.health} / {enemy.maxHealth}
+            {displayEnemy.health} / {displayEnemy.maxHealth}
           </span>
         </div>
         <div className="health-bar-bg">
