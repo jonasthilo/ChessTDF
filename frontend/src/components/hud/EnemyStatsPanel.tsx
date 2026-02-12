@@ -5,13 +5,15 @@ import type { Enemy } from '../../types';
 import './EnemyStatsPanel.css';
 
 export const EnemyStatsPanel = () => {
-  const selectedEnemy = useGameStore((state) => state.selectedEnemy);
+  // Get live enemy data from single source of truth (enemies array)
+  const selectedEnemy = useGameStore((state) => state.getSelectedEnemy());
+  const selectedEnemyId = useGameStore((state) => state.selectedEnemyId);
   const selectEnemy = useGameStore((state) => state.selectEnemy);
 
   const [isClosing, setIsClosing] = useState(false);
   const [closingEnemyData, setClosingEnemyData] = useState<Enemy | null>(null);
 
-  // Capture enemy data in cleanup when enemy is deselected
+  // Capture enemy data in cleanup when enemy is deselected (track by ID, not data)
   useEffect(() => {
     const currentEnemy = selectedEnemy;
     return () => {
@@ -20,7 +22,7 @@ export const EnemyStatsPanel = () => {
         setIsClosing(true);
       }
     };
-  }, [selectedEnemy]);
+  }, [selectedEnemyId, selectedEnemy]);
 
   // End close animation after timeout
   useEffect(() => {

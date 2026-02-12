@@ -80,7 +80,7 @@ export class GameEngine {
       if (!state.selectedTowerId) {
         const clickedEnemy = this.findEnemyAtPosition(gamePos.x, gamePos.y);
         if (clickedEnemy) {
-          state.selectEnemy(clickedEnemy);
+          state.selectEnemy(clickedEnemy.id);
           return;
         }
       }

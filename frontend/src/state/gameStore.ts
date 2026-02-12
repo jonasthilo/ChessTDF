@@ -73,9 +73,10 @@ interface GameStore {
   selectedTower: Tower | null;
   selectTower: (tower: Tower | null) => void;
 
-  // Enemy selection (for stats panel)
-  selectedEnemy: Enemy | null;
-  selectEnemy: (enemy: Enemy | null) => void;
+  // Enemy selection (for stats panel) - stores only ID for DRY
+  selectedEnemyId: string | null;
+  selectEnemy: (enemyId: string | null) => void;
+  getSelectedEnemy: () => Enemy | null;
 
   // Tower targeting mode
   setTowerTargetingMode: (towerId: string, mode: TargetingMode) => void;
@@ -166,6 +167,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   enemies: [],
   projectiles: [],
   selectedTowerId: null,
+  selectedEnemyId: null,
   spawnQueue: [],
   spawnElapsed: 0,
 
@@ -181,12 +183,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // Tower selection (for modal) - clears enemy selection for mutual exclusivity
   selectedTower: null,
   selectTower: (tower) =>
-    set({ selectedTower: tower, selectedEnemy: tower ? null : get().selectedEnemy }),
+    set({ selectedTower: tower, selectedEnemyId: tower ? null : get().selectedEnemyId }),
 
   // Enemy selection (for stats panel) - clears tower selection for mutual exclusivity
-  selectedEnemy: null,
-  selectEnemy: (enemy) =>
-    set({ selectedEnemy: enemy, selectedTower: enemy ? null : get().selectedTower }),
+  selectEnemy: (enemyId) =>
+    set({ selectedEnemyId: enemyId, selectedTower: enemyId ? null : get().selectedTower }),
+
+  // Get live enemy data from enemies array (single source of truth)
+  getSelectedEnemy: () => {
+    const { selectedEnemyId, enemies } = get();
+    if (!selectedEnemyId) return null;
+    return enemies.find((e) => e.id === selectedEnemyId) ?? null;
+  },
 
   // Helper methods for tower definitions
   getTowerDefinition: (towerId) => {
@@ -364,7 +372,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         projectiles: [],
         selectedTowerId: null,
         selectedTower: null,
-        selectedEnemy: null,
+        selectedEnemyId: null,
         gameResult: null,
       });
       return response.gameId;
@@ -698,7 +706,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       projectiles: [],
       selectedTowerId: null,
       selectedTower: null,
-      selectedEnemy: null,
+      selectedEnemyId: null,
       spawnQueue: [],
       spawnElapsed: 0,
     }),
