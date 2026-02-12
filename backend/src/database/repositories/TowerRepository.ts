@@ -1,5 +1,13 @@
 import { query } from '../db';
-import { TowerDefinition, TowerLevel } from '../../types';
+import {
+  TowerDefinition,
+  TowerLevel,
+  AttackType,
+  ProjectileType,
+  TargetingMode,
+  StatusEffectType,
+  AuraEffectType,
+} from '../../types';
 import { buildUpdateFields } from '../helpers';
 
 interface TowerDefinitionRow {
@@ -8,6 +16,9 @@ interface TowerDefinitionRow {
   color: string;
   description: string;
   max_level: number;
+  attack_type: string;
+  projectile_type: string;
+  default_targeting: string;
 }
 
 interface TowerLevelRow {
@@ -18,6 +29,18 @@ interface TowerLevelRow {
   damage: number;
   range: number;
   fire_rate: string;
+  projectile_speed: number;
+  splash_radius: number;
+  splash_chance: number;
+  chain_count: number;
+  pierce_count: number;
+  target_count: number;
+  status_effect: string;
+  effect_duration: number;
+  effect_strength: number;
+  aura_radius: number;
+  aura_effect: string;
+  aura_strength: number;
 }
 
 interface MaxLevelRow {
@@ -86,6 +109,9 @@ export class TowerRepository {
       color: 'color',
       description: 'description',
       maxLevel: 'max_level',
+      attackType: 'attack_type',
+      projectileType: 'projectile_type',
+      defaultTargeting: 'default_targeting',
     });
     if (!built) return false;
 
@@ -106,6 +132,18 @@ export class TowerRepository {
       damage: 'damage',
       range: 'range',
       fireRate: 'fire_rate',
+      projectileSpeed: 'projectile_speed',
+      splashRadius: 'splash_radius',
+      splashChance: 'splash_chance',
+      chainCount: 'chain_count',
+      pierceCount: 'pierce_count',
+      targetCount: 'target_count',
+      statusEffect: 'status_effect',
+      effectDuration: 'effect_duration',
+      effectStrength: 'effect_strength',
+      auraRadius: 'aura_radius',
+      auraEffect: 'aura_effect',
+      auraStrength: 'aura_strength',
     });
     if (!built) return false;
 
@@ -118,13 +156,31 @@ export class TowerRepository {
   // Create or update a tower level (upsert)
   async upsertTowerLevel(towerLevel: TowerLevel): Promise<boolean> {
     const result = await query(
-      `INSERT INTO tower_levels (tower_id, level, cost, damage, range, fire_rate)
-       VALUES ($1, $2, $3, $4, $5, $6)
+      `INSERT INTO tower_levels (
+        tower_id, level, cost, damage, range, fire_rate,
+        projectile_speed, splash_radius, splash_chance,
+        chain_count, pierce_count, target_count,
+        status_effect, effect_duration, effect_strength,
+        aura_radius, aura_effect, aura_strength
+      )
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
        ON CONFLICT (tower_id, level) DO UPDATE SET
          cost = EXCLUDED.cost,
          damage = EXCLUDED.damage,
          range = EXCLUDED.range,
-         fire_rate = EXCLUDED.fire_rate`,
+         fire_rate = EXCLUDED.fire_rate,
+         projectile_speed = EXCLUDED.projectile_speed,
+         splash_radius = EXCLUDED.splash_radius,
+         splash_chance = EXCLUDED.splash_chance,
+         chain_count = EXCLUDED.chain_count,
+         pierce_count = EXCLUDED.pierce_count,
+         target_count = EXCLUDED.target_count,
+         status_effect = EXCLUDED.status_effect,
+         effect_duration = EXCLUDED.effect_duration,
+         effect_strength = EXCLUDED.effect_strength,
+         aura_radius = EXCLUDED.aura_radius,
+         aura_effect = EXCLUDED.aura_effect,
+         aura_strength = EXCLUDED.aura_strength`,
       [
         towerLevel.towerId,
         towerLevel.level,
@@ -132,6 +188,18 @@ export class TowerRepository {
         towerLevel.damage,
         towerLevel.range,
         towerLevel.fireRate,
+        towerLevel.projectileSpeed,
+        towerLevel.splashRadius,
+        towerLevel.splashChance,
+        towerLevel.chainCount,
+        towerLevel.pierceCount,
+        towerLevel.targetCount,
+        towerLevel.statusEffect,
+        towerLevel.effectDuration,
+        towerLevel.effectStrength,
+        towerLevel.auraRadius,
+        towerLevel.auraEffect,
+        towerLevel.auraStrength,
       ]
     );
     return (result.rowCount ?? 0) > 0;
@@ -154,6 +222,9 @@ export class TowerRepository {
       color: row.color,
       description: row.description,
       maxLevel: row.max_level,
+      attackType: row.attack_type as AttackType,
+      projectileType: row.projectile_type as ProjectileType,
+      defaultTargeting: row.default_targeting as TargetingMode,
     };
   }
 
@@ -167,6 +238,18 @@ export class TowerRepository {
       damage: row.damage,
       range: row.range,
       fireRate: parseFloat(row.fire_rate),
+      projectileSpeed: row.projectile_speed,
+      splashRadius: row.splash_radius,
+      splashChance: row.splash_chance,
+      chainCount: row.chain_count,
+      pierceCount: row.pierce_count,
+      targetCount: row.target_count,
+      statusEffect: row.status_effect as StatusEffectType,
+      effectDuration: row.effect_duration,
+      effectStrength: row.effect_strength,
+      auraRadius: row.aura_radius,
+      auraEffect: row.aura_effect as AuraEffectType,
+      auraStrength: row.aura_strength,
     };
   }
 }

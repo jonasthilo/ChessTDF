@@ -1,14 +1,38 @@
 import { NumberField } from '../../common/NumberField';
 import { TextField } from '../../common/TextField';
+import { SelectField } from '../../common/SelectField';
 import { getTowerImage } from '../../../utils/pieceAssets';
-import type { TowerDefinitionWithLevels } from '../../../types';
+import type { TowerDefinitionWithLevels, AttackType, ProjectileType, TargetingMode } from '../../../types';
+
+const ATTACK_TYPE_OPTIONS = [
+  { value: 'single', label: 'Single' },
+  { value: 'pierce', label: 'Pierce' },
+  { value: 'splash', label: 'Splash' },
+  { value: 'chain', label: 'Chain' },
+  { value: 'multi', label: 'Multi' },
+  { value: 'aura', label: 'Aura' },
+];
+
+const PROJECTILE_TYPE_OPTIONS = [
+  { value: 'homing', label: 'Homing' },
+  { value: 'ballistic', label: 'Ballistic' },
+  { value: 'lob', label: 'Lob' },
+];
+
+const TARGETING_MODE_OPTIONS = [
+  { value: 'first', label: 'First' },
+  { value: 'last', label: 'Last' },
+  { value: 'nearest', label: 'Nearest' },
+  { value: 'strongest', label: 'Strongest' },
+  { value: 'weakest', label: 'Weakest' },
+];
 
 interface TowerEditorProps {
   tower: TowerDefinitionWithLevels;
   edits: Partial<Omit<TowerDefinitionWithLevels, 'levels'>>;
   onChange: (
     field: keyof Omit<TowerDefinitionWithLevels, 'levels'>,
-    value: number | string
+    value: number | string | AttackType | ProjectileType | TargetingMode
   ) => void;
 }
 
@@ -46,6 +70,24 @@ export const TowerEditor = ({ tower, edits, onChange }: TowerEditorProps) => {
           max={10}
           value={getValue('maxLevel')}
           onChange={(v) => onChange('maxLevel', v)}
+        />
+        <SelectField
+          label="Attack Type:"
+          value={getValue('attackType')}
+          options={ATTACK_TYPE_OPTIONS}
+          onChange={(v) => onChange('attackType', v as AttackType)}
+        />
+        <SelectField
+          label="Projectile Type:"
+          value={getValue('projectileType')}
+          options={PROJECTILE_TYPE_OPTIONS}
+          onChange={(v) => onChange('projectileType', v as ProjectileType)}
+        />
+        <SelectField
+          label="Default Targeting:"
+          value={getValue('defaultTargeting')}
+          options={TARGETING_MODE_OPTIONS}
+          onChange={(v) => onChange('defaultTargeting', v as TargetingMode)}
         />
       </div>
     </div>

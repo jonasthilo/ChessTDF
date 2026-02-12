@@ -13,6 +13,7 @@ import { EnemySystem } from './systems/EnemySystem';
 import { TowerSystem } from './systems/TowerSystem';
 import { ProjectileSystem } from './systems/ProjectileSystem';
 import { CollisionSystem } from './systems/CollisionSystem';
+import { StatusEffectSystem } from './systems/StatusEffectSystem';
 import { GridManager } from './managers/GridManager';
 import { useGameStore } from '../state/gameStore';
 
@@ -27,6 +28,7 @@ export class GameEngine {
   private towerSystem: TowerSystem;
   private projectileSystem: ProjectileSystem;
   private collisionSystem: CollisionSystem;
+  private statusEffectSystem: StatusEffectSystem;
 
   // Mouse tracking for preview
   private mouseGridX = -1;
@@ -43,6 +45,7 @@ export class GameEngine {
     this.towerSystem = new TowerSystem();
     this.projectileSystem = new ProjectileSystem();
     this.collisionSystem = new CollisionSystem();
+    this.statusEffectSystem = new StatusEffectSystem();
 
     // Setup mouse interaction
     this.setupMouseHandlers();
@@ -77,7 +80,7 @@ export class GameEngine {
       if (!state.selectedTowerId) {
         const clickedEnemy = this.findEnemyAtPosition(gamePos.x, gamePos.y);
         if (clickedEnemy) {
-          state.selectEnemy(clickedEnemy);
+          state.selectEnemy(clickedEnemy.id);
           return;
         }
       }
@@ -146,6 +149,7 @@ export class GameEngine {
     this.towerSystem.update(deltaTime);
     this.projectileSystem.update(deltaTime);
     this.collisionSystem.update();
+    this.statusEffectSystem.update(deltaTime);
 
     // Check game rules (handled by store)
     state.checkGameOver();

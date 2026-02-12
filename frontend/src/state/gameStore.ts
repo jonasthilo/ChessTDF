@@ -16,6 +16,8 @@ import type {
   Tower,
   Enemy,
   Projectile,
+  TargetingMode,
+  AttackType,
 } from '../types';
 import { gameApi } from '../services/gameApi';
 import { GAME_CONFIG, CanvasState } from '../config/gameConfig';
@@ -71,9 +73,13 @@ interface GameStore {
   selectedTower: Tower | null;
   selectTower: (tower: Tower | null) => void;
 
-  // Enemy selection (for stats panel)
-  selectedEnemy: Enemy | null;
-  selectEnemy: (enemy: Enemy | null) => void;
+  // Enemy selection (for stats panel) - stores only ID for DRY
+  selectedEnemyId: string | null;
+  selectEnemy: (enemyId: string | null) => void;
+  getSelectedEnemy: () => Enemy | null;
+
+  // Tower targeting mode
+  setTowerTargetingMode: (towerId: string, mode: TargetingMode) => void;
 
   // Tower upgrade/sell
   upgradeTower: (towerId: string) => Promise<boolean>;
@@ -124,6 +130,20 @@ interface GameStore {
   resetGame: () => void;
 }
 
+/**
+ * Hydrate a tower from backend with runtime properties from definition
+ */
+function hydrateTower(
+  backendTower: Omit<Tower, 'attackType' | 'targetingMode'>,
+  definition: TowerDefinitionWithLevels
+): Tower {
+  return {
+    ...backendTower,
+    attackType: definition.attackType,
+    targetingMode: definition.defaultTargeting,
+  };
+}
+
 export const useGameStore = create<GameStore>((set, get) => ({
   // Initial state
   selectedDifficulty: 'normal',
@@ -147,6 +167,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   enemies: [],
   projectiles: [],
   selectedTowerId: null,
+  selectedEnemyId: null,
   spawnQueue: [],
   spawnElapsed: 0,
 
@@ -162,12 +183,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
   // Tower selection (for modal) - clears enemy selection for mutual exclusivity
   selectedTower: null,
   selectTower: (tower) =>
-    set({ selectedTower: tower, selectedEnemy: tower ? null : get().selectedEnemy }),
+    set({ selectedTower: tower, selectedEnemyId: tower ? null : get().selectedEnemyId }),
 
   // Enemy selection (for stats panel) - clears tower selection for mutual exclusivity
-  selectedEnemy: null,
-  selectEnemy: (enemy) =>
-    set({ selectedEnemy: enemy, selectedTower: enemy ? null : get().selectedTower }),
+  selectEnemy: (enemyId) =>
+    set({ selectedEnemyId: enemyId, selectedTower: enemyId ? null : get().selectedTower }),
+
+  // Get live enemy data from enemies array (single source of truth)
+  getSelectedEnemy: () => {
+    const { selectedEnemyId, enemies } = get();
+    if (!selectedEnemyId) return null;
+    return enemies.find((e) => e.id === selectedEnemyId) ?? null;
+  },
 
   // Helper methods for tower definitions
   getTowerDefinition: (towerId) => {
@@ -185,6 +212,18 @@ export const useGameStore = create<GameStore>((set, get) => ({
       damage: levelData.damage,
       range: levelData.range,
       fireRate: levelData.fireRate,
+      projectileSpeed: levelData.projectileSpeed,
+      splashRadius: levelData.splashRadius,
+      splashChance: levelData.splashChance,
+      chainCount: levelData.chainCount,
+      pierceCount: levelData.pierceCount,
+      targetCount: levelData.targetCount,
+      statusEffect: levelData.statusEffect,
+      effectDuration: levelData.effectDuration,
+      effectStrength: levelData.effectStrength,
+      auraRadius: levelData.auraRadius,
+      auraEffect: levelData.auraEffect,
+      auraStrength: levelData.auraStrength,
     };
   },
 
@@ -193,22 +232,36 @@ export const useGameStore = create<GameStore>((set, get) => ({
     return def?.maxLevel ?? 1;
   },
 
+  // Tower targeting mode
+  setTowerTargetingMode: (towerId, mode) => {
+    set((state) => ({
+      towers: state.towers.map((t) => (t.id === towerId ? { ...t, targetingMode: mode } : t)),
+      selectedTower:
+        state.selectedTower?.id === towerId
+          ? { ...state.selectedTower, targetingMode: mode }
+          : state.selectedTower,
+    }));
+  },
+
   // Tower upgrade
   upgradeTower: async (towerId) => {
-    const { gameId, towers } = get();
+    const { gameId, towers, towerDefinitions } = get();
     if (!gameId) {
       console.error('No gameId for upgrade');
       return false;
     }
 
     const currentTower = towers.find((t) => t.id === towerId);
-    console.log('Attempting upgrade for tower:', towerId, 'Current tower:', currentTower);
 
     try {
       const response = await gameApi.upgradeTower(gameId, towerId);
-      console.log('Upgrade response:', response);
       if (response.success && response.tower) {
         const upgradedTower = response.tower;
+        // Get definition to preserve attackType, and keep current targetingMode
+        const definition = towerDefinitions.find((d) => d.id === currentTower?.towerId);
+        const attackType: AttackType = definition?.attackType ?? 'single';
+        const targetingMode: TargetingMode = currentTower?.targetingMode ?? 'first';
+
         set((state) => ({
           towers: state.towers.map((t) =>
             t.id === towerId
@@ -216,16 +269,23 @@ export const useGameStore = create<GameStore>((set, get) => ({
                   ...t,
                   level: upgradedTower.level,
                   stats: upgradedTower.stats,
+                  attackType,
+                  targetingMode,
                 }
               : t
           ),
           coins: response.remainingCoins,
           selectedTower:
             state.selectedTower?.id === towerId
-              ? { ...state.selectedTower, level: upgradedTower.level, stats: upgradedTower.stats }
+              ? {
+                  ...state.selectedTower,
+                  level: upgradedTower.level,
+                  stats: upgradedTower.stats,
+                  attackType,
+                  targetingMode,
+                }
               : state.selectedTower,
         }));
-        console.log('Tower upgraded successfully to level:', upgradedTower.level);
         return true;
       }
       console.error('Upgrade failed:', response.message);
@@ -312,7 +372,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         projectiles: [],
         selectedTowerId: null,
         selectedTower: null,
-        selectedEnemy: null,
+        selectedEnemyId: null,
         gameResult: null,
       });
       return response.gameId;
@@ -324,7 +384,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   // Build tower
   buildTower: async (gridX, gridY) => {
-    const { gameId, selectedTowerId } = get();
+    const { gameId, selectedTowerId, towerDefinitions } = get();
     if (!gameId || !selectedTowerId) return false;
 
     try {
@@ -335,17 +395,29 @@ export const useGameStore = create<GameStore>((set, get) => ({
       });
 
       if (response.success && response.tower) {
+        // Get tower definition for hydration
+        const definition = towerDefinitions.find((d) => d.id === selectedTowerId);
+        if (!definition) {
+          console.error('Tower definition not found for ID:', selectedTowerId);
+          return false;
+        }
+
         // Recalculate tower position using frontend grid size
         const gridManager = new GridManager();
         const pixelPos = gridManager.gridToPixel(response.tower.gridX, response.tower.gridY);
-        const correctedTower = {
-          ...response.tower,
-          x: pixelPos.x,
-          y: pixelPos.y,
-        };
+
+        // Hydrate tower with runtime properties
+        const hydratedTower = hydrateTower(
+          {
+            ...response.tower,
+            x: pixelPos.x,
+            y: pixelPos.y,
+          },
+          definition
+        );
 
         set((state) => ({
-          towers: [...state.towers, correctedTower],
+          towers: [...state.towers, hydratedTower],
           coins: response.remainingCoins,
           selectedTowerId: null,
         }));
@@ -452,10 +524,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
     }
 
     // Place tower via API
-    const success = await state.buildTower(gridX, gridY);
-    if (success) {
-      console.log(`Tower placed at (${gridX}, ${gridY})`);
-    }
+    await state.buildTower(gridX, gridY);
   },
 
   // Check if game is over (called after collision system)
@@ -585,6 +654,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           x: spawnPos.x,
           y: spawnPos.y,
           isDead: false,
+          statusEffects: [], // Initialize with empty status effects
         });
       } else {
         remaining.push(data);
@@ -636,7 +706,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       projectiles: [],
       selectedTowerId: null,
       selectedTower: null,
-      selectedEnemy: null,
+      selectedEnemyId: null,
       spawnQueue: [],
       spawnElapsed: 0,
     }),

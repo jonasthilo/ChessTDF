@@ -294,8 +294,30 @@ export class PixiRenderer {
       sprite.addChild(levelIndicator);
     }
 
+    // Add aura circle for aura towers (King)
+    if (tower.attackType === 'aura' && tower.stats.auraRadius > 0) {
+      const auraCircle = this.createAuraCircle(tower.stats.auraRadius);
+      sprite.addChildAt(auraCircle, 0); // Behind the tower sprite
+    }
+
     this.towerLayer.addChild(sprite);
     this.towerSprites.set(tower.id, sprite);
+  }
+
+  private createAuraCircle(radius: number): Graphics {
+    const aura = new Graphics();
+    aura.label = 'auraCircle';
+
+    // Outer glow ring
+    aura.circle(0, 0, radius);
+    aura.stroke({ width: 2, color: 0xffd700, alpha: 0.4 });
+    aura.fill({ color: 0xffd700, alpha: 0.08 });
+
+    // Inner pulse effect
+    aura.circle(0, 0, radius * 0.8);
+    aura.stroke({ width: 1, color: 0xffd700, alpha: 0.2 });
+
+    return aura;
   }
 
   private updateTowerSprite(tower: Tower): void {
@@ -332,6 +354,16 @@ export class PixiRenderer {
       newRange.visible = wasVisible;
       newRange.label = 'rangeCircle';
       sprite.addChildAt(newRange, 0);
+    }
+
+    // Update aura circle if tower was upgraded (aura towers only)
+    if (tower.attackType === 'aura' && tower.stats.auraRadius > 0) {
+      const existingAura = sprite.children.find((child) => child.label === 'auraCircle');
+      if (existingAura) {
+        existingAura.destroy();
+      }
+      const auraCircle = this.createAuraCircle(tower.stats.auraRadius);
+      sprite.addChildAt(auraCircle, 0);
     }
   }
 
@@ -377,6 +409,48 @@ export class PixiRenderer {
     if (healthBar) {
       this.healthBarRenderer.updateHealthBar(healthBar, enemy.health, enemy.maxHealth);
     }
+
+    // Update status effect indicators
+    this.updateStatusEffectIndicators(sprite, enemy);
+  }
+
+  private updateStatusEffectIndicators(sprite: Container, enemy: Enemy): void {
+    // Remove existing status indicators
+    const existingIndicators = sprite.children.filter((child) => child.label === 'statusIndicator');
+    for (const indicator of existingIndicators) {
+      indicator.destroy();
+    }
+
+    if (enemy.statusEffects.length === 0) return;
+
+    // Status effect colors
+    const effectColors: Record<string, number> = {
+      slow: 0x2196f3, // Blue
+      poison: 0x4caf50, // Green
+      mark: 0xff9800, // Orange
+      armor_shred: 0x9c27b0, // Purple
+    };
+
+    // Create small colored dots for each active effect
+    const dotSize = 4;
+    const spacing = 10;
+    const startX = -((enemy.statusEffects.length - 1) * spacing) / 2;
+    const yOffset = -25; // Above the health bar
+
+    for (let i = 0; i < enemy.statusEffects.length; i++) {
+      const effect = enemy.statusEffects[i];
+      if (effect === undefined) continue;
+
+      const color = effectColors[effect.type] ?? 0xffffff;
+
+      const indicator = new Graphics();
+      indicator.label = 'statusIndicator';
+      indicator.circle(startX + i * spacing, yOffset, dotSize);
+      indicator.fill({ color });
+      indicator.stroke({ width: 1, color: 0x000000, alpha: 0.5 });
+
+      sprite.addChild(indicator);
+    }
   }
 
   private addProjectileSprite(projectile: Projectile): void {
@@ -421,19 +495,25 @@ export class PixiRenderer {
     // Create tower preview sprite
     // Get level 1 stats for this tower type to show preview stats
     const level1 = useGameStore.getState().getTowerLevelStats(towerDef.id, 1);
-    const previewStats = level1
-      ? {
-          cost: level1.cost,
-          damage: level1.damage,
-          range: level1.range,
-          fireRate: level1.fireRate,
-        }
-      : {
-          cost: 0,
-          damage: 0,
-          range: 0,
-          fireRate: 0,
-        };
+    const defaultStats = {
+      cost: 0,
+      damage: 0,
+      range: 0,
+      fireRate: 0,
+      projectileSpeed: 400,
+      splashRadius: 0,
+      splashChance: 0,
+      chainCount: 0,
+      pierceCount: 0,
+      targetCount: 1,
+      statusEffect: 'none' as const,
+      effectDuration: 0,
+      effectStrength: 0,
+      auraRadius: 0,
+      auraEffect: 'none' as const,
+      auraStrength: 0,
+    };
+    const previewStats = level1 ?? defaultStats;
 
     const towerSprite = this.spriteFactory.createTowerSprite({
       id: 'preview',
@@ -445,6 +525,8 @@ export class PixiRenderer {
       x: pixelPos.x,
       y: pixelPos.y,
       lastFireTime: 0,
+      attackType: towerDef.attackType,
+      targetingMode: towerDef.defaultTargeting,
     });
 
     // Position the tower sprite at the correct pixel location

@@ -3,6 +3,9 @@ export const TOWER_PIECE_MAP: Record<number, string> = {
   1: 'pawn',
   2: 'rook',
   3: 'knight',
+  4: 'bishop',
+  5: 'queen',
+  6: 'king',
 };
 
 // Enemy ID to piece name (for PixiJS texture lookups)
@@ -20,6 +23,9 @@ const TOWER_IMAGE_MAP: Record<number, string> = {
   1: '/assets/pieces/white/pawn.svg',
   2: '/assets/pieces/white/rook.svg',
   3: '/assets/pieces/white/knight.svg',
+  4: '/assets/pieces/white/bishop.svg',
+  5: '/assets/pieces/white/queen.svg',
+  6: '/assets/pieces/white/king.svg',
 };
 
 // Enemy ID to SVG asset path (for React img src)

@@ -12,8 +12,7 @@ export const GAME_CONFIG = {
   DEFAULT_CANVAS_WIDTH: 1200,
   DEFAULT_CANVAS_HEIGHT: 600,
 
-  // Projectile settings
-  PROJECTILE_SPEED: 400, // pixels per second
+  // Projectile settings (speed is now per-level in tower_levels)
   PROJECTILE_SIZE: 6,
 
   // Game loop

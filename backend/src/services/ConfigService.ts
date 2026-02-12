@@ -86,6 +86,19 @@ export class ConfigService {
           damage: Math.round(baseLevel.damage * scaleFactor * 1.2),
           range: Math.round(baseLevel.range + (level - 1) * 10),
           fireRate: parseFloat((baseLevel.fireRate * (1 + (level - 1) * 0.1)).toFixed(2)),
+          // Inherit special properties from base level (don't scale them)
+          projectileSpeed: baseLevel.projectileSpeed,
+          splashRadius: baseLevel.splashRadius,
+          splashChance: baseLevel.splashChance,
+          chainCount: baseLevel.chainCount,
+          pierceCount: baseLevel.pierceCount,
+          targetCount: baseLevel.targetCount,
+          statusEffect: baseLevel.statusEffect,
+          effectDuration: baseLevel.effectDuration,
+          effectStrength: baseLevel.effectStrength,
+          auraRadius: baseLevel.auraRadius,
+          auraEffect: baseLevel.auraEffect,
+          auraStrength: baseLevel.auraStrength,
         };
         await this.towerRepo.upsertTowerLevel(newLevel);
       }
@@ -116,9 +129,20 @@ export class ConfigService {
   private validateTowerLevel(level: TowerLevel): void {
     if (level.level < 1) throw new Error('Level must be at least 1');
     if (level.cost < 1) throw new Error('Cost must be at least 1');
-    if (level.damage < 1) throw new Error('Damage must be at least 1');
+    if (level.damage < 0) throw new Error('Damage cannot be negative');
     if (level.range < 1) throw new Error('Range must be at least 1');
     if (level.fireRate <= 0) throw new Error('Fire rate must be greater than 0');
+    if (level.projectileSpeed < 1) throw new Error('Projectile speed must be at least 1');
+    if (level.splashRadius < 0) throw new Error('Splash radius cannot be negative');
+    if (level.splashChance < 0 || level.splashChance > 100)
+      throw new Error('Splash chance must be between 0 and 100');
+    if (level.chainCount < 0) throw new Error('Chain count cannot be negative');
+    if (level.pierceCount < 0) throw new Error('Pierce count cannot be negative');
+    if (level.targetCount < 1) throw new Error('Target count must be at least 1');
+    if (level.effectDuration < 0) throw new Error('Effect duration cannot be negative');
+    if (level.effectStrength < 0) throw new Error('Effect strength cannot be negative');
+    if (level.auraRadius < 0) throw new Error('Aura radius cannot be negative');
+    if (level.auraStrength < 0) throw new Error('Aura strength cannot be negative');
   }
 
   // ==================== Enemy Definitions ====================

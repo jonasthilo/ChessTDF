@@ -13,7 +13,7 @@ KISS, YAGNI, DRY. Auto-reload on code changes. Only restart containers for DB sc
 | Area | Location |
 |------|----------|
 | Game state + API calls | `state/gameStore.ts` (single source of truth) |
-| Game loop + systems | `game/GameEngine.ts` → systems/ (Enemy, Tower, Projectile, Collision) |
+| Game loop + systems | `game/GameEngine.ts` → systems/ (Enemy, Tower, Projectile, Collision, StatusEffect) |
 | Grid/path math | `game/managers/GridManager.ts`, `PathManager.ts` |
 | Rendering | `game/rendering/PixiRenderer.ts`, `SpriteFactory.ts`, `HealthBarRenderer.ts` |
 | Assets | `game/managers/AssetLoader.ts` (chess piece SVGs) |
@@ -21,7 +21,7 @@ KISS, YAGNI, DRY. Auto-reload on code changes. Only restart containers for DB sc
 | Routing | `App.tsx` (`/`→Main, `/settings`, `/statistics`, `/game/:gameId`, `*`→redirect) |
 | Screens | `components/screens/` (MainScreen, GameScreen, SettingsScreen, StatisticsScreen) |
 | HUD | `components/hud/` (TowerPanel, TowerModal, EnemyStatsPanel, GameControls, PlayerStats, WaveInfo, EndGameModal, ViewportWarning) |
-| Common UI | `components/common/` (ScreenLayout, AppNav, DifficultySelector, VersionDisplay, NumberField, TextField) |
+| Common UI | `components/common/` (ScreenLayout, AppNav, DifficultySelector, VersionDisplay, NumberField, TextField, SelectField) |
 | Settings editors | `components/screens/settings/` (TowerEditor, EnemyEditor, SettingsEditor, TowerLevelEditor) |
 | Styles | `styles/variables.css`, `styles/shared.css` (`.btn` + `.btn-gold`/`.btn-dark`/`.btn-danger`/`.btn-ghost`, `.btn-sm`/`.btn-lg`), `styles/animations.css` |
 | Types | `types/index.ts` (frontend), `backend/src/types/index.ts` |
@@ -37,8 +37,9 @@ KISS, YAGNI, DRY. Auto-reload on code changes. Only restart containers for DB sc
 
 ## Data Model
 Tables: tower_definitions, tower_levels, enemy_definitions, wave_definitions, game_settings, game_sessions, game_statistics
-Tower IDs: 1=Basic(pawn), 2=Sniper(rook), 3=Rapid(knight) | Enemy IDs: 1=Pawn, 2=Knight, 3=Bishop, 4=Rook, 5=Queen, 6=King
-Game modes: `10waves | 20waves | endless` | Difficulty: `easy | normal | hard | custom` (multipliers for cost/hp/speed/reward)
+Tower IDs: 1=Morphy(pawn/single), 2=Carlsen(rook/pierce), 3=Tal(knight/slow+splash), 4=Kasparov(bishop/chain+poison), 5=Fischer(queen/multi+mark), 6=Petrosian(king/aura)
+Enemy IDs: 1=Pawn, 2=Knight, 3=Bishop, 4=Rook, 5=Queen, 6=King
+Game modes: `10waves | 20waves | endless` | Difficulty: `easy | normal | hard | custom`
 Waves defined up to 11; beyond 11 reuses wave 11 composition. Sell refund = 70% total invested.
 Flow: DB → repository → service → controller → API → frontend store → systems → renderer
 
@@ -93,4 +94,4 @@ Git short hash via Vite `__GIT_HASH__` define. package.json versions = 0.0.0 (un
 ## Open Tasks
 - Test 50+ enemies, add object pooling
 - Tune tower costs + enemy stats
-- Post-MVP: area effects, curved paths, maps, achievements, graphics, audio, auto waves
+- Post-MVP: curved paths, maps, achievements, graphics, audio, auto waves

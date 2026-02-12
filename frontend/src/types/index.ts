@@ -1,5 +1,12 @@
 // Shared TypeScript Type Definitions for Chess Tower Defense
 
+// Tower Attack and Targeting Types (mirrored from backend)
+export type AttackType = 'single' | 'pierce' | 'splash' | 'chain' | 'multi' | 'aura';
+export type ProjectileType = 'homing' | 'ballistic' | 'lob';
+export type TargetingMode = 'first' | 'last' | 'nearest' | 'strongest' | 'weakest';
+export type StatusEffectType = 'none' | 'slow' | 'poison' | 'armor_shred' | 'mark';
+export type AuraEffectType = 'none' | 'damage_buff' | 'speed_buff' | 'range_buff';
+
 // Tower Definition (Static configuration - metadata only)
 export interface TowerDefinition {
   id: number;
@@ -7,6 +14,9 @@ export interface TowerDefinition {
   color: string;
   description: string;
   maxLevel: number;
+  attackType: AttackType;
+  projectileType: ProjectileType;
+  defaultTargeting: TargetingMode;
 }
 
 // Tower Level (Per-level stats for a tower type)
@@ -18,6 +28,23 @@ export interface TowerLevel {
   damage: number;
   range: number;
   fireRate: number; // shots per second
+  // Projectile properties
+  projectileSpeed: number;
+  // Splash properties
+  splashRadius: number;
+  splashChance: number; // 0-100%
+  // Multi-target properties
+  chainCount: number;
+  pierceCount: number;
+  targetCount: number;
+  // Status effect properties
+  statusEffect: StatusEffectType;
+  effectDuration: number; // milliseconds
+  effectStrength: number; // percentage (e.g., 20 = 20% slow, or DPS for poison)
+  // Aura properties
+  auraRadius: number;
+  auraEffect: AuraEffectType;
+  auraStrength: number; // percentage (e.g., 15 = 15% buff)
 }
 
 // Tower definition with all its levels included
@@ -26,7 +53,29 @@ export interface TowerDefinitionWithLevels extends TowerDefinition {
 }
 
 // Tower runtime stats (derived from TowerLevel at current level)
-export type TowerStats = Pick<TowerLevel, 'cost' | 'damage' | 'range' | 'fireRate'>;
+export interface TowerStats {
+  cost: number;
+  damage: number;
+  range: number;
+  fireRate: number;
+  // Projectile properties
+  projectileSpeed: number;
+  // Splash properties
+  splashRadius: number;
+  splashChance: number;
+  // Multi-target properties
+  chainCount: number;
+  pierceCount: number;
+  targetCount: number;
+  // Status effect properties
+  statusEffect: StatusEffectType;
+  effectDuration: number;
+  effectStrength: number;
+  // Aura properties
+  auraRadius: number;
+  auraEffect: AuraEffectType;
+  auraStrength: number;
+}
 
 // Enemy Definition (Static configuration)
 export interface EnemyDefinition {
@@ -40,6 +89,14 @@ export interface EnemyDefinition {
   size: number;
 }
 
+// Status Effect Instance (Runtime - active on an enemy)
+export interface StatusEffect {
+  type: StatusEffectType;
+  duration: number; // remaining duration in ms
+  strength: number; // effect strength (e.g., 20% slow, or DPS for poison)
+  sourceId: string; // tower ID that applied this effect
+}
+
 // Tower Instance (Runtime game object)
 export interface Tower {
   id: string;
@@ -48,9 +105,12 @@ export interface Tower {
   gridY: number;
   x: number; // pixel position
   y: number;
-  level: number; // NOW REQUIRED
-  stats: TowerStats; // Replaces definition field
+  level: number;
+  stats: TowerStats;
   lastFireTime: number;
+  // Runtime properties (hydrated from definition)
+  attackType: AttackType;
+  targetingMode: TargetingMode;
 }
 
 // Enemy Instance (Runtime game object)
@@ -64,6 +124,7 @@ export interface Enemy {
   x: number;
   y: number;
   isDead: boolean;
+  statusEffects: StatusEffect[];
 }
 
 // Projectile (Runtime game object)
@@ -74,6 +135,20 @@ export interface Projectile {
   targetId: string;
   damage: number;
   speed: number;
+  // Attack behavior metadata (for collision resolution)
+  attackType: AttackType;
+  sourceTowerId: string; // tower that fired this projectile
+  // Pierce/chain tracking
+  hitEnemyIds: string[]; // enemies already hit (for pierce/chain)
+  pierceRemaining: number;
+  chainRemaining: number;
+  // Splash properties
+  splashRadius: number;
+  splashChance: number;
+  // Status effect to apply on hit
+  statusEffect: StatusEffectType;
+  effectDuration: number;
+  effectStrength: number;
 }
 
 // Enemy Spawn Data
